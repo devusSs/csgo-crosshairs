@@ -1,0 +1,77 @@
+# Update the version to your needs via env / shell.
+BUILD_VERSION=$(CHS_BUILD_VERSION)
+
+# DO NOT CHANGE.
+BUILD_DATE=$$(date +%Y.%m.%d-%H:%M:%S)
+
+# DO NOT CHANGE.
+BUILD_OS 				:=
+ifeq ($(OS),Windows_NT)
+	BUILD_OS = windows
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		BUILD_OS = linux
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		BUILD_OS = darwin
+	endif
+endif
+
+# DO NOT CHANGE.
+BUILD_ARCH				:=
+ifeq ($(OS),Windows_NT)
+	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+		BUILD_ARCH = amd64
+	endif
+	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+		BUILD_ARCH = 386
+	endif
+else
+		UNAME_P := $(shell uname -p)
+	ifeq ($(UNAME_P),x86_64)
+		BUILD_ARCH = amd64
+	endif
+		ifneq ($(filter %86,$(UNAME_P)),)
+	BUILD_ARCH = 386
+		endif
+	ifneq ($(filter arm%,$(UNAME_P)),)
+		BUILD_ARCH = arm64
+	endif
+endif
+
+# DO NOT CHANGE.
+build: 
+	@[ "${CHS_BUILD_VERSION}" ] || ( echo "CHS_BUILD_VERSION is not set"; exit 1 )
+	@echo "Building app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
+	@go mod tidy
+	@GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE)" -o release/chs_windows_amd64/ ./...
+	@GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE)" -o release/chs_linux_amd64/ ./...
+	@GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE)" -o release/chs_darwin_arm64/ ./...
+	@echo "Done building app"
+
+# DO NOT CHANGE.
+dev: build
+	@clear
+	@rm -rf ./testing
+	@mkdir ./testing
+	@mkdir ./testing/files
+	@cp -R ./files ./testing
+	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
+	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
+
+# DO NOT CHANGE.
+version: build
+	@clear
+	@rm -rf ./testing
+	@mkdir ./testing
+	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
+	@cd ./testing && ./crosshairs -v
+
+# DO NOT CHANGE.
+clean:
+	@clear
+	@go mod tidy
+	@rm -rf ./release/
+	@rm -rf ./dist/
+	@rm -rf ./testing/

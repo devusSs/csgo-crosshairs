@@ -1,0 +1,10 @@
+{
+  "postgres_host": "",
+  "postgres_port": 0,
+  "postgres_user": "",
+  "postrges_password": "",
+  "postgres_database": "",
+  "api_host": "",
+  "api_port": 0,
+  "backend_domain": ""
+}
