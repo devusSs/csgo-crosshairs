@@ -79,3 +79,7 @@ clean:
 # DO NOT CHANGE.
 dev-postgres:
 	@docker run --name pg-chs -e POSTGRES_PASSWORD=crosshairs -e POSTGRES_USER=crosshairs -e POSTGRES_DB=crosshairs -p 5432:5432 -d postgres
+
+# DO NOT CHANGE.
+lint:
+	@golangci-lint run -v
