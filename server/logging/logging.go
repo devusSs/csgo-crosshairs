@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"gorm.io/gorm/logger"
 )
 
 const (
@@ -23,6 +24,7 @@ var (
 
 	appLogFile   *os.File
 	errorLogFile *os.File
+	gormLogFile  *os.File
 )
 
 func WriteInfo(message interface{}) {
@@ -94,5 +96,28 @@ func CloseLogFiles() error {
 	if err := appLogFile.Close(); err != nil {
 		return err
 	}
-	return errorLogFile.Close()
+	if err := errorLogFile.Close(); err != nil {
+		return err
+	}
+	return gormLogFile.Close()
+}
+
+func CreateGormLogger() (logger.Interface, error) {
+	logFileName := fmt.Sprintf("%s/gorm_%d_%d_%d.log", defaultLogPath, year, int(month), day)
+	f, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+	gormLogFile = f
+
+	return logger.New(
+		log.New(gormLogFile, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  logger.Silent,
+			IgnoreRecordNotFoundError: true,
+			ParameterizedQueries:      true,
+			Colorful:                  false,
+		},
+	), nil
 }
