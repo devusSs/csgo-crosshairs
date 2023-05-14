@@ -46,3 +46,10 @@ func (p *psql) CloseConnection() error {
 	}
 	return db.Close()
 }
+
+func (p *psql) MakeMigrations() error {
+	if err := p.db.AutoMigrate(&database.UserAccount{}); err != nil {
+		return err
+	}
+	return p.db.AutoMigrate(&database.Crosshair{})
+}

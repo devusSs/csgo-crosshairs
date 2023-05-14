@@ -65,6 +65,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := svc.MakeMigrations(); err != nil {
+		logging.WriteError(err.Error())
+		os.Exit(1)
+	}
+
 	// ! App exit.
 	if err := svc.CloseConnection(); err != nil {
 		log.Fatalf("[%s] Error closing database connection: %s\n", logging.ErrSign, err.Error())
