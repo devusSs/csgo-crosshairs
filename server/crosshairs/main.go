@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/devusSs/crosshairs/config"
+	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/updater"
 )
@@ -35,6 +36,11 @@ func main() {
 		log.Fatalf("[%s] Error creating error logger: %s\n", logging.ErrSign, err.Error())
 	}
 
+	gormLogger, err := logging.CreateGormLogger()
+	if err != nil {
+		log.Fatalf("[%s] Error creating gorm logger: %s\n", logging.ErrSign, err.Error())
+	}
+
 	// ! It is safe to use WriteX methods from here.
 
 	cfg, err := config.LoadConfig(*cfgPath)
@@ -48,7 +54,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	svc, err := postgres.NewConnection(cfg, gormLogger)
+	if err != nil {
+		logging.WriteError(err.Error())
+		os.Exit(1)
+	}
+
+	if err := svc.TestConnection(); err != nil {
+		logging.WriteError(err.Error())
+		os.Exit(1)
+	}
+
 	// ! App exit.
+	if err := svc.CloseConnection(); err != nil {
+		log.Fatalf("[%s] Error closing database connection: %s\n", logging.ErrSign, err.Error())
+	}
+
 	if err := logging.CloseLogFiles(); err != nil {
 		log.Fatalf("[%s] Error closing log files: %s\n", logging.ErrSign, err.Error())
 	}
