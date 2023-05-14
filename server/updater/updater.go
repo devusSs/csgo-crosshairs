@@ -11,6 +11,7 @@ var (
 	buildOS      = runtime.GOOS
 	buildARCH    = runtime.GOARCH
 	buildGo      = runtime.Version()
+	buildMode    = ""
 )
 
 func PrintBuildInfo() {
@@ -34,4 +35,11 @@ func PrintBuildInfo() {
 	fmt.Printf("Build os: \t\t%s\n", buildOS)
 	fmt.Printf("Build arch: \t\t%s\n", buildARCH)
 	fmt.Printf("Build Go version: \t%s\n", buildGo)
+
+	switch buildMode {
+	case "":
+		fmt.Printf("Build mode: \t\tunset\n")
+	default:
+		fmt.Printf("Build mode: \t\t%s\n", buildMode)
+	}
 }
