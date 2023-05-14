@@ -5,10 +5,10 @@
 | POST   | /api/users/login                 | login for existing users                                | ❌     | ❌          |
 |        |                                  |                                                         |        |             |
 | GET    | /api/crosshairs                  | gets all saved crosshairs from a specific user          | ❌     | ✅ (user)   |
-| GET    | /api/crosshairs?code=            | gets a specific crosshair by it's code                  | ❌     | ✅ (admin)  |
-| GET    | /api/crosshairs?date=            | gets crosshairs specified by a date range or single dat | ❌     | ✅ (admin)  |
-| DELETE | /api/crosshairs                  | deletes all saved crosshairs from a specific user       | ❌     | ✅ (admin)  |
-| DELETE | /api/crosshairs/:code            | deletes a specific crosshair by it's code               | ❌     | ✅ (admin)  |
+| GET    | /api/crosshairs?code=            | gets a specific crosshair by it's code                  | ❌     | ✅ (user)   |
+| GET    | /api/crosshairs?date=            | gets crosshairs specified by a date range or single dat | ❌     | ✅ (user)   |
+| DELETE | /api/crosshairs                  | deletes all saved crosshairs from a specific user       | ❌     | ✅ (user)   |
+| DELETE | /api/crosshairs/:code            | deletes a specific crosshair by it's code               | ❌     | ✅ (user)   |
 |        |                                  |                                                         |        |             |
 | GET    | /api/admins/users                | gets all users registered                               | ❌     | ✅ (admin)  |
 | GET    | /api/admins/users?email=         | gets a user by their email                              | ❌     | ✅ (admin)  |
