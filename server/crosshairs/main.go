@@ -6,10 +6,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/devusSs/crosshairs/api"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/updater"
+	"github.com/devusSs/crosshairs/utils"
 )
 
 func main() {
@@ -17,10 +19,18 @@ func main() {
 
 	printBuild := flag.Bool("v", false, "prints build information")
 	cfgPath := flag.String("c", "./files/config.json", "sets config path")
+	scFlag := flag.Bool("sc", false, "generates secret keys")
 	flag.Parse()
 
 	if *printBuild {
 		updater.PrintBuildInfo()
+		return
+	}
+
+	if *scFlag {
+		log.Printf("[%s] Sessions secret key: \t%s\n", logging.WarnSign, utils.RandomString(24))
+		log.Printf("[%s] Admin key: \t\t%s\n", logging.WarnSign, utils.RandomString(36))
+		log.Printf("[%s] Make sure to add these to your config file and NEVER SHARE THEM WITH ANYONE!", logging.WarnSign)
 		return
 	}
 
@@ -67,6 +77,30 @@ func main() {
 
 	if err := svc.MakeMigrations(); err != nil {
 		logging.WriteError(err.Error())
+		os.Exit(1)
+	}
+
+	apiLogFile, err := logging.CreateAPILogFile()
+	if err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	apiServer, err := api.NewAPIInstance(cfg, apiLogFile)
+	if err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	if err := apiServer.SetupSessions(cfg); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	apiServer.SetupRoutes(svc)
+
+	if err := apiServer.StartAPI(); err != nil {
+		logging.WriteError(err)
 		os.Exit(1)
 	}
 
