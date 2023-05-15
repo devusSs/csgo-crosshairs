@@ -29,7 +29,7 @@
 - GET /api/users/me (needs user auth)
 
   - does not need a JSON request body
-  - only needs the JWT as "Authorization: Bearer <token>" header
+  - authorization will be fetched from sessions cookie
 
 - POST /api/users/register
 
@@ -61,13 +61,13 @@
   ```
 
 - every other route does not need a request body
-- only needs the JWT as "Authorization: Bearer <token>" header
+- authorization will be fetched from sessions cookie
 
 ### Admin routes
 
 - no route needs a request body
-- only needs the JWT as "Authorization: Bearer <token>" header
-- make sure the JWT of the user has admin role
+- authorization will be fetched from sessions cookie
+- make sure the user has admin role
 
 ## Response structure
 
