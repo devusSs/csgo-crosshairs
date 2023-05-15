@@ -1,3 +1,7 @@
+# Routes, requests and response structure
+
+## Routes
+
 | Method | Route                           | Description                                             | Status | Auth needed |
 | ------ | ------------------------------- | ------------------------------------------------------- | ------ | ----------- |
 | GET    | /api/users/me                   | gets information about the logged in user               | ❌     | ❌          |
@@ -17,3 +21,81 @@
 | GET    | /api/admins/crosshairs?code=    | gets a crosshair by it's code                           | ❌     | ✅ (admin)  |
 | GET    | /api/admins/events?limit=       | gets X (limit) most recent events                       | ❌     | ✅ (admin)  |
 | GET    | /api/admins/events?type=&limit= | gets X (limit) most recent events by a specific type    | ❌     | ✅ (admin)  |
+
+## Requests structure
+
+### User routes
+
+- GET /api/users/me (needs user auth)
+
+  - does not need a JSON request body
+  - only needs the JWT as "Authorization: Bearer <token>" header
+
+- POST /api/users/register
+
+  ```json
+  {
+    "e_mail": "",
+    "password": "",
+    "admin_token": "blank_or_valid_token"
+  }
+  ```
+
+- POST /api/users/login
+
+  ```json
+  {
+    "e_mail": "",
+    "password": ""
+  }
+  ```
+
+### Crosshair routes
+
+- POST /api/crosshairs (needs user auth)
+
+  ```json
+  {
+    "code": "the encoded crosshair code"
+  }
+  ```
+
+- every other route does not need a request body
+- only needs the JWT as "Authorization: Bearer <token>" header
+
+### Admin routes
+
+- no route needs a request body
+- only needs the JWT as "Authorization: Bearer <token>" header
+- make sure the JWT of the user has admin role
+
+## Response structure
+
+### Generalised JSON responses
+
+- every route returns the same base (!) JSON structure
+
+### For success responses
+
+```json
+{
+    "code": 20X,
+    "data": {}
+}
+```
+
+### For fail responses
+
+```json
+{
+    "code": 40X / 500,
+    "error": {
+        "error_code": "e.g. not_found",
+        "error_message": "This is a formal written description of the error code."
+    }
+}
+```
+
+### Route specific responses
+
+- to be implemented...
