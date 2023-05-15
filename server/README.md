@@ -21,3 +21,7 @@ It is highly recommended to use the [Makefile](Makefile) / [GNU Make](https://ww
 - `make dev-postgres` to generate a working Postgres instance using Docker (needs to be installed).
 
 - `make lint` linting Go code using golangci-lint (needs to be installed).
+
+## API routes, requests & responses structure
+
+The documentation can be found in the [docs directory](docs).
