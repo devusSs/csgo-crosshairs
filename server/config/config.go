@@ -8,14 +8,16 @@ import (
 )
 
 type Config struct {
-	PostgresHost     string `json:"postgres_host"`
-	PostgresPort     int    `json:"postgres_port"`
-	PostgresUser     string `json:"postgres_user"`
-	PostgresPassword string `json:"postgres_password"`
-	PostgresDB       string `json:"postgres_database"`
-	APIHost          string `json:"api_host"`
-	APIPort          int    `json:"api_port"`
-	BackendDomain    string `json:"backend_domain"`
+	PostgresHost      string `json:"postgres_host"`
+	PostgresPort      int    `json:"postgres_port"`
+	PostgresUser      string `json:"postgres_user"`
+	PostgresPassword  string `json:"postgres_password"`
+	PostgresDB        string `json:"postgres_database"`
+	APIHost           string `json:"api_host"`
+	APIPort           int    `json:"api_port"`
+	BackendDomain     string `json:"backend_domain"`
+	SecretSessionsKey string `json:"secret_sessions_key"`
+	AdminKey          string `json:"admin_key"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {
@@ -70,6 +72,14 @@ func (c *Config) CheckConfig() error {
 
 	if c.BackendDomain == "" {
 		return errors.New("missing key: backend_domain")
+	}
+
+	if c.SecretSessionsKey == "" {
+		return errors.New("missing key: secret_sessions_key")
+	}
+
+	if c.AdminKey == "" {
+		return errors.New("missing key: admin_key")
 	}
 
 	return nil

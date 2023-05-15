@@ -6,5 +6,7 @@
   "postgres_database": "",
   "api_host": "",
   "api_port": 0,
-  "backend_domain": ""
+  "backend_domain": "",
+  "secret_sessions_key": "can be generated using -sc flag",
+  "admin_key": "can be generated using -sc flag"
 }
