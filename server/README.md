@@ -24,4 +24,4 @@ It is highly recommended to use the [Makefile](Makefile) / [GNU Make](https://ww
 
 ## API routes, requests & responses structure
 
-The documentation can be found in the [docs directory](docs).
+The documentation can be found in the [docs directory](api/docs).
