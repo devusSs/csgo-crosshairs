@@ -71,6 +71,14 @@ version: build
 	@cd ./testing && ./crosshairs -v
 
 # DO NOT CHANGE.
+secret-keys: build
+	@clear
+	@rm -rf ./testing
+	@mkdir ./testing
+	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
+	@cd ./testing && ./crosshairs -sc
+
+# DO NOT CHANGE.
 clean:
 	@clear
 	@go mod tidy
