@@ -19,6 +19,7 @@ type UserAccount struct {
 
 	EMail    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
+	Role     string `gorm:"not null"`
 
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string
