@@ -82,6 +82,7 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 
 	if updater.BuildMode == "dev" {
 		store.Options(sessions.Options{
+			Path:     "/",
 			HttpOnly: true,
 			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry, does not really matter for dev
 			Secure:   false,
@@ -119,6 +120,14 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			users.POST("/login", routes.LoginUserRoute)
 			users.GET("/me", routes.GetUserRoute)
 			users.GET("/logout", routes.LogoutUserRoute)
+		}
+
+		crosshairs := base.Group("/crosshairs")
+		{
+			crosshairs.POST("/", routes.AddCrosshairRoute)
+			crosshairs.GET("/", routes.GetAllCrosshairsFromUserRoute)
+			crosshairs.DELETE("/", routes.DeleteAllCrosshairsFromUserRoute)
+			crosshairs.DELETE("/:code", routes.DeleteOneCrosshairFromUserRoute)
 		}
 	}
 }

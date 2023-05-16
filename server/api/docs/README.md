@@ -10,12 +10,12 @@
 | POST   | /api/users/login                | login for existing users                                | ✅     | ❌          |
 | GET    | /api/users/logout               | logout for logged in user                               | ✅     | ✅ (user)   |
 |        |                                 |                                                         |        |             |
-| GET    | /api/crosshairs                 | gets all saved crosshairs from a specific user          | ❌     | ✅ (user)   |
-| GET    | /api/crosshairs?code=           | gets a specific crosshair by it's code                  | ❌     | ✅ (user)   |
-| GET    | /api/crosshairs?date=           | gets crosshairs specified by a date range or single dat | ❌     | ✅ (user)   |
-| POST   | /api/crosshairs                 | saves a new crosshair from a specific user              | ❌     | ✅ (user)   |
-| DELETE | /api/crosshairs                 | deletes all saved crosshairs from a specific user       | ❌     | ✅ (user)   |
-| DELETE | /api/crosshairs/:code           | deletes a specific crosshair by it's code               | ❌     | ✅ (user)   |
+| GET    | /api/crosshairs                 | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)   |
+| GET    | /api/crosshairs?code=           | gets a specific crosshair by it's code                  | ✅     | ✅ (user)   |
+| GET    | /api/crosshairs?start=&end=     | gets crosshairs specified by a date range or single dat | ✅     | ✅ (user)   |
+| POST   | /api/crosshairs                 | saves a new crosshair from a specific user              | ✅     | ✅ (user)   |
+| DELETE | /api/crosshairs                 | deletes all saved crosshairs from a specific user       | ✅     | ✅ (user)   |
+| DELETE | /api/crosshairs/:code           | deletes a specific crosshair by it's code               | ✅     | ✅ (user)   |
 |        |                                 |                                                         |        |             |
 | GET    | /api/admins/users               | gets all users registered                               | ❌     | ✅ (admin)  |
 | GET    | /api/admins/users?email=        | gets a user by their email                              | ❌     | ✅ (admin)  |
