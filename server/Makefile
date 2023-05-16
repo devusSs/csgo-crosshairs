@@ -58,6 +58,7 @@ dev: build
 	@rm -rf ./testing
 	@mkdir ./testing
 	@mkdir ./testing/files
+	@cp -R ./templates ./testing
 	@cp -R ./files ./testing
 	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
 	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
@@ -88,7 +89,11 @@ clean:
 
 # DO NOT CHANGE.
 dev-postgres:
-	@docker run --name pg-chs -e POSTGRES_PASSWORD=crosshairs -e POSTGRES_USER=crosshairs -e POSTGRES_DB=crosshairs -p 5432:5432 -d postgres
+	@docker run --rm --name pg-chs -e POSTGRES_PASSWORD=crosshairs -e POSTGRES_USER=crosshairs -e POSTGRES_DB=crosshairs -p 5432:5432 -d postgres
+
+# DO NOT CHANGE.
+drop-postgres:
+	@docker stop pg-chs
 
 # DO NOT CHANGE.
 lint:
