@@ -1,16 +1,14 @@
 import StyleMenu from './components/styleMenu.tsx'
 import ColorMenu from './components/colorMenu.tsx'
-import GapMenu from './components/gapMenu.tsx'
-import ThicknessMenu from './components/thicknessMenu.tsx'
+import CrosshairStylingMenu from './components/crosshairStylingMenu.tsx'
 
 const App = () => {
 
   return (
-    <div>  
+    <div className='border-2 items-center flex w-1/2 h-1/2'>  
       <StyleMenu/>
       <ColorMenu/>
-      <GapMenu/>
-      <ThicknessMenu/>
+      <CrosshairStylingMenu/>
     </div>
   )
 }
