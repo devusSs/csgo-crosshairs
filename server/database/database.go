@@ -16,6 +16,7 @@ type Service interface {
 	UpdateUserVerification(*UserAccount) (*UserAccount, error)
 	GetUserByEmail(*UserAccount) (*UserAccount, error)
 	UpdateUserLogin(*UserAccount) (*UserAccount, error)
+	GetUserByUID(*UserAccount) (*UserAccount, error)
 }
 
 type UserAccount struct {

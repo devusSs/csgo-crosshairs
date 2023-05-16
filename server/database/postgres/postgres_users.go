@@ -26,3 +26,8 @@ func (p *psql) UpdateUserLogin(user *database.UserAccount) (*database.UserAccoun
 	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Updates(database.UserAccount{LoginIP: user.LoginIP, LastLogin: user.LastLogin})
 	return user, tx.Error
 }
+
+func (p *psql) GetUserByUID(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).First(&user)
+	return user, tx.Error
+}
