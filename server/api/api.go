@@ -80,12 +80,29 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 		return err
 	}
 
+	if updater.BuildMode == "dev" {
+		store.Options(sessions.Options{
+			HttpOnly: true,
+			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry, does not really matter for dev
+			Secure:   false,
+		})
+	} else {
+		store.Options(sessions.Options{
+			Path:     "/",
+			Domain:   cfg.BackendDomain,
+			HttpOnly: true,
+			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry
+			Secure:   true,
+		})
+	}
+
 	api.Engine.Use(sessions.Sessions("sessions", store))
 
 	return nil
 }
 
-func (api *API) SetupRoutes(db database.Service) {
+func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
+	routes.CFG = cfg
 	routes.Svc = db
 
 	api.Engine.NoRoute(routes.NotFoundRoute)
@@ -94,6 +111,15 @@ func (api *API) SetupRoutes(db database.Service) {
 	base := api.Engine.Group("/api")
 	{
 		base.GET("/", routes.HomeRoute)
+
+		users := base.Group("/users")
+		{
+			users.POST("/register", routes.RegisterUserRoute)
+			users.GET("/verifyMail/:code", routes.VerifyUserEMailRoute)
+			users.POST("/login", routes.LoginUserRoute)
+			users.GET("/me", routes.GetUserRoute)
+			users.GET("/logout", routes.LogoutUserRoute)
+		}
 	}
 }
 
@@ -102,6 +128,8 @@ func (api *API) StartAPI() error {
 		Addr:    fmt.Sprintf("%s:%d", api.Host, api.Port),
 		Handler: api.Engine,
 	}
+
+	routes.SRVAddr = srv.Addr
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
