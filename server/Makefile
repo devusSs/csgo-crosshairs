@@ -64,6 +64,17 @@ dev: build
 	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
 
 # DO NOT CHANGE.
+full-dev: drop-postgres dev-postgres build
+	@clear
+	@rm -rf ./testing
+	@mkdir ./testing
+	@mkdir ./testing/files
+	@cp -R ./templates ./testing
+	@cp -R ./files ./testing
+	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
+	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
+
+# DO NOT CHANGE.
 version: build
 	@clear
 	@rm -rf ./testing
