@@ -9,6 +9,8 @@
 | GET    | /api/users/verifyMail/:code     | verified the user's email on registration               | ✅     | ❌          |
 | POST   | /api/users/login                | login for existing users                                | ✅     | ❌          |
 | GET    | /api/users/logout               | logout for logged in user                               | ✅     | ✅ (user)   |
+| POST   | /api/users/resetPass            | reset password for registered user                      | ❌     | ❌          |
+| GET    | /api/users/resetPass/:code      | check reset password code from email                    | ❌     | ❌          |
 |        |                                 |                                                         |        |             |
 | GET    | /api/crosshairs                 | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)   |
 | GET    | /api/crosshairs?code=           | gets a specific crosshair by it's code                  | ✅     | ✅ (user)   |
