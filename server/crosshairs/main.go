@@ -97,7 +97,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	apiServer.SetupRoutes(svc)
+	apiServer.SetupRoutes(svc, cfg)
 
 	if err := apiServer.StartAPI(); err != nil {
 		logging.WriteError(err)
