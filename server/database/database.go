@@ -17,6 +17,13 @@ type Service interface {
 	GetUserByEmail(*UserAccount) (*UserAccount, error)
 	UpdateUserLogin(*UserAccount) (*UserAccount, error)
 	GetUserByUID(*UserAccount) (*UserAccount, error)
+	UpdateUserCrosshairCount(*UserAccount) (*UserAccount, error)
+
+	AddCrosshair(*Crosshair) (*Crosshair, error)
+	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
+	DeleteAllCrosshairsFromUser(uuid.UUID) error
+	DeleteCrosshairFromUserByCode(uuid.UUID, string) error
+	EditCrosshairNote(*Crosshair) (*Crosshair, error)
 }
 
 type UserAccount struct {
@@ -33,12 +40,18 @@ type UserAccount struct {
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string
 	LastLogin  time.Time
+
+	// For now we will only allow 20 crosshairs per user.
+	CrosshairsRegistered int
 }
 
 type Crosshair struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	CreatedAt time.Time
 
-	RegistrantID uuid.UUID `gorm:"type:uuid;not null" json:"registrant_id"`
-	Code         string    `gorm:"not null" json:"code"`
+	RegistrantID uuid.UUID `gorm:"type:uuid;not null"`
+	Code         string    `gorm:"not null"`
+	Note         string
+
+	RegisterIP string `gorm:"not null"`
 }

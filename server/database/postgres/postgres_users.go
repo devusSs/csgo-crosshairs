@@ -31,3 +31,8 @@ func (p *psql) GetUserByUID(user *database.UserAccount) (*database.UserAccount, 
 	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).First(&user)
 	return user, tx.Error
 }
+
+func (p *psql) UpdateUserCrosshairCount(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).Update("crosshairs_registered", user.CrosshairsRegistered+1)
+	return user, tx.Error
+}
