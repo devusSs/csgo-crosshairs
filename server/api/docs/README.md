@@ -4,9 +4,11 @@
 
 | Method | Route                           | Description                                             | Status | Auth needed |
 | ------ | ------------------------------- | ------------------------------------------------------- | ------ | ----------- |
-| GET    | /api/users/me                   | gets information about the logged in user               | ❌     | ❌          |
+| GET    | /api/users/me                   | gets information about the logged in user               | ❌     | ✅ (user)   |
 | POST   | /api/users/register             | registers a new user                                    | ❌     | ❌          |
+| GET    | /api/users/verifyMail/:code     | verified the user's email on registration               | ❌     | ❌          |
 | POST   | /api/users/login                | login for existing users                                | ❌     | ❌          |
+| GET    | /api/users/logout               | logout for logged in user                               | ❌     | ✅ (user)   |
 |        |                                 |                                                         |        |             |
 | GET    | /api/crosshairs                 | gets all saved crosshairs from a specific user          | ❌     | ✅ (user)   |
 | GET    | /api/crosshairs?code=           | gets a specific crosshair by it's code                  | ❌     | ✅ (user)   |
