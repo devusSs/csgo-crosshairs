@@ -91,7 +91,7 @@ secret-keys: build
 	@cd ./testing && ./crosshairs -sc
 
 # DO NOT CHANGE.
-clean:
+clean: drop-postgres
 	@clear
 	@go mod tidy
 	@rm -rf ./release/
