@@ -10,6 +10,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+const (
+	tableUsers      = "user_accounts"
+	tableCrosshairs = "crosshairs"
+)
+
 type psql struct {
 	db *gorm.DB
 }
