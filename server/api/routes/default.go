@@ -5,12 +5,14 @@ import (
 	"net/http"
 
 	"github.com/devusSs/crosshairs/api/responses"
+	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
 	"github.com/gin-gonic/gin"
 )
 
 var (
 	Svc database.Service
+	CFG *config.Config
 )
 
 func NotFoundRoute(c *gin.Context) {
