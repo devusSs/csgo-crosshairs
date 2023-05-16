@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type RegisterUser struct {
 	EMail      string `json:"e_mail"`
 	Password   string `json:"password"`
@@ -9,4 +11,10 @@ type RegisterUser struct {
 type LoginUser struct {
 	EMail    string `json:"e_mail"`
 	Password string `json:"password"`
+}
+
+type ReturnUser struct {
+	CreatedAt time.Time `json:"created_at"`
+	EMail     string    `json:"e_mail"`
+	Role      string    `json:"role"`
 }
