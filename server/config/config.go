@@ -14,6 +14,10 @@ type Config struct {
 	PostgresPassword string `json:"postgres_password"`
 	PostgresDB       string `json:"postgres_database"`
 
+	RedisHost     string `json:"redis_host"`
+	RedisPort     int    `json:"redis_port"`
+	RedisPassword string `json:"redis_password"`
+
 	APIHost       string `json:"api_host"`
 	APIPort       int    `json:"api_port"`
 	BackendDomain string `json:"backend_domain"`
@@ -68,6 +72,18 @@ func (c *Config) CheckConfig() error {
 
 	if c.PostgresDB == "" {
 		return errors.New("missing key: postgres_database")
+	}
+
+	if c.RedisHost == "" {
+		return errors.New("missing key: redis_host")
+	}
+
+	if c.RedisPort == 0 {
+		return errors.New("missing key: redis_port")
+	}
+
+	if c.RedisPassword == "" {
+		return errors.New("missing key: redis_password")
 	}
 
 	if c.APIHost == "" {
