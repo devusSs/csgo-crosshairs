@@ -27,6 +27,9 @@ type Service interface {
 	DeleteAllCrosshairsFromUser(uuid.UUID) error
 	DeleteCrosshairFromUserByCode(uuid.UUID, string) error
 	EditCrosshairNote(*Crosshair) (*Crosshair, error)
+
+	GetAllUsers() ([]*UserAccount, error)
+	GetAllCrosshairs() ([]*Crosshair, error)
 }
 
 type UserAccount struct {
