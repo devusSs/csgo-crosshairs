@@ -13,6 +13,7 @@ import (
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 )
 
@@ -122,6 +123,34 @@ func RegisterUserRoute(c *gin.Context) {
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
 		resp.Error.ErrorMessage = err.Error()
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var event *database.Event
+
+	event.Type = database.UserRegistered
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.RemoteIP()
+	eventData, err := json.Marshal(registerUser)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	event.Data.Data = eventData
+	event.Timestamp = time.Now()
+
+	_, err = Svc.AddEvent(event)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -536,6 +565,34 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
 		resp.Error.ErrorMessage = "Could not update password."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var event *database.Event
+
+	event.Type = database.UserChangedPassword
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.RemoteIP()
+	eventData, err := json.Marshal(resetPasswordFinal)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	event.Data.Data = eventData
+	event.Timestamp = time.Now()
+
+	_, err = Svc.AddEvent(event)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
 		resp.SendErrorResponse(c)
 		return
 	}

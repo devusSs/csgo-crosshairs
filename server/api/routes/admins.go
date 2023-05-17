@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
@@ -236,6 +237,179 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
 		Data: crosshairs,
+	}
+	resp.SendSuccessReponse(c)
+}
+
+func GetAllEventsRoute(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user")
+
+	if fmt.Sprintf("%s", userID) == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "Invalid session id."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "User could not be found."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if user.Role != "admin" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are not an admin."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	events, err := Svc.GetEvents()
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	limit := c.Query("limit")
+
+	if limit != "" {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = "Could not parse limit."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		// TODO: improve this design to use db function limit
+		resp := responses.SuccessResponse{
+			Code: http.StatusOK,
+			Data: events[:limitInt],
+		}
+		resp.SendSuccessReponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: events,
+	}
+	resp.SendSuccessReponse(c)
+}
+
+func GetEventsByTypeRoute(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user")
+
+	if fmt.Sprintf("%s", userID) == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "Invalid session id."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "User could not be found."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if user.Role != "admin" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are not an admin."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	eventType := c.Param("type")
+
+	if eventType == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Did not specifcy event type."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	events, err := Svc.GetEventsByType(eventType)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	limit := c.Query("limit")
+
+	if limit != "" {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = "Could not parse limit."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		// TODO: improve this design to use db function limit
+		resp := responses.SuccessResponse{
+			Code: http.StatusOK,
+			Data: events[:limitInt],
+		}
+		resp.SendSuccessReponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: events,
 	}
 	resp.SendSuccessReponse(c)
 }

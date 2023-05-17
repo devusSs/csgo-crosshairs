@@ -137,6 +137,12 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 		{
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
+
+			events := admins.Group("/events")
+			{
+				events.GET("/", routes.GetAllEventsRoute)
+				events.GET("/:type", routes.GetEventsByTypeRoute)
+			}
 		}
 	}
 }
