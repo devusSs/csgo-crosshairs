@@ -39,3 +39,11 @@ type GetMultipleCrosshairs struct {
 type GetOneCrosshair struct {
 	Crosshair Crosshair `json:"crosshair"`
 }
+
+type ResetPassword struct {
+	EMail string `json:"e_mail"`
+}
+
+type ResetPasswordFinal struct {
+	Password string `json:"password"`
+}
