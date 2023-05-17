@@ -241,7 +241,7 @@ func LoginUserRoute(c *gin.Context) {
 	user.LastLogin = time.Now()
 	user.LoginIP = c.RemoteIP()
 
-	_, err = Svc.UpdateUserLogin(user)
+	userDB, err := Svc.UpdateUserLogin(user)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -253,7 +253,6 @@ func LoginUserRoute(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set("user", user.ID.String())
-	session.Set("role", user.Role)
 	if err := session.Save(); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -265,7 +264,7 @@ func LoginUserRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
-	resp.Data = "Successfully logged in."
+	resp.Data = gin.H{"message": "Successfully logged in.", "role": userDB.Role}
 	resp.SendSuccessReponse(c)
 }
 
