@@ -14,6 +14,11 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+const (
+	MailVerfication          = "mailVerification"
+	MailVerificationPassword = "passwordVerification"
+)
+
 type EmailData struct {
 	URL     string
 	Subject string
@@ -38,7 +43,7 @@ func ParseTemplateDir(dir string) (*template.Template, error) {
 	return template.ParseFiles(paths...)
 }
 
-func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) error {
+func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config, mailType string) error {
 	from := cfg.EmailFrom
 	smtpPass := cfg.SMTPPass
 	smtpUser := cfg.SMTPUser
@@ -53,8 +58,16 @@ func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) 
 		return err
 	}
 
-	if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
-		return err
+	if mailType == MailVerfication {
+		if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
+			return err
+		}
+	}
+
+	if mailType == MailVerificationPassword {
+		if err := template.ExecuteTemplate(&body, "passwordVerification.html", &data); err != nil {
+			return err
+		}
 	}
 
 	m := gomail.NewMessage()
