@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.0
+	github.com/goccy/go-json v0.10.2
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.1
 )
@@ -18,7 +19,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.13.0 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
