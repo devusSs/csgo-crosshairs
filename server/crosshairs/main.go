@@ -97,6 +97,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	apiServer.SetupRedisRateLimiting(cfg)
+
 	apiServer.SetupRoutes(svc, cfg)
 
 	if err := apiServer.StartAPI(); err != nil {
