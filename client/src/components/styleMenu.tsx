@@ -12,7 +12,7 @@ function styleMenu() {
 
   return (
 
-    <fieldset>
+    <fieldset className='w-44'>
       <legend>Style:</legend>
         <div className='field'>
           <label> 

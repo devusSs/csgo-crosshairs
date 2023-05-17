@@ -22,7 +22,7 @@ function thicknessMenu(props: Props) {
     const toggleDot = () => setDot(Dot === '0' ? '1' : '0')
   
     return (
-        <div>
+        <div className='mx-10'>
             <div>
                 <label htmlFor="ch_gap"> Gap:
                     <br />

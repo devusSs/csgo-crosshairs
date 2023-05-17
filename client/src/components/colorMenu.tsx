@@ -33,7 +33,7 @@ function colorMenu(props: Props) {
 
 
   return (
-    <div onBlur={!changing ? hideColorPicker : undefined} className='flex items-center justify-center'>
+    <div onBlur={!changing ? hideColorPicker : undefined} className='flex items-center justify-center w-56'>
       <div className='flex relative'>
         <button onClick={() => setShowColorPicker(!showColorPicker)} className='w-10 h-10 rounded-sm border-2 relative'>
           <div className='absolute -inset-0 z-10 bg-red-500 opacity-100' style={{background:getRgbaCSS(selectedColor)}}/>
