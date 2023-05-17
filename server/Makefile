@@ -64,7 +64,7 @@ dev: build
 	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
 
 # DO NOT CHANGE.
-full-dev: drop-postgres dev-postgres build
+full-dev: drop-postgres dev-postgres drop-redis dev-redis build
 	@clear
 	@rm -rf ./testing
 	@mkdir ./testing
@@ -101,11 +101,21 @@ clean:
 
 # DO NOT CHANGE.
 dev-postgres:
-	@docker run --rm --name pg-chs -e POSTGRES_PASSWORD=crosshairs -e POSTGRES_USER=crosshairs -e POSTGRES_DB=crosshairs -p 5432:5432 -d postgres
+	@docker run -d --rm --name pg-chs -e POSTGRES_PASSWORD=crosshairs -e POSTGRES_USER=crosshairs -e POSTGRES_DB=crosshairs -p 5432:5432 -d postgres
 
 # DO NOT CHANGE.
 drop-postgres:
 	@docker stop pg-chs
+
+# DO NOT CHANGE
+dev-redis:
+	@docker volume create redis-data
+	@docker run -d --rm --name redis-chs -e REDIS_PASSWORD=crosshairs -v redis-data:/data -p 6379:6379 redis:5.0.5-alpine3.9 /bin/sh -c redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+# DO NOT CHANGE
+drop-redis:
+	@docker stop redis-chs
+	@docker volume rm redis-data
 
 # DO NOT CHANGE.
 lint:

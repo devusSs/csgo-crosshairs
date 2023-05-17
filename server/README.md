@@ -16,13 +16,17 @@ It is highly recommended to use the [Makefile](Makefile) / [GNU Make](https://ww
 
 - `make dev` to run make build and run the actual app.
 
-- `make full-dev` to drop the Postgres db, create a new one and run make build and run the actual app.
+- `make full-dev` to drop the Postgres and Redis dbs, create new ones, run make build and run the actual app.
 
 - `make clean` to clean the directory of build artifacts and logs.
 
 - `make dev-postgres` to generate a working Postgres instance using Docker (needs to be installed).
 
 - `make drop-postgres` to drop the created Postgres database.
+
+- `make dev-redis` to generate a working Redis instance using Docker (needs to be installed)
+
+- `make drop-redis` to drop the created Redis database.
 
 - `make lint` linting Go code using golangci-lint (needs to be installed).
 
