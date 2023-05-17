@@ -24,8 +24,15 @@
 | GET    | /api/admins/users?email=        | gets a user by their email                              | ✅     | ✅ (admin)  |
 | GET    | /api/admins/crosshairs          | gets all saved crosshairs                               | ✅     | ✅ (admin)  |
 | GET    | /api/admins/crosshairs?email=   | gets all saved crosshairs from a specific user          | ✅     | ✅ (admin)  |
-| GET    | /api/admins/events?limit=       | gets X (limit) most recent events                       | ❌     | ✅ (admin)  |
-| GET    | /api/admins/events?type=&limit= | gets X (limit) most recent events by a specific type    | ❌     | ✅ (admin)  |
+| GET    | /api/admins/events              | gets all events                                         | ✅     | ✅ (admin)  |
+| GET    | /api/admins/events?limit=       | gets X (limit) most recent events                       | ✅     | ✅ (admin)  |
+| GET    | /api/admins/events/:type        | gets all events by a specific type                      | ✅     | ✅ (admin)  |
+| GET    | /api/admins/events/:type?limit= | gets X (limit) most recent events by a specific type    | ✅     | ✅ (admin)  |
+
+Events supported so far:
+
+- "user_registered"
+- "user_password_change"
 
 ## Requests structure
 
@@ -82,22 +89,26 @@
 
 ### For success responses
 
+Code is subject to change depending on the result of the query.
+
 ```json
 {
-    "code": 20X,
-    "data": {}
+  "code": 200,
+  "data": {}
 }
 ```
 
 ### For fail responses
 
+Code is subject to change depending on the result of the query.
+
 ```json
 {
-    "code": 40X / 500,
-    "error": {
-        "error_code": "e.g. not_found",
-        "error_message": "This is a formal written description of the error code."
-    }
+  "code": 400,
+  "error": {
+    "error_code": "e.g. not_found",
+    "error_message": "This is a formal written description of the error code."
+  }
 }
 ```
 
