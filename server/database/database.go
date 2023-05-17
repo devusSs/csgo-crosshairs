@@ -18,6 +18,9 @@ type Service interface {
 	UpdateUserLogin(*UserAccount) (*UserAccount, error)
 	GetUserByUID(*UserAccount) (*UserAccount, error)
 	UpdateUserCrosshairCount(*UserAccount) (*UserAccount, error)
+	AddResetPasswordCode(*UserAccount) (*UserAccount, error)
+	GetUserByResetpasswordCode(*UserAccount) (*UserAccount, error)
+	UpdateUserPassword(*UserAccount) (*UserAccount, error)
 
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
@@ -36,6 +39,8 @@ type UserAccount struct {
 	Role             string `gorm:"not null"`
 	VerificationCode string `gorm:"not null"`
 	VerifiedMail     bool
+
+	PasswordResetCode string
 
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string

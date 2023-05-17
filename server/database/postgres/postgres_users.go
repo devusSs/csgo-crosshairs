@@ -36,3 +36,18 @@ func (p *psql) UpdateUserCrosshairCount(user *database.UserAccount) (*database.U
 	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).Update("crosshairs_registered", user.CrosshairsRegistered+1)
 	return user, tx.Error
 }
+
+func (p *psql) AddResetPasswordCode(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Update("password_reset_code", user.PasswordResetCode)
+	return user, tx.Error
+}
+
+func (p *psql) GetUserByResetpasswordCode(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Where("password_reset_code = ?", user.PasswordResetCode).First(&user)
+	return user, tx.Error
+}
+
+func (p *psql) UpdateUserPassword(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Where("password_reset_code = ?", user.PasswordResetCode).Update("password", user.Password)
+	return user, tx.Error
+}
