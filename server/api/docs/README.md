@@ -9,8 +9,9 @@
 | GET    | /api/users/verifyMail/:code     | verified the user's email on registration               | ✅     | ❌          |
 | POST   | /api/users/login                | login for existing users                                | ✅     | ❌          |
 | GET    | /api/users/logout               | logout for logged in user                               | ✅     | ✅ (user)   |
-| POST   | /api/users/resetPass            | reset password for registered user                      | ❌     | ❌          |
-| GET    | /api/users/resetPass/:code      | check reset password code from email                    | ❌     | ❌          |
+| POST   | /api/users/resetPass            | reset password for registered user                      | ✅     | ❌          |
+| GET    | /api/users/resetPass/:code      | check reset password code from email                    | ✅     | ❌          |
+| PATCH  | /api/users/resetPass/:code      | performs the actual password reset                      | ✅     | ❌          |
 |        |                                 |                                                         |        |             |
 | GET    | /api/crosshairs                 | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)   |
 | GET    | /api/crosshairs?code=           | gets a specific crosshair by it's code                  | ✅     | ✅ (user)   |
@@ -19,10 +20,10 @@
 | DELETE | /api/crosshairs                 | deletes all saved crosshairs from a specific user       | ✅     | ✅ (user)   |
 | DELETE | /api/crosshairs/:code           | deletes a specific crosshair by it's code               | ✅     | ✅ (user)   |
 |        |                                 |                                                         |        |             |
-| GET    | /api/admins/users               | gets all users registered                               | ❌     | ✅ (admin)  |
-| GET    | /api/admins/users?email=        | gets a user by their email                              | ❌     | ✅ (admin)  |
-| GET    | /api/admins/crosshairs/         | gets all saved crosshairs                               | ❌     | ✅ (admin)  |
-| GET    | /api/admins/crosshairs?code=    | gets a crosshair by it's code                           | ❌     | ✅ (admin)  |
+| GET    | /api/admins/users               | gets all users registered                               | ✅     | ✅ (admin)  |
+| GET    | /api/admins/users?email=        | gets a user by their email                              | ✅     | ✅ (admin)  |
+| GET    | /api/admins/crosshairs          | gets all saved crosshairs                               | ✅     | ✅ (admin)  |
+| GET    | /api/admins/crosshairs?email=   | gets all saved crosshairs from a specific user          | ✅     | ✅ (admin)  |
 | GET    | /api/admins/events?limit=       | gets X (limit) most recent events                       | ❌     | ✅ (admin)  |
 | GET    | /api/admins/events?type=&limit= | gets X (limit) most recent events by a specific type    | ❌     | ✅ (admin)  |
 

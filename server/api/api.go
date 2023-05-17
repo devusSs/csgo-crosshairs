@@ -132,6 +132,12 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			crosshairs.DELETE("/", routes.DeleteAllCrosshairsFromUserRoute)
 			crosshairs.DELETE("/:code", routes.DeleteOneCrosshairFromUserRoute)
 		}
+
+		admins := base.Group("/admins")
+		{
+			admins.GET("/users", routes.GetAllUsersRoute)
+			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
+		}
 	}
 }
 
