@@ -253,6 +253,7 @@ func LoginUserRoute(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set("user", user.ID.String())
+	session.Set("role", user.Role)
 	if err := session.Save(); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
