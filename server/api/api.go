@@ -120,6 +120,9 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			users.POST("/login", routes.LoginUserRoute)
 			users.GET("/me", routes.GetUserRoute)
 			users.GET("/logout", routes.LogoutUserRoute)
+			users.POST("/resetPass", routes.ResetPasswordRoute)
+			users.GET("/resetPass/:email", routes.VerifyUserPasswordCodeRoute)
+			users.PATCH("/resetPass/:email", routes.ResetPasswordRouteFinal)
 		}
 
 		crosshairs := base.Group("/crosshairs")
