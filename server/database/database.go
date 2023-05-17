@@ -30,6 +30,10 @@ type Service interface {
 
 	GetAllUsers() ([]*UserAccount, error)
 	GetAllCrosshairs() ([]*Crosshair, error)
+
+	AddEvent(*Event) (*Event, error)
+	GetEvents() ([]*Event, error)
+	GetEventsByType(string) ([]*Event, error)
 }
 
 type UserAccount struct {
@@ -62,4 +66,27 @@ type Crosshair struct {
 	Note         string
 
 	RegisterIP string `gorm:"not null"`
+}
+
+type Event struct {
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	Type      EventType `gorm:"not null" json:"type"`
+	Data      EventData `gorm:"not null" json:"data"`
+	Timestamp time.Time `gorm:"not null" json:"timestamp"`
+}
+
+// Submodels for Event struct.
+type EventType string
+
+// TODO: add more events?
+const (
+	UserRegistered      EventType = "user_registered"
+	UserChangedPassword EventType = "user_password_change"
+)
+
+type EventData struct {
+	URL      string      `json:"url"`
+	Method   string      `json:"method"`
+	IssuerIP string      `json:"issuer"`
+	Data     interface{} `json:"data"`
 }
