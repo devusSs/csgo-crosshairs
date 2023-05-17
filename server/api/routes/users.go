@@ -127,7 +127,7 @@ func RegisterUserRoute(c *gin.Context) {
 		return
 	}
 
-	var event *database.Event
+	var event *database.CreateEvent
 
 	event.Type = database.UserRegistered
 	event.Data.URL = c.Request.RequestURI
@@ -145,7 +145,31 @@ func RegisterUserRoute(c *gin.Context) {
 	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	_, err = Svc.AddEvent(event)
+	var eventDB *database.Event
+	encodedEventType, err := json.Marshal(event.Type)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	encodedEventData, err := json.Marshal(event.Data)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	eventDB.Type = string(encodedEventType)
+	eventDB.Data = string(encodedEventData)
+	eventDB.Timestamp = event.Timestamp
+
+	_, err = Svc.AddEvent(eventDB)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -569,7 +593,7 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 		return
 	}
 
-	var event *database.Event
+	var event *database.CreateEvent
 
 	event.Type = database.UserChangedPassword
 	event.Data.URL = c.Request.RequestURI
@@ -587,7 +611,31 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	_, err = Svc.AddEvent(event)
+	var eventDB *database.Event
+	encodedEventType, err := json.Marshal(event.Type)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	encodedEventData, err := json.Marshal(event.Data)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	eventDB.Type = string(encodedEventType)
+	eventDB.Data = string(encodedEventData)
+	eventDB.Timestamp = event.Timestamp
+
+	_, err = Svc.AddEvent(eventDB)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError

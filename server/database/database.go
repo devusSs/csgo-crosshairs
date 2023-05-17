@@ -70,12 +70,18 @@ type Crosshair struct {
 
 type Event struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	Type      EventType `gorm:"not null" json:"type"`
-	Data      EventData `gorm:"not null" json:"data"`
+	Type      string    `gorm:"not null" json:"type"`
+	Data      string    `gorm:"not null" json:"data"`
 	Timestamp time.Time `gorm:"not null" json:"timestamp"`
 }
 
 // Submodels for Event struct.
+type CreateEvent struct {
+	Type      EventType `json:"type"`
+	Data      EventData `json:"data"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
 type EventType string
 
 // TODO: add more events?

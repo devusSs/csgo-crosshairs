@@ -12,6 +12,8 @@ import (
 	"syscall"
 	"time"
 
+	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
+	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
@@ -20,6 +22,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type API struct {
@@ -102,6 +105,24 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 	return nil
 }
 
+func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
+	store := ratelimit.RedisStore(&ratelimit.RedisOptions{
+		RedisClient: redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%d", cfg.RedisHost, cfg.RedisPort),
+			Password: cfg.RedisPassword,
+		}),
+		Rate:  time.Second,
+		Limit: 5,
+	})
+
+	rateMW := ratelimit.RateLimiter(store, &ratelimit.Options{
+		ErrorHandler: rateLimitError,
+		KeyFunc:      rateLimitGetIP,
+	})
+
+	api.Engine.Use(rateMW)
+}
+
 func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 	routes.CFG = cfg
 	routes.Svc = db
@@ -179,4 +200,16 @@ func (api *API) StartAPI() error {
 	fmt.Println("")
 
 	return api.RequestsLogFile.Close()
+}
+
+func rateLimitGetIP(c *gin.Context) string {
+	return c.ClientIP()
+}
+
+func rateLimitError(c *gin.Context, info ratelimit.Info) {
+	var resp responses.ErrorResponse
+	resp.Code = http.StatusTooManyRequests
+	resp.Error.ErrorCode = "flooding"
+	resp.Error.ErrorMessage = "Too many requests. Try again in " + time.Until(info.ResetTime).String()
+	resp.SendErrorResponse(c)
 }
