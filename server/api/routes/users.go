@@ -181,7 +181,9 @@ func RegisterUserRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
-	resp.Data = "Please confirm your e-mail address."
+	resp.Data = responses.GeneralUserResponse{
+		Message: "Please check your e-mails.",
+	}
 	resp.SendSuccessReponse(c)
 }
 
@@ -229,7 +231,9 @@ func VerifyUserEMailRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
-	resp.Data = "Successfully verified your e-mail address. You may now log in!"
+	resp.Data = responses.GeneralUserResponse{
+		Message: "Successfully verified your e-mail address. Please login now.",
+	}
 	resp.SendSuccessReponse(c)
 }
 
@@ -317,7 +321,10 @@ func LoginUserRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
-	resp.Data = gin.H{"message": "Successfully logged in.", "role": userDB.Role}
+	resp.Data = responses.LoginUserResponse{
+		Message: "Successfully logged in.",
+		Role:    userDB.Role,
+	}
 	resp.SendSuccessReponse(c)
 }
 
@@ -453,7 +460,9 @@ func ResetPasswordRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
-		Data: "Please check your E-Mails to reset your password.",
+		Data: responses.GeneralUserResponse{
+			Message: "Please check your e-mails.",
+		},
 	}
 	resp.SendSuccessReponse(c)
 }
@@ -502,7 +511,9 @@ func VerifyUserPasswordCodeRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
-		Data: "Successfully verified your e-mail. You may now reset your password.",
+		Data: responses.GeneralUserResponse{
+			Message: "Successfully confirmed your e-mail. You may now reset your password.",
+		},
 	}
 	resp.SendSuccessReponse(c)
 }
@@ -647,7 +658,9 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
-		Data: "Successfully updated your password.",
+		Data: responses.GeneralUserResponse{
+			Message: "Successfully reset your password.",
+		},
 	}
 	resp.SendSuccessReponse(c)
 }

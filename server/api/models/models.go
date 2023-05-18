@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Request models
 type RegisterUser struct {
 	EMail      string `json:"e_mail"`
 	Password   string `json:"password"`
@@ -15,6 +16,20 @@ type LoginUser struct {
 	Password string `json:"password"`
 }
 
+type AddCrosshair struct {
+	Code string `json:"code"`
+	Note string `json:"note"`
+}
+
+type ResetPassword struct {
+	EMail string `json:"e_mail"`
+}
+
+type ResetPasswordFinal struct {
+	Password string `json:"password"`
+}
+
+// Response models
 type ReturnUser struct {
 	CreatedAt time.Time `json:"created_at"`
 	EMail     string    `json:"e_mail"`
@@ -43,23 +58,10 @@ type Crosshair struct {
 	Note  string    `json:"note"`
 }
 
-type AddCrosshair struct {
-	Code string `json:"code"`
-	Note string `json:"note"`
-}
-
 type GetMultipleCrosshairs struct {
 	Crosshairs []Crosshair `json:"crosshairs"`
 }
 
 type GetOneCrosshair struct {
 	Crosshair Crosshair `json:"crosshair"`
-}
-
-type ResetPassword struct {
-	EMail string `json:"e_mail"`
-}
-
-type ResetPasswordFinal struct {
-	Password string `json:"password"`
 }

@@ -108,7 +108,7 @@ func AddCrosshairRoute(c *gin.Context) {
 		RegisterIP:   c.RemoteIP(),
 	}
 
-	crosshair, err = Svc.AddCrosshair(crosshair)
+	_, err = Svc.AddCrosshair(crosshair)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -130,9 +130,9 @@ func AddCrosshairRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusCreated,
-		Data: gin.H{
-			"status":        fmt.Sprintf("Successfully added '%s'", crosshair.Code),
-			"chs_on_record": user.CrosshairsRegistered + 1,
+		Data: responses.CrosshairResponse{
+			Status:      "Successfully added crosshair",
+			CHsOnRecord: user.CrosshairsRegistered + 1,
 		},
 	}
 	resp.SendSuccessReponse(c)
