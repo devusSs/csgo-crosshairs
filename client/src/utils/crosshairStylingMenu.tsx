@@ -2,12 +2,6 @@ import React , {useState} from 'react'
 import Switch from 'react-switch'
 
 interface Props {
-    thickness : number
-    setThickness : number
-    gap : number
-    setGap : number
-    outline : boolean
-    setOutline : boolean
 }
 
 function thicknessMenu(props: Props) {

@@ -1,77 +1,44 @@
-import React, { useState } from 'react';
-import {
-  FaBars,
-  FaTimes
-} from 'react-icons/fa';
-import { Link } from 'react-scroll';
+import React from 'react'
+import { Link , useMatch , useResolvedPath} from 'react-router-dom'
 
-const Navbar = () => {
-  const [nav, setNav] = useState(false);
-  const handleClick = () => setNav(!nav);
+function Navbar() {
+  return (
+    <div>
+      <nav className='m-0 bg-sky-950 text-white flex justify-between items-center gap-2 p-1'>
+        <Link to="/"></Link>
+        <ul className='p-0 m-0 list-none flex gap-3 items-stretch'>
+          <li className=' hover:bg-slate-700 active:bg-slate-500'>
+            <Link to="home">Home</Link>
+          </li>
+          <li className=' hover:bg-slate-700 active:bg-slate-500'>
+            <Link to="generator">Crosshair Generator</Link>
+          </li>
+          <li className=' hover:bg-slate-700 active:bg-slate-500'>
+            <Link to="demo">Demo Extractor</Link>
+          </li>
+          <li className=' hover:bg-slate-700 active:bg-slate-500'>
+            <Link to="login">Login</Link>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  )
+}
+
+function customLink (to: string, children: string, ...props) {
+  const resolvedPath = useResolvedPath(to)
+  const isActive = useMatch({path: resolvedPath.pathname, end: true})
 
   return (
-    <div className='fixed w-full h-[80px] flex justify-between items-center px-4 bg-[#0a192f] text-gray-300'>
+    <li className={isActive ? "active" : ""}>
+      <Link to={to} {...props}>
+        {children}
+      </Link>
+    </li>
+  )
+}
 
-      {/* menu */}
-      <ul className='hidden md:flex'>
-        <li className='cursor-pointer'>
-          <Link to='generator' smooth={true} duration={500}>
-            Crosshair Generator
-          </Link>
-        </li>
-        <li className='cursor-pointer'>
-          <Link to='demo2share' smooth={true} duration={500}>
-            Demo to Crosshair
-          </Link>
-        </li>
-      </ul>
+export default Navbar
 
-      {/* Hamburger */}
-      <div onClick={handleClick} className='md:hidden z-10 cursor-pointer'>
-        {!nav ? <FaBars /> : <FaTimes />}
-      </div>
 
-      {/* Mobile menu */}
-      <ul
-        className={
-          !nav
-            ? 'hidden'
-            : 'absolute top-0 left-0 w-full h-screen bg-[#0a192f] flex flex-col justify-center items-center'
-        }
-      >
-        <li className='py-6 text-4xl'>
-          <Link onClick={handleClick} to='home' smooth={true} duration={500}>
-            Home
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='about' smooth={true} duration={500}>
-            About
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='skills' smooth={true} duration={500}>
-            Skills
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='work' smooth={true} duration={500}>
-            Work
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='contact' smooth={true} duration={500}>
-            Contact
-          </Link>
-        </li>
-      </ul>
 
-      </div>
-  );
-};
-
-export default Navbar;
