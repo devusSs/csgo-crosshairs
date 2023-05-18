@@ -34,53 +34,6 @@ Events supported so far:
 - "user_registered"
 - "user_password_change"
 
-## Requests structure
-
-### User routes
-
-- GET /api/users/me (needs user auth)
-
-  - does not need a JSON request body
-  - authorization will be fetched from sessions cookie
-
-- POST /api/users/register
-
-  ```json
-  {
-    "e_mail": "",
-    "password": "",
-    "admin_token": "blank_or_valid_token"
-  }
-  ```
-
-- POST /api/users/login
-
-  ```json
-  {
-    "e_mail": "",
-    "password": ""
-  }
-  ```
-
-### Crosshair routes
-
-- POST /api/crosshairs (needs user auth)
-
-  ```json
-  {
-    "code": "the encoded crosshair code"
-  }
-  ```
-
-- every other route does not need a request body
-- authorization will be fetched from sessions cookie
-
-### Admin routes
-
-- no route needs a request body
-- authorization will be fetched from sessions cookie
-- make sure the user has admin role
-
 ## Response structure
 
 ### Generalised JSON responses
@@ -114,4 +67,12 @@ Code is subject to change depending on the result of the query.
 
 ### Route specific responses
 
-- to be implemented...
+Please head to the [response docs](responses) and choose the corresponding route type.
+
+## Request structure
+
+Every route and subroute takes in different request bodies or may not need a request body at all.<br/>
+
+Please head to the [request docs](requests) and choose the corresponding route type.<br/>
+
+Note: The admin routes do not need a request body hence there is no documentation on them.
