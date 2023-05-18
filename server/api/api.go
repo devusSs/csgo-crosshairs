@@ -13,6 +13,7 @@ import (
 	"time"
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
+	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
@@ -139,8 +140,8 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			users.POST("/register", routes.RegisterUserRoute)
 			users.GET("/verifyMail/:code", routes.VerifyUserEMailRoute)
 			users.POST("/login", routes.LoginUserRoute)
-			users.GET("/me", routes.GetUserRoute)
-			users.GET("/logout", routes.LogoutUserRoute)
+			users.GET("/me", middleware.AuthRequired, routes.GetUserRoute)
+			users.GET("/logout", middleware.AuthRequired, routes.LogoutUserRoute)
 			users.POST("/resetPass", routes.ResetPasswordRoute)
 			users.GET("/resetPass/:email", routes.VerifyUserPasswordCodeRoute)
 			users.PATCH("/resetPass/:email", routes.ResetPasswordRouteFinal)
@@ -148,6 +149,8 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 		crosshairs := base.Group("/crosshairs")
 		{
+			crosshairs.Use(middleware.AuthRequired)
+
 			crosshairs.POST("/", routes.AddCrosshairRoute)
 			crosshairs.GET("/", routes.GetAllCrosshairsFromUserRoute)
 			crosshairs.DELETE("/", routes.DeleteAllCrosshairsFromUserRoute)
@@ -156,6 +159,8 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 		admins := base.Group("/admins")
 		{
+			admins.Use(middleware.AuthRequired)
+
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
 
