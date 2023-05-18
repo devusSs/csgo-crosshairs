@@ -13,6 +13,7 @@ import (
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 )
 
@@ -106,7 +107,7 @@ func RegisterUserRoute(c *gin.Context) {
 		}
 	}
 
-	if err := utils.SendEmail(&newUser, emailData, CFG); err != nil {
+	if err := utils.SendEmail(&newUser, emailData, CFG, utils.MailVerfication); err != nil {
 		log.Println(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -122,6 +123,58 @@ func RegisterUserRoute(c *gin.Context) {
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
 		resp.Error.ErrorMessage = err.Error()
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var event *database.CreateEvent
+
+	event.Type = database.UserRegistered
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.RemoteIP()
+	eventData, err := json.Marshal(registerUser)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	event.Data.Data = eventData
+	event.Timestamp = time.Now()
+
+	var eventDB *database.Event
+	encodedEventType, err := json.Marshal(event.Type)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	encodedEventData, err := json.Marshal(event.Data)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	eventDB.Type = string(encodedEventType)
+	eventDB.Data = string(encodedEventData)
+	eventDB.Timestamp = event.Timestamp
+
+	_, err = Svc.AddEvent(eventDB)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -241,7 +294,7 @@ func LoginUserRoute(c *gin.Context) {
 	user.LastLogin = time.Now()
 	user.LoginIP = c.RemoteIP()
 
-	_, err = Svc.UpdateUserLogin(user)
+	userDB, err := Svc.UpdateUserLogin(user)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -264,7 +317,7 @@ func LoginUserRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
-	resp.Data = "Successfully logged in."
+	resp.Data = gin.H{"message": "Successfully logged in.", "role": userDB.Role}
 	resp.SendSuccessReponse(c)
 }
 
@@ -329,5 +382,272 @@ func LogoutUserRoute(c *gin.Context) {
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusNoContent
+	resp.SendSuccessReponse(c)
+}
+
+func ResetPasswordRoute(c *gin.Context) {
+	var resetPass models.ResetPassword
+
+	if err := c.BindJSON(&resetPass); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid JSON body provided."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if !utils.IsEmailValid(resetPass.EMail) {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid e-mail address provided."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: resetPass.EMail})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusNotFound
+		resp.Error.ErrorCode = "not_found"
+		resp.Error.ErrorMessage = "User could not be found."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	verificationCode := utils.RandomString(25)
+
+	_, err = Svc.AddResetPasswordCode(&database.UserAccount{EMail: resetPass.EMail, PasswordResetCode: verificationCode})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var emailData *utils.EmailData
+
+	if updater.BuildMode == "dev" {
+		emailData = &utils.EmailData{
+			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", SRVAddr, resetPass.EMail, utils.Encode(verificationCode)),
+			Subject: "Reset your password",
+		}
+	} else {
+		emailData = &utils.EmailData{
+			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", CFG.BackendDomain, resetPass.EMail, utils.Encode(verificationCode)),
+			Subject: "Reset your password",
+		}
+	}
+
+	if err := utils.SendEmail(user, emailData, CFG, utils.MailVerificationPassword); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Could not send confirmation email."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: "Please check your E-Mails to reset your password.",
+	}
+	resp.SendSuccessReponse(c)
+}
+
+func VerifyUserPasswordCodeRoute(c *gin.Context) {
+	email := c.Param("email")
+	code := c.Query("code")
+
+	if email == "" || code == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Missing e-mail address or code."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	code, err := utils.Decode(code)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if !utils.IsEmailValid(email) {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid e-mail address provided."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	_, err = Svc.GetUserByResetpasswordCode(&database.UserAccount{EMail: email, PasswordResetCode: code})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "E-Mail or code mismatch."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: "Successfully verified your e-mail. You may now reset your password.",
+	}
+	resp.SendSuccessReponse(c)
+}
+
+func ResetPasswordRouteFinal(c *gin.Context) {
+	email := c.Param("email")
+	code := c.Query("code")
+
+	if email == "" || code == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Missing e-mail address or code."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	code, err := utils.Decode(code)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if !utils.IsEmailValid(email) {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid e-mail address provided."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var resetPasswordFinal models.ResetPasswordFinal
+
+	if err := c.BindJSON(&resetPasswordFinal); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid JSON body provided."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if len(resetPasswordFinal.Password) < lenPasswordNeeded {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = fmt.Sprintf("Password must be at least %d characters long.", lenPasswordNeeded)
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByResetpasswordCode(&database.UserAccount{EMail: email, PasswordResetCode: code})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "E-Mail or code mismatch."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(resetPasswordFinal.Password)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Could not hash password."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user.EMail = email
+	user.PasswordResetCode = code
+	user.Password = hashedPassword
+
+	_, err = Svc.UpdateUserPassword(user)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Could not update password."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var event *database.CreateEvent
+
+	event.Type = database.UserChangedPassword
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.RemoteIP()
+	eventData, err := json.Marshal(resetPasswordFinal)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	event.Data.Data = eventData
+	event.Timestamp = time.Now()
+
+	var eventDB *database.Event
+	encodedEventType, err := json.Marshal(event.Type)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+	encodedEventData, err := json.Marshal(event.Data)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	eventDB.Type = string(encodedEventType)
+	eventDB.Data = string(encodedEventData)
+	eventDB.Timestamp = event.Timestamp
+
+	_, err = Svc.AddEvent(eventDB)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: "Successfully updated your password.",
+	}
 	resp.SendSuccessReponse(c)
 }

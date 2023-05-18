@@ -13,6 +13,7 @@ import (
 const (
 	tableUsers      = "user_accounts"
 	tableCrosshairs = "crosshairs"
+	tableEvents     = "events"
 )
 
 type psql struct {
@@ -56,5 +57,8 @@ func (p *psql) MakeMigrations() error {
 	if err := p.db.AutoMigrate(&database.UserAccount{}); err != nil {
 		return err
 	}
-	return p.db.AutoMigrate(&database.Crosshair{})
+	if err := p.db.AutoMigrate(&database.Crosshair{}); err != nil {
+		return err
+	}
+	return p.db.AutoMigrate(&database.Event{})
 }
