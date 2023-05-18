@@ -1,44 +1,60 @@
-import React from 'react'
-import { Link , useMatch , useResolvedPath} from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-function Navbar() {
-  return (
-    <div>
-      <nav className='m-0 bg-sky-950 text-white flex justify-between items-center gap-2 p-1'>
-        <Link to="/"></Link>
-        <ul className='p-0 m-0 list-none flex gap-3 items-stretch'>
-          <li className=' hover:bg-slate-700 active:bg-slate-500'>
-            <Link to="home">Home</Link>
-          </li>
-          <li className=' hover:bg-slate-700 active:bg-slate-500'>
-            <Link to="generator">Crosshair Generator</Link>
-          </li>
-          <li className=' hover:bg-slate-700 active:bg-slate-500'>
-            <Link to="demo">Demo Extractor</Link>
-          </li>
-          <li className=' hover:bg-slate-700 active:bg-slate-500'>
-            <Link to="login">Login</Link>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  )
-}
+const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-function customLink (to: string, children: string, ...props) {
-  const resolvedPath = useResolvedPath(to)
-  const isActive = useMatch({path: resolvedPath.pathname, end: true})
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <li className={isActive ? "active" : ""}>
-      <Link to={to} {...props}>
-        {children}
-      </Link>
-    </li>
-  )
-}
+    <nav className="bg-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/home" className="text-white font-semibold text-lg">
+              Title
+            </Link>
+          </div>
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center">
+              <Link to="/home" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                Home
+              </Link>
 
-export default Navbar
+              <div className="relative">
+                <button onClick={toggleDropdown} className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium focus:outline-none">
+                  Crosshair Generator
+                </button>
+                {isOpen && (
+                    <div className="origin-top-right absolute right-auto mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                      <Link to="/generator" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                        Generator
+                      </Link>
+                      <Link to="/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                        Saved Crosshairs
+                      </Link>
+                    </div>
+                  </div>
+                )}
 
+              <Link to="/demo" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                Demo Extractor
+              </Link>
 
+              <Link to="/Login" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                Login
+              </Link>
 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
