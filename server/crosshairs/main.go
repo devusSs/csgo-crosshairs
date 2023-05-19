@@ -20,7 +20,12 @@ func main() {
 	printBuild := flag.Bool("v", false, "prints build information")
 	cfgPath := flag.String("c", "./files/config.json", "sets config path")
 	scFlag := flag.Bool("sc", false, "generates secret keys")
+	debugFlag := flag.Bool("d", false, "enabled debug mode")
 	flag.Parse()
+
+	if *debugFlag {
+		updater.BuildMode = "dev"
+	}
 
 	if *printBuild {
 		updater.PrintBuildInfo()
