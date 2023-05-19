@@ -1,0 +1,31 @@
+"filename", "language", "JavaScript", "Markdown", "JSON", "XML", "CSS", "TypeScript JSX", "TypeScript", "JavaScript JSX", "HTML", "comment", "blank", "total"
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\.eslintrc.cjs", "JavaScript", 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 16
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\README.md", "Markdown", 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\index.html", "HTML", 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 1, 14
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\package-lock.json", "JSON", 0, 0, 4248, 0, 0, 0, 0, 0, 0, 0, 1, 4249
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\package.json", "JSON", 0, 0, 38, 0, 0, 0, 0, 0, 0, 0, 1, 39
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\postcss.config.js", "JavaScript", 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\public\close.svg", "XML", 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\public\logo.svg", "XML", 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\public\menu.svg", "XML", 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\App.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 4, 30
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\CrosshairGen.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 2, 18
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\Demo.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 2, 9
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\Home.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 2, 9
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\Login.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 54, 0, 0, 0, 0, 2, 56
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\Navbar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 68, 0, 0, 0, 0, 11, 79
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\Register.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 2, 57
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\ResetPw.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 2, 33
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\components\SavedCrosshairs.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 2, 9
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\constants\index.js", "JavaScript", 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\data\decode.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 71, 0, 0, 1, 19, 91
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\data\encode.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 72, 0, 0, 0, 11, 83
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\index.css", "CSS", 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\main.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 2, 14
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\utils\colorMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 54, 0, 0, 0, 0, 15, 69
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\utils\colors.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 4, 20
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\utils\crosshairStylingMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 39, 0, 0, 0, 0, 7, 46
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\src\utils\styleMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 8, 58
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\tailwind.config.js", "JavaScript", 10, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11
+"c:\Users\Lars\Documents\git_repos\csgo-crosshairs\client\vite.config.js", "JavaScript", 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 8
+"Total", "-", 50, 1, 4286, 7, 3, 388, 159, 38, 13, 3, 104, 5052
