@@ -18,9 +18,10 @@ type Config struct {
 	RedisPort     int    `json:"redis_port"`
 	RedisPassword string `json:"redis_password"`
 
-	APIHost       string `json:"api_host"`
-	APIPort       int    `json:"api_port"`
-	BackendDomain string `json:"backend_domain"`
+	APIHost        string `json:"api_host"`
+	APIPort        int    `json:"api_port"`
+	BackendDomain  string `json:"backend_domain"`
+	FrontendDomain string `json:"frontend_domain"`
 
 	SecretSessionsKey string `json:"secret_sessions_key"`
 	AdminKey          string `json:"admin_key"`
@@ -96,6 +97,10 @@ func (c *Config) CheckConfig() error {
 
 	if c.BackendDomain == "" {
 		return errors.New("missing key: backend_domain")
+	}
+
+	if c.FrontendDomain == "" {
+		return errors.New("missing key: frontend_domain")
 	}
 
 	if c.SecretSessionsKey == "" {
