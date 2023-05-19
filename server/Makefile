@@ -53,6 +53,16 @@ build:
 	@echo "Done building app"
 
 # DO NOT CHANGE.
+build-release:
+	@[ "${CHS_BUILD_VERSION}" ] || ( echo "CHS_BUILD_VERSION is not set"; exit 1 )
+	@echo "Building app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
+	@go mod tidy
+	@GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_windows_amd64/ ./...
+	@GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_linux_amd64/ ./...
+	@GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.buildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.buildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_darwin_arm64/ ./...
+	@echo "Done building app"
+
+# DO NOT CHANGE.
 dev: build
 	@clear
 	@rm -rf ./testing
