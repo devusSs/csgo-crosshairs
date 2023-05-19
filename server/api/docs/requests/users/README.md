@@ -9,8 +9,7 @@
 ```json
 {
   "e_mail": "",
-  "password": "",
-  "admin_token": ""
+  "password": ""
 }
 ```
 

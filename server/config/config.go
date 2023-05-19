@@ -24,7 +24,6 @@ type Config struct {
 	FrontendDomain string `json:"frontend_domain"`
 
 	SecretSessionsKey string `json:"secret_sessions_key"`
-	AdminKey          string `json:"admin_key"`
 
 	EmailFrom string `json:"email_from"`
 	SMTPHost  string `json:"smtp_host"`
@@ -105,10 +104,6 @@ func (c *Config) CheckConfig() error {
 
 	if c.SecretSessionsKey == "" {
 		return errors.New("missing key: secret_sessions_key")
-	}
-
-	if c.AdminKey == "" {
-		return errors.New("missing key: admin_key")
 	}
 
 	if c.EmailFrom == "" {

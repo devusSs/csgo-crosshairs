@@ -37,19 +37,6 @@ func RegisterUserRoute(c *gin.Context) {
 		return
 	}
 
-	var adminTokenProvided bool
-	if registerUser.AdminToken != "" {
-		if registerUser.AdminToken != CFG.AdminKey {
-			resp := responses.ErrorResponse{}
-			resp.Code = http.StatusBadRequest
-			resp.Error.ErrorCode = "invalid_request"
-			resp.Error.ErrorMessage = "Invalid admin token provided."
-			resp.SendErrorResponse(c)
-			return
-		}
-		adminTokenProvided = true
-	}
-
 	if !utils.IsEmailValid(registerUser.EMail) {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
@@ -87,10 +74,6 @@ func RegisterUserRoute(c *gin.Context) {
 		VerificationCode: verificationCode,
 		VerifiedMail:     false,
 		RegisterIP:       c.RemoteIP(),
-	}
-
-	if adminTokenProvided {
-		newUser.Role = "admin"
 	}
 
 	var emailData *utils.EmailData
