@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 )
 
@@ -127,7 +127,7 @@ func RegisterUserRoute(c *gin.Context) {
 		return
 	}
 
-	var event *database.CreateEvent
+	var event database.CreateEvent
 
 	event.Type = database.UserRegistered
 	event.Data.URL = c.Request.RequestURI
@@ -145,7 +145,7 @@ func RegisterUserRoute(c *gin.Context) {
 	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	var eventDB *database.Event
+	var eventDB database.Event
 	encodedEventType, err := json.Marshal(event.Type)
 	if err != nil {
 		resp := responses.ErrorResponse{}
@@ -169,7 +169,7 @@ func RegisterUserRoute(c *gin.Context) {
 	eventDB.Data = string(encodedEventData)
 	eventDB.Timestamp = event.Timestamp
 
-	_, err = Svc.AddEvent(eventDB)
+	_, err = Svc.AddEvent(&eventDB)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -604,7 +604,7 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 		return
 	}
 
-	var event *database.CreateEvent
+	var event database.CreateEvent
 
 	event.Type = database.UserChangedPassword
 	event.Data.URL = c.Request.RequestURI
@@ -622,7 +622,7 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	var eventDB *database.Event
+	var eventDB database.Event
 	encodedEventType, err := json.Marshal(event.Type)
 	if err != nil {
 		resp := responses.ErrorResponse{}
@@ -646,7 +646,7 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 	eventDB.Data = string(encodedEventData)
 	eventDB.Timestamp = event.Timestamp
 
-	_, err = Svc.AddEvent(eventDB)
+	_, err = Svc.AddEvent(&eventDB)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
