@@ -99,6 +99,8 @@ func main() {
 
 	apiServer.SetupRedisRateLimiting(cfg)
 
+	apiServer.SetupCors(cfg)
+
 	apiServer.SetupRoutes(svc, cfg)
 
 	if err := apiServer.StartAPI(); err != nil {

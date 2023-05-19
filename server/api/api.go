@@ -20,6 +20,7 @@ import (
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/updater"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
@@ -122,6 +123,28 @@ func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
 	})
 
 	api.Engine.Use(rateMW)
+}
+
+func (api *API) SetupCors(cfg *config.Config) {
+	if updater.BuildMode == "dev" {
+		api.Engine.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{"*"},
+			AllowMethods:     []string{"POST", "GET", "PATCH", "DELETE"},
+			AllowHeaders:     []string{"Origin", "Content-Type"},
+			ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	} else {
+		api.Engine.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{cfg.FrontendDomain},
+			AllowMethods:     []string{"POST", "GET", "PATCH", "DELETE"},
+			AllowHeaders:     []string{"Origin", "Content-Type"},
+			ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 }
 
 func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
