@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { BiLogIn } from 'react-icons/bi';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-gray-800">
@@ -23,7 +39,7 @@ const Navbar: React.FC = () => {
                 Home
               </Link>
 
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button onClick={toggleDropdown} className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium focus:outline-none">
                   Crosshair Generator
                 </button>
@@ -45,7 +61,10 @@ const Navbar: React.FC = () => {
               </Link>
 
               <Link to="/Login" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                Login
+                <span>
+                  Login
+                </span>
+                <BiLogIn className="inline-block ml-1" />
               </Link>
 
               </div>
