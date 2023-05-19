@@ -10,20 +10,20 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
-    "users": [
-       {
-        "created_at": 2023-05-18-19:40:13,
-	    "updated_at": 2023-05-18-19:40:13,
-	    "e_mail": "",
-	    "role": "",
-	    "verified_mail": true,
-	    "register_ip": "",
-	    "login_ip": "",
-	    "last_login": 2023-05-18-19:40:13,
-	    "crosshairs_registered": 1,
-       },
-       ...
-    ]
+  "users": [
+    {
+      "created_at": "2023-05-18-19:40:13",
+      "updated_at": "2023-05-18-19:40:13",
+      "e_mail": "",
+      "role": "",
+      "verified_mail": true,
+      "register_ip": "",
+      "login_ip": "",
+      "last_login": "2023-05-18-19:40:13",
+      "crosshairs_registered": 1
+    },
+    {}
+  ]
 }
 ```
 
@@ -35,15 +35,15 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
-    "created_at": 2023-05-18-19:40:13,
-	"updated_at": 2023-05-18-19:40:13,
-	"e_mail": "",
-	"role": "",
-	"verified_mail": true,
-	"register_ip": "",
-	"login_ip": "",
-	"last_login": 2023-05-18-19:40:13,
-	"crosshairs_registered": 1,
+  "created_at": "2023-05-18-19:40:13",
+  "updated_at": "2023-05-18-19:40:13",
+  "e_mail": "",
+  "role": "",
+  "verified_mail": true,
+  "register_ip": "",
+  "login_ip": "",
+  "last_login": "2023-05-18-19:40:13",
+  "crosshairs_registered": 1
 }
 ```
 
@@ -55,14 +55,14 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
-    "crosshairs": [
-        {
-            "added": 2023-05-18-19:40:13,
-	        "code": "",
-	        "note": ""
-        },
-        ...
-    ]
+  "crosshairs": [
+    {
+      "added": "2023-05-18-19:40:13",
+      "code": "",
+      "note": ""
+    },
+    {}
+  ]
 }
 ```
 
@@ -74,14 +74,14 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
-    "crosshair": [
-        {
-            "added": 2023-05-18-19:40:13,
-	        "code": "",
-	        "note": ""
-        },
-        ...
-    ]
+  "crosshair": [
+    {
+      "added": "2023-05-18-19:40:13",
+      "code": "",
+      "note": ""
+    },
+    {}
+  ]
 }
 ```
 
@@ -103,9 +103,9 @@ Every response will be send as the `data` part of the generalised success respon
 	            "issuer": "",
 	            "data": {}
             },
-	        "timestamp": 2023-05-18-19:40:13
+	        "timestamp": "2023-05-18-19:40:13"
         },
-        ...
+        {}
     ]
 }
 ```
@@ -128,9 +128,9 @@ Every response will be send as the `data` part of the generalised success respon
 	            "issuer": "",
 	            "data": {}
             },
-	        "timestamp": 2023-05-18-19:40:13
+	        "timestamp": "2023-05-18-19:40:13"
         },
-        ...
+        {}
     ]
 }
 ```
@@ -153,9 +153,9 @@ Every response will be send as the `data` part of the generalised success respon
 	            "issuer": "",
 	            "data": {}
             },
-	        "timestamp": 2023-05-18-19:40:13
+	        "timestamp": "2023-05-18-19:40:13"
         },
-        ...
+        {}
     ]
 }
 ```
@@ -178,9 +178,9 @@ Every response will be send as the `data` part of the generalised success respon
 	            "issuer": "",
 	            "data": {}
             },
-	        "timestamp": 2023-05-18-19:40:13
+	        "timestamp": "2023-05-18-19:40:13"
         },
-        ...
+        {}
     ]
 }
 ```

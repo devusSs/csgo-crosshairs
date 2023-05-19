@@ -59,9 +59,9 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
-    "created_at": 2023-05-18-19:40:13,
-    "e_mail": "user's email",
-    "role": "user's role"
+  "created_at": "2023-05-18-19:40:13",
+  "e_mail": "user's email",
+  "role": "user's role"
 }
 ```
 
