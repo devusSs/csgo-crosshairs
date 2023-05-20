@@ -1,0 +1,571 @@
+{
+	"info": {
+		"_postman_id": "f9117eda-395e-4870-8357-282c1a3125a7",
+		"name": "dropawp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register new user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"e_mail\": \"test@test.com\",\n    \"password\": \"testing\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify mail on registration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/verifyMail/CODEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"verifyMail",
+								"CODEHERE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"e_mail\": \"test@test.com\",\n    \"password\": \"testing\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout user (needs logged in user)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Require password reset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"e_mail\": \"test@test.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/resetPass",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"resetPass"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify mail on password reset",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/resetPass/EMAILHERE?code=CODEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"resetPass",
+								"EMAILHERE"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "CODEHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Perform actual password reset",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"new_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/resetPass/EMAILHERE?code=CODEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"resetPass",
+								"EMAILHERE"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "CODEHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user information (needs logged in user)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/me",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Crosshairs (need logged in user)",
+			"item": [
+				{
+					"name": "Add a crosshair",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"crosshair code\",\n    \"note\": \"optional note\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all crosshairs for a user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get first crosshair by code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs?code=CODEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "CODEHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all crosshairs by date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs?start=STARTHERE&end=ENDHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "STARTHERE"
+								},
+								{
+									"key": "end",
+									"value": "ENDHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all crosshairs for a user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete first crosshair by code",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/crosshairs?code=CODEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"crosshairs"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "CODEHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admins (need logged in user with admin rights)",
+			"item": [
+				{
+					"name": "Gets all registered users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get one user by their e-mail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/users?email=EMAILHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"users"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "EMAILHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all saved crosshairs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/crosshairs",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"crosshairs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all crosshairs for a user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/crosshairs?email=EMAILHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"crosshairs"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "EMAILHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/events",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events with limit",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/events?limit=LIMITHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"events"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "LIMITHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events by type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/events/TYPEHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"events",
+								"TYPEHERE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events by type with limit",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/admins/events/TYPEHERE?limit=LIMITHERE",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"admins",
+								"events",
+								"TYPEHERE"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "LIMITHERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "https://api.dropawp.com",
+			"type": "default"
+		}
+	]
+}
