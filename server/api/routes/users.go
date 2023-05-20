@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -110,49 +109,15 @@ func RegisterUserRoute(c *gin.Context) {
 		return
 	}
 
-	var event database.CreateEvent
+	var event database.Event
 
 	event.Type = database.UserRegistered
 	event.Data.URL = c.Request.RequestURI
 	event.Data.Method = c.Request.Method
 	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
-	eventData, err := json.Marshal(registerUser)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	var eventDB database.Event
-	encodedEventType, err := json.Marshal(event.Type)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-	encodedEventData, err := json.Marshal(event.Data)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	eventDB.Type = string(encodedEventType)
-	eventDB.Data = string(encodedEventData)
-	eventDB.Timestamp = event.Timestamp
-
-	_, err = Svc.AddEvent(&eventDB)
+	_, err = Svc.AddEvent(&event)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -587,49 +552,15 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 		return
 	}
 
-	var event database.CreateEvent
+	var event database.Event
 
 	event.Type = database.UserChangedPassword
 	event.Data.URL = c.Request.RequestURI
 	event.Data.Method = c.Request.Method
 	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
-	eventData, err := json.Marshal(resetPasswordFinal)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-	event.Data.Data = eventData
 	event.Timestamp = time.Now()
 
-	var eventDB database.Event
-	encodedEventType, err := json.Marshal(event.Type)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-	encodedEventData, err := json.Marshal(event.Data)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	eventDB.Type = string(encodedEventType)
-	eventDB.Data = string(encodedEventData)
-	eventDB.Timestamp = event.Timestamp
-
-	_, err = Svc.AddEvent(&eventDB)
+	_, err = Svc.AddEvent(&event)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError

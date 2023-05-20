@@ -6,9 +6,8 @@ import (
 
 // Request models
 type RegisterUser struct {
-	EMail      string `json:"e_mail"`
-	Password   string `json:"password"`
-	AdminToken string `json:"admin_token"`
+	EMail    string `json:"e_mail"`
+	Password string `json:"password"`
 }
 
 type LoginUser struct {
