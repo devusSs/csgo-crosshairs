@@ -73,7 +73,7 @@ func RegisterUserRoute(c *gin.Context) {
 		Role:             "user",
 		VerificationCode: verificationCode,
 		VerifiedMail:     false,
-		RegisterIP:       c.RemoteIP(),
+		RegisterIP:       c.Request.Header.Get("X-Forwarded-For"),
 	}
 
 	var emailData *utils.EmailData
@@ -115,7 +115,7 @@ func RegisterUserRoute(c *gin.Context) {
 	event.Type = database.UserRegistered
 	event.Data.URL = c.Request.RequestURI
 	event.Data.Method = c.Request.Method
-	event.Data.IssuerIP = c.RemoteIP()
+	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
 	eventData, err := json.Marshal(registerUser)
 	if err != nil {
 		resp := responses.ErrorResponse{}
@@ -279,7 +279,7 @@ func LoginUserRoute(c *gin.Context) {
 	}
 
 	user.LastLogin = time.Now()
-	user.LoginIP = c.RemoteIP()
+	user.LoginIP = c.Request.Header.Get("X-Forwarded-For")
 
 	userDB, err := Svc.UpdateUserLogin(user)
 	if err != nil {
@@ -592,7 +592,7 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 	event.Type = database.UserChangedPassword
 	event.Data.URL = c.Request.RequestURI
 	event.Data.Method = c.Request.Method
-	event.Data.IssuerIP = c.RemoteIP()
+	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
 	eventData, err := json.Marshal(resetPasswordFinal)
 	if err != nil {
 		resp := responses.ErrorResponse{}

@@ -105,7 +105,7 @@ func AddCrosshairRoute(c *gin.Context) {
 		RegistrantID: userUID,
 		Code:         addCrosshair.Code,
 		Note:         addCrosshair.Note,
-		RegisterIP:   c.RemoteIP(),
+		RegisterIP:   c.Request.Header.Get("X-Forwarded-For"),
 	}
 
 	_, err = Svc.AddCrosshair(crosshair)
