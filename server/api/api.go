@@ -95,7 +95,7 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 	} else {
 		store.Options(sessions.Options{
 			Path:     "/",
-			Domain:   cfg.BackendDomain,
+			Domain:   cfg.Domain,
 			HttpOnly: true,
 			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry
 			Secure:   true,
@@ -137,7 +137,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 		}))
 	} else {
 		api.Engine.Use(cors.New(cors.Config{
-			AllowOrigins:     []string{cfg.FrontendDomain},
+			AllowOrigins:     []string{cfg.Domain},
 			AllowMethods:     []string{"POST", "GET", "PATCH", "DELETE"},
 			AllowHeaders:     []string{"Origin", "Content-Type"},
 			ExposeHeaders:    []string{"Content-Length", "Content-Type"},

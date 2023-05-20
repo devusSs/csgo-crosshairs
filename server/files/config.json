@@ -10,7 +10,7 @@
   "api_host": "",
   "api_port": 0,
   "backend_domain": "",
-  "frontend_domain": "",
+  "use_forwarding": false,
   "secret_sessions_key": "can be generated using -sc flag",
   "email_from": "mail address for project",
   "smtp_host": "",

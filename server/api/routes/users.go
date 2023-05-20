@@ -84,7 +84,7 @@ func RegisterUserRoute(c *gin.Context) {
 		}
 	} else {
 		emailData = &utils.EmailData{
-			URL:     fmt.Sprintf("http://%s/api/users/verifyMail/%s", CFG.BackendDomain, utils.Encode(verificationCode)),
+			URL:     fmt.Sprintf("http://%s/api/users/verifyMail/%s", CFG.Domain, utils.Encode(verificationCode)),
 			Subject: "E-Mail verification",
 		}
 	}
@@ -392,7 +392,7 @@ func ResetPasswordRoute(c *gin.Context) {
 		}
 	} else {
 		emailData = &utils.EmailData{
-			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", CFG.BackendDomain, resetPass.EMail, utils.Encode(verificationCode)),
+			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", CFG.Domain, resetPass.EMail, utils.Encode(verificationCode)),
 			Subject: "Reset your password",
 		}
 	}
