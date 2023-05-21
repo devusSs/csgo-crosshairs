@@ -2,11 +2,11 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getCrosshairPosts } from '../api/posts'
 
-
+console.log(getCrosshairPosts);
 
 function SavedCrosshairs() {
-  const { status, error, data:posts,} = useQuery({
-    queryKey: ['posts'], 
+  const { status, error, data:code,} = useQuery({
+    queryKey: ['code'], 
     queryFn: getCrosshairPosts
   })
 

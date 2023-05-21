@@ -10,6 +10,7 @@ import SavedCrosshairs from './components/SavedCrosshairs'
 
 const App = () => {
 
+  
   return (
     <div className=''>
         <Navbar/> 
