@@ -97,14 +97,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	apiServer.SetupCors(cfg)
+
 	if err := apiServer.SetupSessions(cfg); err != nil {
 		logging.WriteError(err)
 		os.Exit(1)
 	}
 
 	apiServer.SetupRedisRateLimiting(cfg)
-
-	apiServer.SetupCors(cfg)
 
 	apiServer.SetupRoutes(svc, cfg)
 

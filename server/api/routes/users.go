@@ -186,6 +186,17 @@ func VerifyUserEMailRoute(c *gin.Context) {
 }
 
 func LoginUserRoute(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user")
+
+	if fmt.Sprintf("%s", userID) != "" {
+		resp := responses.SuccessResponse{}
+		resp.Code = http.StatusOK
+		resp.Data = "You are already logged in."
+		resp.SendSuccessReponse(c)
+		return
+	}
+
 	var loginUser models.LoginUser
 
 	if err := c.BindJSON(&loginUser); err != nil {
@@ -256,7 +267,7 @@ func LoginUserRoute(c *gin.Context) {
 		return
 	}
 
-	session := sessions.Default(c)
+	session = sessions.Default(c)
 	session.Set("user", user.ID.String())
 	if err := session.Save(); err != nil {
 		resp := responses.ErrorResponse{}

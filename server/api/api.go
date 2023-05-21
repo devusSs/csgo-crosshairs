@@ -13,18 +13,17 @@ import (
 	"time"
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
-	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/updater"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type API struct {
@@ -58,9 +57,6 @@ func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File) (*API, error) 
 	if err := engine.SetTrustedProxies([]string{"127.0.0.1"}); err != nil {
 		return nil, err
 	}
-
-	engine.Use(gin.Recovery())
-	engine.Use(gin.Logger())
 
 	return &API{
 		cfg.APIHost,
@@ -127,27 +123,31 @@ func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
 
 func (api *API) SetupCors(cfg *config.Config) {
 	if updater.BuildMode == "dev" {
-		api.Engine.Use(cors.New(cors.Config{
-			AllowOrigins:     []string{"*"},
-			AllowMethods:     []string{"POST", "GET", "PATCH", "DELETE"},
-			AllowHeaders:     []string{"Origin", "Content-Type"},
-			ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		api.Engine.Use(cors.New(cors.Options{
+			AllowedOrigins:   []string{"*"},
+			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+			AllowedHeaders:   []string{"*"},
+			ExposedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
+			MaxAge:           43200,
+			Debug:            true,
 		}))
 	} else {
-		api.Engine.Use(cors.New(cors.Config{
-			AllowOrigins:     []string{cfg.Domain},
-			AllowMethods:     []string{"POST", "GET", "PATCH", "DELETE"},
-			AllowHeaders:     []string{"Origin", "Content-Type"},
-			ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		api.Engine.Use(cors.New(cors.Options{
+			AllowedOrigins:   []string{cfg.Domain},
+			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+			AllowedHeaders:   []string{"*"},
+			ExposedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
+			MaxAge:           43200,
 		}))
 	}
 }
 
 func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
+	api.Engine.Use(gin.Recovery())
+	api.Engine.Use(gin.Logger())
+
 	routes.CFG = cfg
 	routes.Svc = db
 
@@ -163,8 +163,8 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			users.POST("/register", routes.RegisterUserRoute)
 			users.GET("/verifyMail/:code", routes.VerifyUserEMailRoute)
 			users.POST("/login", routes.LoginUserRoute)
-			users.GET("/me", middleware.AuthRequired, routes.GetUserRoute)
-			users.GET("/logout", middleware.AuthRequired, routes.LogoutUserRoute)
+			users.GET("/me", routes.GetUserRoute)
+			users.GET("/logout", routes.LogoutUserRoute)
 			users.POST("/resetPass", routes.ResetPasswordRoute)
 			users.GET("/resetPass/:email", routes.VerifyUserPasswordCodeRoute)
 			users.PATCH("/resetPass/:email", routes.ResetPasswordRouteFinal)
@@ -172,8 +172,6 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 		crosshairs := base.Group("/crosshairs")
 		{
-			crosshairs.Use(middleware.AuthRequired)
-
 			crosshairs.POST("/", routes.AddCrosshairRoute)
 			crosshairs.GET("/", routes.GetAllCrosshairsFromUserRoute)
 			crosshairs.DELETE("/", routes.DeleteAllCrosshairsFromUserRoute)
@@ -182,8 +180,6 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 		admins := base.Group("/admins")
 		{
-			admins.Use(middleware.AuthRequired)
-
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
 
