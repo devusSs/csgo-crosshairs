@@ -19,11 +19,11 @@ import (
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/updater"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type API struct {
@@ -123,23 +123,22 @@ func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
 
 func (api *API) SetupCors(cfg *config.Config) {
 	if updater.BuildMode == "dev" {
-		api.Engine.Use(cors.New(cors.Options{
-			AllowedOrigins:   []string{"*"},
-			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-			AllowedHeaders:   []string{"*"},
-			ExposedHeaders:   []string{"Content-Type", "Content-Length"},
+		api.Engine.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{"http://localhost:5173"},
+			AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
+			AllowHeaders:     []string{"Origin"},
+			ExposeHeaders:    []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
-			MaxAge:           43200,
-			Debug:            true,
+			MaxAge:           12 * time.Hour,
 		}))
 	} else {
-		api.Engine.Use(cors.New(cors.Options{
-			AllowedOrigins:   []string{cfg.Domain},
-			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-			AllowedHeaders:   []string{"Content-Type", "Content-Length"},
-			ExposedHeaders:   []string{"Content-Type", "Content-Length"},
+		api.Engine.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{cfg.Domain},
+			AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
+			AllowHeaders:     []string{"Origin"},
+			ExposeHeaders:    []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
-			MaxAge:           43200,
+			MaxAge:           12 * time.Hour,
 		}))
 	}
 }
@@ -172,10 +171,10 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 		crosshairs := base.Group("/crosshairs")
 		{
-			crosshairs.POST("/", routes.AddCrosshairRoute)
-			crosshairs.GET("/", routes.GetAllCrosshairsFromUserRoute)
-			crosshairs.DELETE("/", routes.DeleteAllCrosshairsFromUserRoute)
-			crosshairs.DELETE("/:code", routes.DeleteOneCrosshairFromUserRoute)
+			crosshairs.POST("/add", routes.AddCrosshairRoute)
+			crosshairs.GET("", routes.GetAllCrosshairsFromUserRoute)
+			crosshairs.DELETE("", routes.DeleteAllCrosshairsFromUserRoute)
+			crosshairs.DELETE("/single/:code", routes.DeleteOneCrosshairFromUserRoute)
 		}
 
 		admins := base.Group("/admins")
@@ -185,7 +184,7 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 			events := admins.Group("/events")
 			{
-				events.GET("/", routes.GetAllEventsRoute)
+				events.GET("", routes.GetAllEventsRoute)
 				events.GET("/:type", routes.GetEventsByTypeRoute)
 			}
 		}
