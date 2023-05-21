@@ -136,7 +136,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 		api.Engine.Use(cors.New(cors.Options{
 			AllowedOrigins:   []string{cfg.Domain},
 			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-			AllowedHeaders:   []string{"*"},
+			AllowedHeaders:   []string{"Content-Type", "Content-Length"},
 			ExposedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
 			MaxAge:           43200,
