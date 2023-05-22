@@ -1,6 +1,11 @@
-export interface successResponse {
+export interface userSuccessResponse {
     code: number;
-    data: {};
+    data: {
+        message:string;
+        role:string,
+        created_at:string,
+        e_mail:string,
+    };
 }
 
 export interface User {
@@ -16,7 +21,7 @@ export interface errorResponse {
     };
 }
 
-export interface crosshair {
+export interface Crosshair {
     added: string;
     code: string; 
     note: string;

@@ -1,6 +1,8 @@
-import React , { useRef, useState , useEffect } from 'react'
-import {createAnUser} from '../api/posts'
-import { User } from '../api/types'
+import React , { useState } from 'react'
+import { createUser } from '../api/posts'
+import { User, errorResponse, userSuccessResponse } from '../api/types'
+import { AxiosError } from 'axios';
+
 
 
 export default function Register() {
@@ -11,10 +13,19 @@ export default function Register() {
     
     const setNewValue = (e_mail: string , password: string) => 
         setUser(prevState => ({ ...prevState, [e_mail]: password }))
-        console.log(user);
-  
+
     
-        
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const response = await createUser(user);
+        if (response instanceof AxiosError) {
+            const errResponse = response?.response?.data as errorResponse;
+            console.log(errResponse.error.error_message)
+        } else {
+            const sucResponse = response.data as userSuccessResponse;
+            console.log(sucResponse.data.message)
+        }
+    }    
 
     return (
         <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
@@ -22,7 +33,7 @@ export default function Register() {
                 <h1 className="text-3xl font-semibold text-center text-purple-700 underline">
                    Sign Up
                 </h1>
-                <form className="mt-6">
+                <form onSubmit={handleSubmit} className="mt-6">
                     <div className="mb-2">
                         <label
                             htmlFor="email"
@@ -51,7 +62,7 @@ export default function Register() {
                     </div>
         
                     <div className="mt-6">
-                        <button onClick={() => createAnUser(user)} className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600">
+                        <button className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600">
                             Register
                         </button>
                     </div>
