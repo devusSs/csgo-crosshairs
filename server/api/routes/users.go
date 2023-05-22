@@ -75,6 +75,16 @@ func RegisterUserRoute(c *gin.Context) {
 		RegisterIP:       c.Request.Header.Get("X-Forwarded-For"),
 	}
 
+	_, err = Svc.AddUser(&newUser)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = err.Error()
+		resp.SendErrorResponse(c)
+		return
+	}
+
 	var emailData *utils.EmailData
 
 	if updater.BuildMode == "dev" {
@@ -95,16 +105,6 @@ func RegisterUserRoute(c *gin.Context) {
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
 		resp.Error.ErrorMessage = "Could not send confirmation email."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	_, err = Svc.AddUser(&newUser)
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = err.Error()
 		resp.SendErrorResponse(c)
 		return
 	}
