@@ -127,7 +127,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 	if updater.BuildMode == "dev" {
 		c = cors.New(cors.Options{
 			AllowedOrigins:      []string{"http://localhost:5173"},
-			AllowedMethods:      []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead},
+			AllowedMethods:      []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
 			AllowedHeaders:      []string{"Content-Type", "Content-Length"},
 			AllowPrivateNetwork: true,
 			AllowCredentials:    true,
@@ -137,7 +137,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 	} else {
 		c = cors.New(cors.Options{
 			AllowedOrigins:   []string{cfg.Domain},
-			AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead},
+			AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
 			AllowedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
 			MaxAge:           43200, // 12 hours
