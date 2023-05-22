@@ -3,6 +3,11 @@ export interface successResponse {
     data: {};
 }
 
+export interface User {
+    e_mail: string;
+    password: string;
+}
+
 export interface errorResponse {
     code: number;
     error: {
