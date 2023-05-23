@@ -25,6 +25,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "crosshairs": [
     {
+      "id": "uid",
       "added": "2023-05-18-19:40:13",
       "code": "",
       "note": ""
@@ -42,6 +43,7 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
+  "id": "uid",
   "added": "2023-05-18-19:40:13",
   "code": "",
   "note": ""
@@ -58,6 +60,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "crosshairs": [
     {
+      "id": "uid",
       "added": "2023-05-18-19:40:13",
       "code": "",
       "note": ""
