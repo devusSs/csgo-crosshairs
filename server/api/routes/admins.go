@@ -80,6 +80,7 @@ func GetAllUsersRoute(c *gin.Context) {
 
 		var returnUser models.ReturnUserAdmin
 
+		returnUser.ID = user.ID
 		returnUser.CreatedAt = user.CreatedAt
 		returnUser.UpdatedAt = user.UpdatedAt
 		returnUser.EMail = user.EMail
@@ -112,6 +113,7 @@ func GetAllUsersRoute(c *gin.Context) {
 
 	for _, u := range users {
 		var user models.ReturnUserAdmin
+		user.ID = u.ID
 		user.CreatedAt = u.CreatedAt
 		user.UpdatedAt = u.UpdatedAt
 		user.EMail = u.EMail
@@ -210,6 +212,7 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 		for _, ch := range crosshairsDB {
 			var crosshair models.Crosshair
 			if ch.RegistrantID == user.ID {
+				crosshair.ID = ch.ID
 				crosshair.Added = ch.CreatedAt
 				crosshair.Code = ch.Code
 				crosshair.Note = ch.Note
@@ -227,6 +230,7 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 
 	for _, ch := range crosshairsDB {
 		crosshair := models.Crosshair{
+			ID:    ch.ID,
 			Added: ch.CreatedAt,
 			Code:  ch.Code,
 			Note:  ch.Note,
