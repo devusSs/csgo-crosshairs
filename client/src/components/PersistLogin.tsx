@@ -11,25 +11,30 @@ const PersistLogin = () => {
   const { auth , setAuth }: any = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-      
+  useEffect((): any => {
+    let isMounted = true;
+
       async function getMyUserInformation(){
         const response = await getMe()
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
+            setAuth({}) 
+            localStorage.removeItem('role')
         } else {
             const sucResponse = response.data as userSuccessResponse;
             setAuth({'role' : sucResponse.data.role})
-            setLoading(false)
+            localStorage.setItem('role', sucResponse.data.role)
         }
+        isMounted && setLoading(false)
     }
     getMyUserInformation()
     !auth?.role ? setLoading(true) : setLoading(false)
-  })
-
-  return (
+    
+    return () => (isMounted = false);
+  }, [])
+  return(
     <>
-        {loading ? navigate('/login') : (<Outlet/>)}
+      {loading ? ( <div>Loading...</div> ) : (<Outlet />)}
     </>
   )
 }
