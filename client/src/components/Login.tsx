@@ -3,6 +3,7 @@ import {User , errorResponse , userSuccessResponse} from '../api/types'
 import { Link , useNavigate } from 'react-router-dom';
 import {loginUser} from '../api/requests'
 import { AxiosError } from 'axios';
+import useAuth from '../hooks/useAuth';
 
 
 export default function Login() {
@@ -11,12 +12,12 @@ export default function Login() {
         e_mail: "",
         password: ""
     });
+    const {auth, setAuth} : any = useAuth();
     
     const setNewValue = (e_mail: string , password: string) => 
         setUser(prevState => ({ ...prevState, [e_mail]: password }))
 
-    
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const response = await loginUser(user);
         if (response instanceof AxiosError) {
@@ -24,6 +25,8 @@ export default function Login() {
             setUser({} as User)
         } else {
             const sucResponse = response.data as userSuccessResponse;
+            localStorage.setItem('role', sucResponse.data.role)
+            setAuth(sucResponse.data)
             navigate('/home')
         }
     }    
