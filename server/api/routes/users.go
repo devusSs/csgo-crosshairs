@@ -89,12 +89,14 @@ func RegisterUserRoute(c *gin.Context) {
 
 	if updater.BuildMode == "dev" {
 		emailData = &utils.EmailData{
+			// URL = backend.
 			URL:     fmt.Sprintf("http://%s/api/users/verifyMail/%s", SRVAddr, utils.Encode(verificationCode)),
 			Subject: "E-Mail verification",
 		}
 	} else {
 		emailData = &utils.EmailData{
-			URL:     fmt.Sprintf("http://%s/api/users/verifyMail/%s", CFG.Domain, utils.Encode(verificationCode)),
+			// URL = frontend.
+			URL:     fmt.Sprintf("%s/register?code=%s", CFG.Domain, utils.Encode(verificationCode)),
 			Subject: "E-Mail verification",
 		}
 	}
@@ -153,6 +155,15 @@ func VerifyUserEMailRoute(c *gin.Context) {
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
 		resp.Error.ErrorMessage = "User does not exist."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if user.VerifiedMail {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "E-Mail has already been verified."
 		resp.SendErrorResponse(c)
 		return
 	}
