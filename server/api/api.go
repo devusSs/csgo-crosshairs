@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -86,15 +87,17 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 			Path:     "/",
 			HttpOnly: true,
 			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry, does not really matter for dev
-			Secure:   false,
+			Secure:   true,                     // When using NoneMode we need to set secure to true.
+			SameSite: http.SameSiteNoneMode,    // Ignore cross-site requests for development.
 		})
 	} else {
 		store.Options(sessions.Options{
 			Path:     "/",
-			Domain:   cfg.Domain,
+			Domain:   strings.Replace(cfg.Domain, "https://", "", 1),
 			HttpOnly: true,
 			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry
 			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
 		})
 	}
 
