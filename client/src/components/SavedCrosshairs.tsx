@@ -3,11 +3,13 @@ import { getCrosshairsUser } from '../api/requests'
 import { Crosshair } from '../api/types'
 import { AxiosError } from 'axios';
 import { errorResponse, crosshairSuccessResponse } from '../api/types';
+import { useNavigate } from 'react-router-dom';
 
 
 function SavedCrosshairs() {
   const [crosshairs, setCrosshairs] = useState([] as Crosshair[])
   const [status, setStatus] = useState('Loading...')
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function getCrosshairs(){
@@ -16,6 +18,8 @@ function SavedCrosshairs() {
       if (response instanceof AxiosError) {
         const errResponse = response?.response?.data as errorResponse;
         setStatus(errResponse.error.error_message)
+        navigate('/login')
+        
       } else {
           const sucResponse = response.data as crosshairSuccessResponse;
           setCrosshairs(sucResponse.data.crosshairs)

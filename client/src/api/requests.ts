@@ -1,12 +1,12 @@
 import axios from "axios";
-import { User, userSuccessResponse } from "./types";
+import { User } from "./types";
 
-const base_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
 export async function getMe() {
     try {
-        const res = await axios.get('https://api.dropawp.com/api/users/me' , {withCredentials:true})
+        const res = await axios.get(`${BASE_URL}/api/users/me` , {withCredentials:true})
 
         return res
     } catch (error) {
@@ -17,7 +17,7 @@ export async function getMe() {
 
 export async function getCrosshairsUser() {
     try {
-        const res = await axios.get('https://api.dropawp.com/api/crosshairs' , {withCredentials:true})
+        const res = await axios.get(`${BASE_URL}/api/crosshairs` , {withCredentials:true})
 
         return res
     } catch (error) {
@@ -28,29 +28,39 @@ export async function getCrosshairsUser() {
 }
 
 export async function createUser(user: User) {
-        try {
-            const res = await axios.post('https://api.dropawp.com/api/users/register', JSON.stringify(user))
-
-            return res
-        } catch (error) {
-   
-            return error
-        }
-  }; 
-
-export async function loginUser(user) {
-      
     try {
-        const res = await axios.post('https://api.dropawp.com/api/users/login', JSON.stringify(user), {withCredentials:true})
- 
+        const res = await axios.post(`${BASE_URL}/api/users/register`, JSON.stringify(user))
         return res
     } catch (error) {
 
         return error
     }
+}; 
+    
+export async function loginUser(user: any) {
+        
+    try {
+        const res = await axios.post(`${BASE_URL}/api/users/login`, JSON.stringify(user), {withCredentials:true})
+        
+        return res
+    } catch (error) {
+        
+        return error
+    }
 }
 
-export async function verifyMail(url) {
+export async function logoutUser() {
+    try {
+        const res = await axios.get(`${BASE_URL}/api/users/logout`, {withCredentials:true})
+ 
+        return res
+    } catch (error) {
+        
+        return error
+    }
+}
+
+export async function verifyMail(url: any) {
     try {
         const res = await axios.get(url)
 
@@ -61,11 +71,5 @@ export async function verifyMail(url) {
     }
 }
 
-export async function logoutUser() {
-
-    return await axios
-        .get("/api/users/logout")
-        .then((res) => res.status === 200 ? res.data : Promise.reject(res));
-}
 
 

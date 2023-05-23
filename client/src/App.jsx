@@ -17,16 +17,18 @@ const App = () => {
     <div className=''>
         <Navbar/> 
         <Routes>
-          <Route path='/home' element={<Home/>} />
           <Route element={<PersistLogin/>}>
-            <Route path='/generator' element={<CrosshairGen/>} />
-            <Route path='/saved' element={<SavedCrosshairs/>} />
-            <Route path='/demo' element={<Demo/>} />
+          <Route path='/home' element={<Home/>} />
+              <Route path='/generator' element={<CrosshairGen/>} />
+              <Route path='/saved' element={<SavedCrosshairs/>} />
+              <Route path='/demo' element={<Demo/>} />
+              <Route path='/login' element={<Login/>} />
+              <Route path='/register' element={<SignUp/>} />
+              <Route path='/register/?code=' element={<SignUp/>} />
+              <Route path='/reset' element={<ResetPassword/>} />
+
+              <Route path='*' element={<Home/>} />
           </Route>
-            <Route path='/login' element={<Login/>} />
-            <Route path='/register' element={<SignUp/>} />
-            <Route path='/register/?code=' element={<SignUp/>} />
-            <Route path='/reset' element={<ResetPassword/>} />
         </Routes> 
     </div>
   )
