@@ -7,8 +7,10 @@ import Login from './components/Login'
 import SignUp from './components/Register'
 import ResetPassword from './components/ResetPw'
 import SavedCrosshairs from './components/SavedCrosshairs'
+import PersistLogin from './components/PersistLogin'
 
 const App = () => {
+  
 
   
   return (
@@ -16,12 +18,15 @@ const App = () => {
         <Navbar/> 
         <Routes>
           <Route path='/home' element={<Home/>} />
-          <Route path='/generator' element={<CrosshairGen/>} />
-          <Route path='/demo' element={<Demo/>} />
-          <Route path='/login' element={<Login/>} />
-          <Route path='/register' element={<SignUp/>} />
-          <Route path='/reset' element={<ResetPassword/>} />
-          <Route path='/saved' element={<SavedCrosshairs/>} />
+          <Route element={<PersistLogin/>}>
+            <Route path='/generator' element={<CrosshairGen/>} />
+            <Route path='/saved' element={<SavedCrosshairs/>} />
+            <Route path='/demo' element={<Demo/>} />
+          </Route>
+            <Route path='/login' element={<Login/>} />
+            <Route path='/register' element={<SignUp/>} />
+            <Route path='/register/?code=' element={<SignUp/>} />
+            <Route path='/reset' element={<ResetPassword/>} />
         </Routes> 
     </div>
   )

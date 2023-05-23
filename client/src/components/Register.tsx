@@ -1,11 +1,33 @@
 import React , { useState } from 'react'
-import { createUser } from '../api/posts'
+import { createUser, verifyMail } from '../api/requests'
 import { User, errorResponse, userSuccessResponse } from '../api/types'
 import { AxiosError } from 'axios';
+import { useSearchParams , useNavigate} from 'react-router-dom';
 
 
 
 export default function Register() {
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const verificationCode = searchParams.get('code')
+    var verifyURL = 'https://api.dropawp.com/api/users/verifyMail/'+verificationCode
+ 
+
+    async function callVerifyMail(verifyURL: string){
+        const response = await verifyMail(verifyURL);
+    
+        if (response instanceof AxiosError) {
+            const errResponse = response?.response?.data as errorResponse;
+        } else {
+            const sucResponse = response.data as userSuccessResponse;
+            navigate('/login')
+        }
+    }
+
+    if (verificationCode != null && verificationCode != '' && verificationCode != undefined){
+        callVerifyMail(verifyURL)
+    }
+
     const [user, setUser] = useState<User>({
         e_mail: "",
         password: ""
@@ -15,15 +37,15 @@ export default function Register() {
         setUser(prevState => ({ ...prevState, [e_mail]: password }))
 
     
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         const response = await createUser(user);
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
-            console.log(errResponse.error.error_message)
+            // toast error
+            setUser({} as User)
         } else {
             const sucResponse = response.data as userSuccessResponse;
-            console.log(sucResponse.data.message)
         }
     }    
 
@@ -43,7 +65,7 @@ export default function Register() {
                         </label>
                         <input
                             type="email" placeholder='Enter your email' onChange={evt => {setNewValue('e_mail', evt.target.value)}}
-                            value={user.e_mail}
+                            value={user.e_mail || ''}
                             className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
                         />
                     </div>
@@ -56,7 +78,7 @@ export default function Register() {
                         </label>
                         <input
                             type="password" placeholder='Enter your password' onChange={evt => {setNewValue('password', evt.target.value)}}
-                            value={user.password}
+                            value={user.password ||  ''} 
                             className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
                         />
                     </div>

@@ -1,14 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React , {useState} from 'react';
+import {User , errorResponse , userSuccessResponse} from '../api/types'
+import { Link , useNavigate } from 'react-router-dom';
+import {loginUser} from '../api/requests'
+import { AxiosError } from 'axios';
+
 
 export default function Login() {
+    const navigate = useNavigate();
+    const [user, setUser] = useState<User>({
+        e_mail: "",
+        password: ""
+    });
+    
+    const setNewValue = (e_mail: string , password: string) => 
+        setUser(prevState => ({ ...prevState, [e_mail]: password }))
+
+    
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const response = await loginUser(user);
+        if (response instanceof AxiosError) {
+            const errResponse = response?.response?.data as errorResponse;
+            setUser({} as User)
+        } else {
+            const sucResponse = response.data as userSuccessResponse;
+            navigate('/home')
+        }
+    }    
+
     return (
         <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
             <div className="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-xl">
                 <h1 className="text-3xl font-semibold text-center text-purple-700 underline">
                    Sign in
                 </h1>
-                <form className="mt-6">
+                <form className="mt-6" onSubmit={handleSubmit}>
                     <div className="mb-2">
                         <label
                             htmlFor="email"
@@ -17,7 +43,8 @@ export default function Login() {
                             Email
                         </label>
                         <input
-                            type="email"
+                            type="email" placeholder='Enter your email' onChange={evt => {setNewValue('e_mail', evt.target.value)}}
+                            value={user.e_mail || ''}
                             className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
                         />
                     </div>
@@ -29,7 +56,8 @@ export default function Login() {
                             Password
                         </label>
                         <input
-                            type="password"
+                            type="password" placeholder='Enter your password' onChange={evt => {setNewValue('password', evt.target.value)}}
+                            value={user.password || ''}
                             className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
                         />
                     </div>
