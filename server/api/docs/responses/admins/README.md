@@ -12,6 +12,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "users": [
     {
+      "id": "uid",
       "created_at": "2023-05-18-19:40:13",
       "updated_at": "2023-05-18-19:40:13",
       "e_mail": "",
@@ -35,6 +36,7 @@ Every response will be send as the `data` part of the generalised success respon
 
 ```json
 {
+  "id": "uid",
   "created_at": "2023-05-18-19:40:13",
   "updated_at": "2023-05-18-19:40:13",
   "e_mail": "",
@@ -57,6 +59,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "crosshairs": [
     {
+      "id": "uid",
       "added": "2023-05-18-19:40:13",
       "code": "",
       "note": ""
@@ -76,6 +79,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "crosshair": [
     {
+      "id": "uid",
       "added": "2023-05-18-19:40:13",
       "code": "",
       "note": ""
@@ -95,7 +99,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
     [
         {
-            "id": "",
+          "id": "uid",
 	        "type": "",
 	        "data": {
                 "url": "",
@@ -120,7 +124,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
     [
         {
-            "id": "",
+          "id": "uid",
 	        "type": "",
 	        "data": {
                 "url": "",
@@ -145,7 +149,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
     [
         {
-            "id": "",
+          "id": "uid",
 	        "type": "",
 	        "data": {
                 "url": "",
@@ -170,7 +174,7 @@ Every response will be send as the `data` part of the generalised success respon
 {
     [
         {
-            "id": "",
+          "id": "uid",
 	        "type": "",
 	        "data": {
                 "url": "",
