@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Request models
@@ -52,6 +54,7 @@ type MultipleUsersAdmin struct {
 }
 
 type Crosshair struct {
+	ID    uuid.UUID `json:"id"`
 	Added time.Time `json:"added"`
 	Code  string    `json:"code"`
 	Note  string    `json:"note"`

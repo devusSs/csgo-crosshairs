@@ -195,6 +195,7 @@ func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 		for _, ch := range crosshairs {
 			var crosshair models.Crosshair
 			if ch.Code == crosshairCode {
+				crosshair.ID = ch.ID
 				crosshair.Added = ch.CreatedAt
 				crosshair.Code = ch.Code
 				crosshair.Note = ch.Note
@@ -244,6 +245,7 @@ func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 		for _, ch := range crosshairs {
 			var crosshair models.Crosshair
 			if ch.CreatedAt.After(startTime) && ch.CreatedAt.Before(endTime) {
+				crosshair.ID = ch.ID
 				crosshair.Added = ch.CreatedAt
 				crosshair.Code = ch.Code
 				crosshair.Note = ch.Note
@@ -272,6 +274,7 @@ func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 
 	for _, ch := range crosshairs {
 		var crosshair models.Crosshair
+		crosshair.ID = ch.ID
 		crosshair.Added = ch.CreatedAt
 		crosshair.Code = ch.Code
 		crosshair.Note = ch.Note
