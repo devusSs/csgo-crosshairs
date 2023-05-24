@@ -5,7 +5,7 @@ import Home from './components/Home'
 import Demo from './components/Demo'
 import Login from './components/Login'
 import SignUp from './components/Register'
-import ResetPassword from './components/ResetPw'
+import ResetPassword from './components/ResetPassword'
 import SavedCrosshairs from './components/SavedCrosshairs'
 import PersistLogin from './components/PersistLogin'
 
@@ -25,7 +25,7 @@ const App = () => {
               <Route path='/login' element={<Login/>} />
               <Route path='/register' element={<SignUp/>} />
               <Route path='/register/?code=' element={<SignUp/>} />
-              <Route path='/reset' element={<ResetPassword/>} />
+              <Route path='/resetpw' element={<ResetPassword/>} />
 
               <Route path='*' element={<Home/>} />
           </Route>
