@@ -3,7 +3,6 @@ import { User } from "./types";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
 export async function getMe() {
     try {
         const res = await axios.get(`${BASE_URL}/api/users/me` , {withCredentials:true})
@@ -71,5 +70,15 @@ export async function verifyMail(url: any) {
     }
 }
 
+export async function resetPassword() {
+    try {
+        const res = await axios.get(`${BASE_URL}/api/users/resetPass`)
+ 
+        return res
+    } catch (error) {
+        
+        return error
+    }
+}
 
 
