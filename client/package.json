@@ -23,6 +23,7 @@
     "react-router-dom": "^6.11.2",
     "react-scroll": "^1.8.9",
     "react-switch": "^7.0.0",
+    "react-toastify": "^9.1.3",
     "rgb-hex": "^4.0.1"
   },
   "devDependencies": {

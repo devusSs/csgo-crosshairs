@@ -1,6 +1,9 @@
 import React from 'react'
+import { resetPassword } from '../api/requests';
 
 export default function ResetPassword() {
+    
+
     return (
         <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
             <div className="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-xl">
