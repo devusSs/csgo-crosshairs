@@ -1,4 +1,4 @@
-import React , {useState}  from 'react'
+import React , {useState, ChangeEvent}  from 'react'
 
 
 function styleMenu() {
@@ -6,8 +6,8 @@ function styleMenu() {
 
   const isChecked= (value: string) => value === checked;
   
-  const onSelect = ({target: {value}}) => {
-    setChecked(value);
+  const onSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.currentTarget.value);
   }
 
   return (

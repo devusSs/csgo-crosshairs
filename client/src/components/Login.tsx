@@ -19,12 +19,12 @@ export default function Login() {
 
         const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await loginUser(user);
+        const response: any = await loginUser(user);
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
             setUser({} as User)
         } else {
-            const sucResponse = response.data as userSuccessResponse;
+            const sucResponse = response?.data as userSuccessResponse;
             localStorage.setItem('role', sucResponse.data.role)
             setAuth(sucResponse.data)
             navigate('/home')

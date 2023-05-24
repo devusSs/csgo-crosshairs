@@ -15,13 +15,15 @@ const PersistLogin = () => {
     let isMounted = true;
 
       async function getMyUserInformation(){
-        const response = await getMe()
+
+        const response: any = await getMe()
+        
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
             setAuth({}) 
             localStorage.removeItem('role')
         } else {
-            const sucResponse = response.data as userSuccessResponse;
+            const sucResponse = response?.data as userSuccessResponse;
             setAuth({'role' : sucResponse.data.role})
             localStorage.setItem('role', sucResponse.data.role)
         }

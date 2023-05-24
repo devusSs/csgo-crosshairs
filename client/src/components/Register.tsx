@@ -14,12 +14,12 @@ export default function Register() {
  
 
     async function callVerifyMail(verifyURL: string){
-        const response = await verifyMail(verifyURL);
+        const response: any= await verifyMail(verifyURL);
     
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
         } else {
-            const sucResponse = response.data as userSuccessResponse;
+            const sucResponse = response?.data as userSuccessResponse;
             navigate('/login')
         }
     }
@@ -39,13 +39,13 @@ export default function Register() {
     
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        const response = await createUser(user);
+        const response: any = await createUser(user);
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
             // toast error
             setUser({} as User)
         } else {
-            const sucResponse = response.data as userSuccessResponse;
+            const sucResponse = response?.data as userSuccessResponse;
         }
     }    
 

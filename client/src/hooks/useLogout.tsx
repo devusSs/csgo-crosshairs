@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import useAuth from './useAuth'
 import { useNavigate } from 'react-router-dom'
 import { logoutUser } from '../api/requests'
@@ -14,7 +14,7 @@ const useLogout = () => {
             navigate('/login')
         }
 
-        const response = await logoutUser()
+        const response: any = await logoutUser()
         
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;

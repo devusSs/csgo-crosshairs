@@ -13,7 +13,7 @@ function SavedCrosshairs() {
 
   useEffect(() => {
     async function getCrosshairs(){
-      const response = await getCrosshairsUser()
+      const response: any = await getCrosshairsUser()
 
       if (response instanceof AxiosError) {
         const errResponse = response?.response?.data as errorResponse;
@@ -21,7 +21,7 @@ function SavedCrosshairs() {
         navigate('/login')
         
       } else {
-          const sucResponse = response.data as crosshairSuccessResponse;
+          const sucResponse = response?.data as crosshairSuccessResponse;
           setCrosshairs(sucResponse.data.crosshairs)
       }
 

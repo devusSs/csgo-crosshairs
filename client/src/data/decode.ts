@@ -28,6 +28,7 @@ interface CrosshairData {
   cl_crosshairsize: number;
 }
 
+
 function bigNumberToByteArray(big: BigNumber): number[] {
   const str : string = big.toString(16).padStart(36, '0');
   const bytes : number[] = [];
@@ -73,7 +74,7 @@ function parseBytes(bytes: number[]): CrosshairData {
     };
   }
   
-  export const decode = shareCode => {
+  export function decode(shareCode: string) {
     if (!shareCode.match(SHARECODE_PATTERN)) {
       throw new Error('Invalid share code');
     }
