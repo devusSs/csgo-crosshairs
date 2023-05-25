@@ -100,3 +100,15 @@ Every response will be send as the `data` part of the generalised success respon
   "message": "Message indicating success"
 }
 ```
+
+## Perform user password reset for logged in user
+
+- URL: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/users/newPass
+- Method: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PATCH
+- Response body:
+
+```json
+{
+  "message": "Message indicating success"
+}
+```

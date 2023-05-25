@@ -12,6 +12,7 @@
 | POST   | /api/users/resetPass              | reset password for registered user                      | ✅     | ❌          |
 | GET    | /api/users/resetPass?email=&code= | check reset password code from email                    | ✅     | ❌          |
 | PATCH  | /api/users/resetPass?email=&code= | performs the actual password reset                      | ✅     | ❌          |
+| PATCH  | /api/users/newPass                | performs password reset for logged in user              | ✅     | ✅ (user)   |
 |        |                                   |                                                         |         |             |
 | GET    | /api/crosshairs                   | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)   |
 | GET    | /api/crosshairs?code=             | gets a specific crosshair by it's code                  | ✅     | ✅ (user)   |
