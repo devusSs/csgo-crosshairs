@@ -90,18 +90,18 @@ func RegisterUserRoute(c *gin.Context) {
 	if updater.BuildMode == "dev" {
 		emailData = &utils.EmailData{
 			// URL = backend.
-			URL:     fmt.Sprintf("http://%s/api/users/verifyMail/%s", SRVAddr, utils.Encode(verificationCode)),
-			Subject: "E-Mail verification",
+			URL:     fmt.Sprintf("http://%s/api/users/verifyMail?code=%s", SRVAddr, utils.Encode(verificationCode)),
+			Subject: "dropawp.com - E-Mail verification",
 		}
 	} else {
 		emailData = &utils.EmailData{
 			// URL = frontend.
-			URL:     fmt.Sprintf("%s/register?code=%s", CFG.Domain, utils.Encode(verificationCode)),
-			Subject: "E-Mail verification",
+			URL:     fmt.Sprintf("%s/users/register?code=%s", CFG.Domain, utils.Encode(verificationCode)),
+			Subject: "dropawp.com - E-Mail verification",
 		}
 	}
 
-	if err := utils.SendEmail(&newUser, emailData, CFG, utils.MailVerfication); err != nil {
+	if err := utils.SendEmail(&newUser, emailData, CFG); err != nil {
 		log.Println(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -138,7 +138,17 @@ func RegisterUserRoute(c *gin.Context) {
 }
 
 func VerifyUserEMailRoute(c *gin.Context) {
-	codeRaw := c.Params.ByName("code")
+	codeRaw := c.Query("code")
+
+	if codeRaw == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Missing code."
+		resp.SendErrorResponse(c)
+		return
+	}
+
 	code, err := utils.Decode(codeRaw)
 	if err != nil {
 		resp := responses.ErrorResponse{}
@@ -289,18 +299,17 @@ func LoginUserRoute(c *gin.Context) {
 
 func GetUserRoute(c *gin.Context) {
 	session := sessions.Default(c)
-	userID := session.Get("user")
 
-	if fmt.Sprintf("%s", userID) == "" {
+	if session.Get("user") == nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusUnauthorized
 		resp.Error.ErrorCode = "unauthorized"
-		resp.Error.ErrorMessage = "Invalid session id."
+		resp.Error.ErrorMessage = "You are currently not logged in."
 		resp.SendErrorResponse(c)
 		return
 	}
 
-	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
@@ -334,9 +343,19 @@ func GetUserRoute(c *gin.Context) {
 
 func LogoutUserRoute(c *gin.Context) {
 	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
 	session.Set("user", "")
 	session.Clear()
-	session.Options(sessions.Options{MaxAge: -1})
+	session.Options(sessions.Options{Path: "/", MaxAge: -1})
 	if err := session.Save(); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -382,9 +401,19 @@ func ResetPasswordRoute(c *gin.Context) {
 		return
 	}
 
-	verificationCode := utils.RandomString(25)
+	if !user.PasswordResetCodeTime.IsZero() && time.Since(user.PasswordResetCodeTime) < 10*time.Minute {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = fmt.Sprintf("Already requested a password reset. Please wait %.2f second(s).", time.Until(user.PasswordResetCodeTime).Seconds())
+		resp.SendErrorResponse(c)
+		return
+	}
 
-	_, err = Svc.AddResetPasswordCode(&database.UserAccount{EMail: resetPass.EMail, PasswordResetCode: verificationCode})
+	verificationCode := utils.RandomString(25)
+	resetCodeTime := time.Now()
+
+	_, err = Svc.AddResetPasswordCodeAndTime(&database.UserAccount{EMail: resetPass.EMail, PasswordResetCode: verificationCode, PasswordResetCodeTime: resetCodeTime})
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
@@ -398,17 +427,17 @@ func ResetPasswordRoute(c *gin.Context) {
 
 	if updater.BuildMode == "dev" {
 		emailData = &utils.EmailData{
-			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", SRVAddr, resetPass.EMail, utils.Encode(verificationCode)),
-			Subject: "Reset your password",
+			URL:     fmt.Sprintf("http://%s/api/users/resetPass?email=%s&code=%s", SRVAddr, resetPass.EMail, utils.Encode(verificationCode)),
+			Subject: "dropawp.com - Reset your password",
 		}
 	} else {
 		emailData = &utils.EmailData{
-			URL:     fmt.Sprintf("http://%s/api/users/resetPass/%s?code=%s", CFG.Domain, resetPass.EMail, utils.Encode(verificationCode)),
-			Subject: "Reset your password",
+			URL:     fmt.Sprintf("http://%s/users/reset-password?email=%s&code=%s", CFG.Domain, resetPass.EMail, utils.Encode(verificationCode)),
+			Subject: "dropawp.com - Reset your password",
 		}
 	}
 
-	if err := utils.SendEmail(user, emailData, CFG, utils.MailVerificationPassword); err != nil {
+	if err := utils.SendEmail(user, emailData, CFG); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
@@ -427,7 +456,7 @@ func ResetPasswordRoute(c *gin.Context) {
 }
 
 func VerifyUserPasswordCodeRoute(c *gin.Context) {
-	email := c.Param("email")
+	email := c.Query("email")
 	code := c.Query("code")
 
 	if email == "" || code == "" {
@@ -478,7 +507,7 @@ func VerifyUserPasswordCodeRoute(c *gin.Context) {
 }
 
 func ResetPasswordRouteFinal(c *gin.Context) {
-	email := c.Param("email")
+	email := c.Query("email")
 	code := c.Query("code")
 
 	if email == "" || code == "" {

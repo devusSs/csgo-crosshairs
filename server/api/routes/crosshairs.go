@@ -22,18 +22,17 @@ const (
 
 func AddCrosshairRoute(c *gin.Context) {
 	session := sessions.Default(c)
-	userID := session.Get("user")
 
-	if fmt.Sprintf("%s", userID) == "" {
+	if session.Get("user") == nil {
 		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Missing user id."
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
 		resp.SendErrorResponse(c)
 		return
 	}
 
-	userUID, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	userUID, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
@@ -64,11 +63,11 @@ func AddCrosshairRoute(c *gin.Context) {
 		return
 	}
 
-	if user.CrosshairsRegistered > crosshairsMax {
+	if user.Role != "admin" && user.CrosshairsRegistered > crosshairsMax {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Already added maximum number of crosshairs."
+		resp.Error.ErrorMessage = "Already registered maximum number of crosshairs."
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -140,18 +139,17 @@ func AddCrosshairRoute(c *gin.Context) {
 
 func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 	session := sessions.Default(c)
-	userID := session.Get("user")
 
-	if fmt.Sprintf("%s", userID) == "" {
+	if session.Get("user") == nil {
 		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Missing user id."
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
 		resp.SendErrorResponse(c)
 		return
 	}
 
-	userUID, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	userUID, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
@@ -288,26 +286,44 @@ func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 	resp.SendSuccessReponse(c)
 }
 
-func DeleteAllCrosshairsFromUserRoute(c *gin.Context) {
-	session := sessions.Default(c)
-	userID := session.Get("user")
+func DeleteOneOrMultipleCrosshairs(c *gin.Context) {
+	code := c.Query("code")
 
-	if fmt.Sprintf("%s", userID) == "" {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
 		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Missing user id."
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
 		resp.SendErrorResponse(c)
 		return
 	}
 
-	userUID, err := uuid.Parse(fmt.Sprintf("%s", userID))
+	userUID, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
 		resp.Error.ErrorMessage = "Could not parse user id."
 		resp.SendErrorResponse(c)
+		return
+	}
+
+	if code != "" {
+		if err := Svc.DeleteCrosshairFromUserByCode(userUID, code); err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusNotFound
+			resp.Error.ErrorCode = "not_found"
+			resp.Error.ErrorMessage = "Could not find crosshair."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		resp := responses.SuccessResponse{
+			Code: http.StatusNoContent,
+		}
+		resp.SendSuccessReponse(c)
 		return
 	}
 
@@ -316,55 +332,6 @@ func DeleteAllCrosshairsFromUserRoute(c *gin.Context) {
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
 		resp.Error.ErrorMessage = "Something, went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	resp := responses.SuccessResponse{
-		Code: http.StatusNoContent,
-	}
-	resp.SendSuccessReponse(c)
-}
-
-func DeleteOneCrosshairFromUserRoute(c *gin.Context) {
-	session := sessions.Default(c)
-	userID := session.Get("user")
-
-	if fmt.Sprintf("%s", userID) == "" {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Missing user id."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	userUID, err := uuid.Parse(fmt.Sprintf("%s", userID))
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Could not parse user id."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	code := c.Param("code")
-
-	if code == "" {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Did not specify crosshair code."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	if err := Svc.DeleteCrosshairFromUserByCode(userUID, code); err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusNotFound
-		resp.Error.ErrorCode = "not_found"
-		resp.Error.ErrorMessage = "Could not find crosshair."
 		resp.SendErrorResponse(c)
 		return
 	}
