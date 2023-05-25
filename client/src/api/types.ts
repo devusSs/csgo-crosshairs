@@ -20,6 +20,10 @@ export interface User {
     password: string;
 }
 
+export interface Email {
+    e_mail: string;
+}
+
 export interface errorResponse {
     code: number;
     error: {
