@@ -10,17 +10,16 @@ export default function Register() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const verificationCode = searchParams.get('code')
-    var verifyURL = 'https://api.dropawp.com/api/users/verifyMail/'+verificationCode
- 
+    var verifyURL = `https://api.dropawp.com/api/users/verifyMail?code=${verificationCode}`
 
     async function callVerifyMail(verifyURL: string){
         const response: any= await verifyMail(verifyURL);
-    
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
+            navigate('/users/register')
         } else {
             const sucResponse = response?.data as userSuccessResponse;
-            navigate('/login')
+            navigate('/users/login')
         }
     }
 
@@ -39,13 +38,14 @@ export default function Register() {
     
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setUser({} as User)
         const response: any = await createUser(user);
         if (response instanceof AxiosError) {
             const errResponse = response?.response?.data as errorResponse;
             // toast error
-            setUser({} as User)
         } else {
             const sucResponse = response?.data as userSuccessResponse;
+            // toast du nutten verify
         }
     }    
 
