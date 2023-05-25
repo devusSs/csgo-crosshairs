@@ -37,8 +37,12 @@ func (p *psql) UpdateUserCrosshairCount(user *database.UserAccount) (*database.U
 	return user, tx.Error
 }
 
-func (p *psql) AddResetPasswordCode(user *database.UserAccount) (*database.UserAccount, error) {
+func (p *psql) AddResetPasswordCodeAndTime(user *database.UserAccount) (*database.UserAccount, error) {
 	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Update("password_reset_code", user.PasswordResetCode)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	tx = p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Update("password_reset_code_time", user.PasswordResetCodeTime)
 	return user, tx.Error
 }
 

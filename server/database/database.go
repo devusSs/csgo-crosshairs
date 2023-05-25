@@ -18,7 +18,7 @@ type Service interface {
 	UpdateUserLogin(*UserAccount) (*UserAccount, error)
 	GetUserByUID(*UserAccount) (*UserAccount, error)
 	UpdateUserCrosshairCount(*UserAccount) (*UserAccount, error)
-	AddResetPasswordCode(*UserAccount) (*UserAccount, error)
+	AddResetPasswordCodeAndTime(*UserAccount) (*UserAccount, error)
 	GetUserByResetpasswordCode(*UserAccount) (*UserAccount, error)
 	UpdateUserPassword(*UserAccount) (*UserAccount, error)
 
@@ -47,7 +47,8 @@ type UserAccount struct {
 	VerificationCode string `gorm:"not null"`
 	VerifiedMail     bool
 
-	PasswordResetCode string
+	PasswordResetCode     string
+	PasswordResetCodeTime time.Time
 
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string
