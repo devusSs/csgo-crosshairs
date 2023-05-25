@@ -2,7 +2,6 @@ package routes
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -42,6 +41,90 @@ func RegisterUserRoute(c *gin.Context) {
 		resp.Error.ErrorCode = "invalid_request"
 		resp.Error.ErrorMessage = "Invalid e-mail address provided."
 		resp.SendErrorResponse(c)
+		return
+	}
+
+	resendMail := c.Query("action")
+
+	if resendMail == "resend" {
+		user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: registerUser.EMail})
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = "No such user exists."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		if user.VerifiedMail {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = "E-Mail address has already been verified."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		if time.Since(user.CreatedAt) < 5*time.Minute {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = fmt.Sprintf("Please wait %.2f second(s) before retrying.", time.Until(user.CreatedAt).Seconds())
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		if !user.RequestNewVerifyMailTime.IsZero() && time.Since(user.RequestNewVerifyMailTime) < 10*time.Minute {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = fmt.Sprintf("Please wait %.2f second(s) before retrying.", time.Until(user.RequestNewVerifyMailTime).Seconds())
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		var emailData *utils.EmailData
+
+		if updater.BuildMode == "dev" {
+			emailData = &utils.EmailData{
+				// URL = backend.
+				URL:     fmt.Sprintf("http://%s/api/users/verifyMail?code=%s", SRVAddr, utils.Encode(user.VerificationCode)),
+				Subject: "dropawp.com - E-Mail verification",
+			}
+		} else {
+			emailData = &utils.EmailData{
+				// URL = frontend.
+				URL:     fmt.Sprintf("%s/users/register?code=%s", CFG.Domain, utils.Encode(user.VerificationCode)),
+				Subject: "dropawp.com - E-Mail verification",
+			}
+		}
+
+		_, err = Svc.UpdateVerifyMailResendTime(&database.UserAccount{EMail: user.EMail, RequestNewVerifyMailTime: time.Now()})
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = "Something went wrong, sorry."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		if err := utils.SendEmail(user, emailData, CFG); err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = "Could not send confirmation email."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		resp := responses.SuccessResponse{}
+		resp.Code = http.StatusOK
+		resp.Data = responses.GeneralUserResponse{
+			Message: "Please check your e-mails.",
+		}
+		resp.SendSuccessReponse(c)
 		return
 	}
 
@@ -102,7 +185,6 @@ func RegisterUserRoute(c *gin.Context) {
 	}
 
 	if err := utils.SendEmail(&newUser, emailData, CFG); err != nil {
-		log.Println(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
