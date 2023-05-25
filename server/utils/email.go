@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"crypto/tls"
 	"html/template"
 	"net/mail"
 	"os"
@@ -10,13 +9,7 @@ import (
 
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
-	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
-)
-
-const (
-	MailVerfication          = "mailVerification"
-	MailVerificationPassword = "passwordVerification"
 )
 
 type EmailData struct {
@@ -43,7 +36,7 @@ func ParseTemplateDir(dir string) (*template.Template, error) {
 	return template.ParseFiles(paths...)
 }
 
-func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config, mailType string) error {
+func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) error {
 	from := cfg.EmailFrom
 	smtpPass := cfg.SMTPPass
 	smtpUser := cfg.SMTPUser
@@ -58,16 +51,8 @@ func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config, 
 		return err
 	}
 
-	if mailType == MailVerfication {
-		if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
-			return err
-		}
-	}
-
-	if mailType == MailVerificationPassword {
-		if err := template.ExecuteTemplate(&body, "passwordVerification.html", &data); err != nil {
-			return err
-		}
+	if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
+		return err
 	}
 
 	m := gomail.NewMessage()
@@ -76,10 +61,8 @@ func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config, 
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", data.Subject)
 	m.SetBody("text/html", body.String())
-	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
 
 	d := gomail.NewDialer(smtpHost, smtpPort, smtpUser, smtpPass)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	if err := d.DialAndSend(m); err != nil {
 		return err
