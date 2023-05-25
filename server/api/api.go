@@ -174,6 +174,7 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			users.POST("/resetPass", routes.ResetPasswordRoute)
 			users.GET("/resetPass", routes.VerifyUserPasswordCodeRoute)
 			users.PATCH("/resetPass", routes.ResetPasswordRouteFinal)
+			users.PATCH("/newPass", routes.ResetPasswordWhenLoggedInRoute)
 		}
 
 		crosshairs := base.Group("/crosshairs")
