@@ -8,24 +8,28 @@ import SignUp from './components/Register'
 import ResetPassword from './components/ResetPassword'
 import SavedCrosshairs from './components/SavedCrosshairs'
 import PersistLogin from './components/PersistLogin'
+import UserProfile from './components/UserProfile'
 
 const App = () => {
-  
-
+ 
   
   return (
     <div className=''>
         <Navbar/> 
         <Routes>
           <Route element={<PersistLogin/>}>
-          <Route path='/home' element={<Home/>} />
-              <Route path='/generator' element={<CrosshairGen/>} />
-              <Route path='/saved' element={<SavedCrosshairs/>} />
-              <Route path='/demo' element={<Demo/>} />
-              <Route path='/login' element={<Login/>} />
-              <Route path='/register' element={<SignUp/>} />
-              <Route path='/register/?code=' element={<SignUp/>} />
-              <Route path='/resetpw' element={<ResetPassword/>} />
+              <Route path='/home' element={<Home/>} />
+              
+              <Route path='/crosshairs/generator' element={<CrosshairGen/>} />
+              <Route path='/crosshairs/saved' element={<SavedCrosshairs/>} />
+              <Route path='/crosshairs/demo' element={<Demo/>} />
+              <Route path='/users/profile' element={<UserProfile/>} />
+              <Route path='/users/login' element={<Login/>} />
+              <Route path='/users/register' element={<SignUp/>} />
+              <Route path='/users/register?code=' element={<SignUp/>} />
+              <Route path='/users/reset-password' element={<ResetPassword/>} />
+              <Route path='/users/reset-password?email=&code=' element={<ResetPassword/>} />
+              <Route path='/users/new-password' element={<ResetPassword/>} />
 
               <Route path='*' element={<Home/>} />
           </Route>
