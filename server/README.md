@@ -1,4 +1,4 @@
-# Backend for chs.devuscs.me
+# Backend for dropawp.com
 
 ## Setup
 
