@@ -14,7 +14,7 @@ function CrosshairGen() {
  useEffect((): any => {
     let isMounted = true;
     if (auth?.role !== 'user' && auth?.role !== 'admin') {
-      navigate('/login')
+      navigate('/users/login')
     }
     return () => (isMounted = false);
  }, [auth?.role])
