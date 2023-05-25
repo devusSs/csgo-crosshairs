@@ -130,7 +130,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 	if updater.BuildMode == "dev" {
 		c = cors.New(cors.Options{
 			AllowedOrigins:      []string{"http://localhost:5173"},
-			AllowedMethods:      []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
+			AllowedMethods:      []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 			AllowedHeaders:      []string{"Content-Type", "Content-Length"},
 			AllowPrivateNetwork: true,
 			AllowCredentials:    true,
@@ -140,7 +140,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 	} else {
 		c = cors.New(cors.Options{
 			AllowedOrigins:   []string{cfg.Domain},
-			AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions},
+			AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 			AllowedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
 			MaxAge:           43200, // 12 hours
@@ -199,8 +199,11 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 func (api *API) StartAPI() error {
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", api.Host, api.Port),
-		Handler: api.Engine,
+		Addr:         fmt.Sprintf("%s:%d", api.Host, api.Port),
+		Handler:      api.Engine,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	routes.SRVAddr = srv.Addr
