@@ -22,6 +22,7 @@ type Service interface {
 	GetUserByResetpasswordCode(*UserAccount) (*UserAccount, error)
 	UpdateUserPassword(*UserAccount) (*UserAccount, error)
 	UpdateUserPasswordRaw(*UserAccount) (*UserAccount, error)
+	UpdateVerifyMailResendTime(*UserAccount) (*UserAccount, error)
 
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
@@ -47,6 +48,8 @@ type UserAccount struct {
 	Role             string `gorm:"not null"`
 	VerificationCode string `gorm:"not null"`
 	VerifiedMail     bool
+
+	RequestNewVerifyMailTime time.Time
 
 	PasswordResetCode     string
 	PasswordResetCodeTime time.Time
