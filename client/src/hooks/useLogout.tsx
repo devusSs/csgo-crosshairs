@@ -11,7 +11,7 @@ const useLogout = () => {
     
     const logout = async () => {
         if (!auth?.role) {
-            navigate('/login')
+            navigate('/users/login')
         }
 
         const response: any = await logoutUser()
