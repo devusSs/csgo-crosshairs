@@ -618,3 +618,111 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 	}
 	resp.SendSuccessReponse(c)
 }
+
+func ResetPasswordWhenLoggedInRoute(c *gin.Context) {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var requestBody models.RequestPWResetLoggedIn
+
+	if err := c.BindJSON(&requestBody); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Invalid request body."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if len(requestBody.CurrentPassword) < lenPasswordNeeded || len(requestBody.NewPassword) < lenPasswordNeeded {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = fmt.Sprintf("A password needs to be at least %d characters long.", lenPasswordNeeded)
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "User could not be found."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := utils.VerifyPassword(user.Password, requestBody.CurrentPassword); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "Old passwords do not match."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	hashedNewPassword, err := utils.HashPassword(requestBody.NewPassword)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Could not hash password."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	_, err = Svc.UpdateUserPasswordRaw(&database.UserAccount{EMail: user.EMail, Password: hashedNewPassword})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Could not update password."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var event database.Event
+
+	event.Type = database.UserChangedPassword
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
+	event.Timestamp = time.Now()
+
+	_, err = Svc.AddEvent(&event)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{
+		Code: http.StatusOK,
+		Data: responses.GeneralUserResponse{
+			Message: "Successfully updated your password.",
+		},
+	}
+	resp.SendSuccessReponse(c)
+}

@@ -68,3 +68,8 @@ type GetMultipleCrosshairs struct {
 type GetOneCrosshair struct {
 	Crosshair Crosshair `json:"crosshair"`
 }
+
+type RequestPWResetLoggedIn struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
