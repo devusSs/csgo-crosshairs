@@ -167,21 +167,20 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 		users := base.Group("/users")
 		{
 			users.POST("/register", routes.RegisterUserRoute)
-			users.GET("/verifyMail/:code", routes.VerifyUserEMailRoute)
+			users.GET("/verifyMail", routes.VerifyUserEMailRoute)
 			users.POST("/login", routes.LoginUserRoute)
 			users.GET("/me", routes.GetUserRoute)
 			users.GET("/logout", routes.LogoutUserRoute)
 			users.POST("/resetPass", routes.ResetPasswordRoute)
-			users.GET("/resetPass/:email", routes.VerifyUserPasswordCodeRoute)
-			users.PATCH("/resetPass/:email", routes.ResetPasswordRouteFinal)
+			users.GET("/resetPass", routes.VerifyUserPasswordCodeRoute)
+			users.PATCH("/resetPass", routes.ResetPasswordRouteFinal)
 		}
 
 		crosshairs := base.Group("/crosshairs")
 		{
 			crosshairs.POST("/add", routes.AddCrosshairRoute)
 			crosshairs.GET("", routes.GetAllCrosshairsFromUserRoute)
-			crosshairs.DELETE("", routes.DeleteAllCrosshairsFromUserRoute)
-			crosshairs.DELETE("/single/:code", routes.DeleteOneCrosshairFromUserRoute)
+			crosshairs.DELETE("", routes.DeleteOneOrMultipleCrosshairs)
 		}
 
 		admins := base.Group("/admins")
@@ -191,8 +190,7 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 			events := admins.Group("/events")
 			{
-				events.GET("", routes.GetAllEventsRoute)
-				events.GET("/:type", routes.GetEventsByTypeRoute)
+				events.GET("", routes.GetAllEventsOrByTypeRoute)
 			}
 		}
 	}
