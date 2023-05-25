@@ -70,10 +70,21 @@ export async function verifyMail(url: any) {
     }
 }
 
-export async function resetPassword() {
+export async function resetPassword(email: any) {
     try {
-        const res = await axios.get(`${BASE_URL}/api/users/resetPass`)
- 
+        const res = await axios.post(`${BASE_URL}/api/users/resetPass`, JSON.stringify(email))
+        
+        return res
+    } catch (error) {
+        
+        return error
+    }
+}
+
+export async function authorizeRequestPasswordChange(url: string) {
+    try {
+        const res = await axios.get(url)
+        
         return res
     } catch (error) {
         
