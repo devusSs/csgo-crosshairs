@@ -232,13 +232,13 @@ func (api *API) StartAPI() error {
 }
 
 func rateLimitGetIP(c *gin.Context) string {
-	return c.ClientIP()
+	return c.Request.Header.Get("X-Forwarded-For")
 }
 
 func rateLimitError(c *gin.Context, info ratelimit.Info) {
 	var resp responses.ErrorResponse
 	resp.Code = http.StatusTooManyRequests
 	resp.Error.ErrorCode = "flooding"
-	resp.Error.ErrorMessage = "Too many requests. Try again in " + time.Until(info.ResetTime).String()
+	resp.Error.ErrorMessage = fmt.Sprintf("Too many requests. Try again in %.2f second(s).", time.Until(info.ResetTime).Seconds())
 	resp.SendErrorResponse(c)
 }
