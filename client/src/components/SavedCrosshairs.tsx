@@ -22,7 +22,7 @@ function SavedCrosshairs() {
         
       } else {
           const sucResponse = response?.data as crosshairSuccessResponse;
-          setCrosshairs(sucResponse.data.crosshairs)
+          sucResponse.data.crosshairs ? setCrosshairs(sucResponse.data.crosshairs) : setStatus('No Crosshairs found')
       }
 
     }
