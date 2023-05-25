@@ -55,10 +55,11 @@ func AddCrosshairRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: userUID})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Could not find user."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -109,20 +110,22 @@ func AddCrosshairRoute(c *gin.Context) {
 
 	_, err = Svc.AddCrosshair(crosshair)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
 
 	user, err = Svc.UpdateUserCrosshairCount(&database.UserAccount{ID: userUID})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -161,10 +164,11 @@ func GetAllCrosshairsFromUserRoute(c *gin.Context) {
 
 	crosshairs, err := Svc.GetAllCrosshairsFromUser(userUID)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -312,10 +316,11 @@ func DeleteOneOrMultipleCrosshairs(c *gin.Context) {
 
 	if code != "" {
 		if err := Svc.DeleteCrosshairFromUserByCode(userUID, code); err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusNotFound
 			resp.Error.ErrorCode = "not_found"
-			resp.Error.ErrorMessage = "Could not find crosshair."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -328,10 +333,11 @@ func DeleteOneOrMultipleCrosshairs(c *gin.Context) {
 	}
 
 	if err := Svc.DeleteAllCrosshairsFromUser(userUID); err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something, went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}

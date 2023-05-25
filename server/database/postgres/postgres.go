@@ -29,6 +29,7 @@ func NewConnection(cfg *config.Config, gormLogger logger.Interface) (database.Se
 		Logger:                 gormLogger,
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
+		TranslateError:         true,
 	})
 	if err != nil {
 		return nil, err

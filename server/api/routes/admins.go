@@ -38,10 +38,11 @@ func GetAllUsersRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -69,10 +70,11 @@ func GetAllUsersRoute(c *gin.Context) {
 
 		user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: email})
 		if err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusBadRequest
 			resp.Error.ErrorCode = "invalid_request"
-			resp.Error.ErrorMessage = "User does not exist."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -100,10 +102,11 @@ func GetAllUsersRoute(c *gin.Context) {
 
 	users, err := Svc.GetAllUsers()
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -156,10 +159,11 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -175,10 +179,11 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 
 	crosshairsDB, err := Svc.GetAllCrosshairs()
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -199,10 +204,11 @@ func GetAllCrosshairsRoute(c *gin.Context) {
 
 		user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: email})
 		if err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusBadRequest
 			resp.Error.ErrorCode = "invalid_request"
-			resp.Error.ErrorMessage = "User does not exist."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -267,10 +273,11 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -299,10 +306,11 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 
 		events, err := Svc.GetEventsByType(eventType)
 		if err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusInternalServerError
 			resp.Error.ErrorCode = "internal_error"
-			resp.Error.ErrorMessage = "Something went wrong, sorry."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -337,10 +345,11 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 
 	events, err := Svc.GetEvents()
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}

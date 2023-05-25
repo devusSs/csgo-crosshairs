@@ -49,10 +49,11 @@ func RegisterUserRoute(c *gin.Context) {
 	if resendMail == "resend" {
 		user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: registerUser.EMail})
 		if err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusBadRequest
 			resp.Error.ErrorCode = "invalid_request"
-			resp.Error.ErrorMessage = "No such user exists."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -102,10 +103,11 @@ func RegisterUserRoute(c *gin.Context) {
 
 		_, err = Svc.UpdateVerifyMailResendTime(&database.UserAccount{EMail: user.EMail, RequestNewVerifyMailTime: time.Now()})
 		if err != nil {
+			errString := database.CheckDatabaseError(err)
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusInternalServerError
 			resp.Error.ErrorCode = "internal_error"
-			resp.Error.ErrorMessage = "Something went wrong, sorry."
+			resp.Error.ErrorMessage = errString
 			resp.SendErrorResponse(c)
 			return
 		}
@@ -160,10 +162,11 @@ func RegisterUserRoute(c *gin.Context) {
 
 	_, err = Svc.AddUser(&newUser)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = err.Error()
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -203,10 +206,11 @@ func RegisterUserRoute(c *gin.Context) {
 
 	_, err = Svc.AddEvent(&event)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -243,10 +247,11 @@ func VerifyUserEMailRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByVerificationCode(&database.UserAccount{VerificationCode: code})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User does not exist."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -272,10 +277,11 @@ func VerifyUserEMailRoute(c *gin.Context) {
 	user.VerifiedMail = true
 
 	if _, err := Svc.UpdateUserVerification(user); err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Error updating user verification."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -320,10 +326,11 @@ func LoginUserRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: loginUser.EMail})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "E-Mail address does not exist."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -351,10 +358,11 @@ func LoginUserRoute(c *gin.Context) {
 
 	userDB, err := Svc.UpdateUserLogin(user)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -403,10 +411,11 @@ func GetUserRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -475,10 +484,11 @@ func ResetPasswordRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByEmail(&database.UserAccount{EMail: resetPass.EMail})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusNotFound
 		resp.Error.ErrorCode = "not_found"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -497,10 +507,11 @@ func ResetPasswordRoute(c *gin.Context) {
 
 	_, err = Svc.AddResetPasswordCodeAndTime(&database.UserAccount{EMail: resetPass.EMail, PasswordResetCode: verificationCode, PasswordResetCodeTime: resetCodeTime})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -571,10 +582,11 @@ func VerifyUserPasswordCodeRoute(c *gin.Context) {
 
 	_, err = Svc.GetUserByResetpasswordCode(&database.UserAccount{EMail: email, PasswordResetCode: code})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "E-Mail or code mismatch."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -642,10 +654,11 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 
 	user, err := Svc.GetUserByResetpasswordCode(&database.UserAccount{EMail: email, PasswordResetCode: code})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "E-Mail or code mismatch."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -666,10 +679,11 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 
 	_, err = Svc.UpdateUserPassword(user)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Could not update password."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -684,10 +698,11 @@ func ResetPasswordRouteFinal(c *gin.Context) {
 
 	_, err = Svc.AddEvent(&event)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -745,10 +760,11 @@ func ResetPasswordWhenLoggedInRoute(c *gin.Context) {
 
 	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusBadRequest
 		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "User could not be found."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -774,10 +790,11 @@ func ResetPasswordWhenLoggedInRoute(c *gin.Context) {
 
 	_, err = Svc.UpdateUserPasswordRaw(&database.UserAccount{EMail: user.EMail, Password: hashedNewPassword})
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Could not update password."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
@@ -792,10 +809,11 @@ func ResetPasswordWhenLoggedInRoute(c *gin.Context) {
 
 	_, err = Svc.AddEvent(&event)
 	if err != nil {
+		errString := database.CheckDatabaseError(err)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
 		return
 	}
