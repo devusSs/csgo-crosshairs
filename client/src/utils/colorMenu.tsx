@@ -39,7 +39,7 @@ function colorMenu(props: Props) {
           <div className='absolute -inset-0 z-10 bg-red-500 opacity-100' style={{background:getRgbaCSS(selectedColor)}}/>
 
           <div className='absolute -inset-0 z-0'>
-            <img src="./empty.png" alt="" className='w-full h-full' />
+            
           </div>
         </button>
 
