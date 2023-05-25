@@ -21,6 +21,7 @@ type Service interface {
 	AddResetPasswordCodeAndTime(*UserAccount) (*UserAccount, error)
 	GetUserByResetpasswordCode(*UserAccount) (*UserAccount, error)
 	UpdateUserPassword(*UserAccount) (*UserAccount, error)
+	UpdateUserPasswordRaw(*UserAccount) (*UserAccount, error)
 
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)

@@ -55,3 +55,8 @@ func (p *psql) UpdateUserPassword(user *database.UserAccount) (*database.UserAcc
 	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Where("password_reset_code = ?", user.PasswordResetCode).Update("password", user.Password)
 	return user, tx.Error
 }
+
+func (p *psql) UpdateUserPasswordRaw(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Update("password", user.Password)
+	return user, tx.Error
+}
