@@ -6,6 +6,7 @@
 | ------ | --------------------------------- | ------------------------------------------------------- | ------ | ----------- |
 | GET    | /api/users/me                     | gets information about the logged in user               | ✅     | ✅ (user)   |
 | POST   | /api/users/register               | registers a new user                                    | ✅     | ❌          |
+| POST   | /api/users/register?action=resend | resends verify email                                    | ✅     | ❌          |
 | GET    | /api/users/verifyMail?code=       | verified the user's email on registration               | ✅     | ❌          |
 | POST   | /api/users/login                  | login for existing users                                | ✅     | ❌          |
 | GET    | /api/users/logout                 | logout for logged in user                               | ✅     | ✅ (user)   |
