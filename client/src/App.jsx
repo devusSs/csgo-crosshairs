@@ -9,6 +9,7 @@ import ResetPassword from './components/ResetPassword'
 import SavedCrosshairs from './components/SavedCrosshairs'
 import PersistLogin from './components/PersistLogin'
 import UserProfile from './components/UserProfile'
+import Footer from './components/Footer'
 
 const App = () => {
  
@@ -18,8 +19,7 @@ const App = () => {
         <Navbar/> 
         <Routes>
           <Route element={<PersistLogin/>}>
-              <Route path='/home' element={<Home/>} />
-              
+              <Route path='/home' element={<Home/>} />  
               <Route path='/crosshairs/generator' element={<CrosshairGen/>} />
               <Route path='/crosshairs/saved' element={<SavedCrosshairs/>} />
               <Route path='/crosshairs/demo' element={<Demo/>} />
@@ -34,6 +34,7 @@ const App = () => {
               <Route path='*' element={<Home/>} />
           </Route>
         </Routes> 
+        <Footer/>
     </div>
   )
 }
