@@ -11,13 +11,17 @@ const Navbar: React.FC = () => {
   const {auth}: any = useAuth();
   const logout = useLogout();
 
+  const callLogout = async() => {
+    await logout()
+  }
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const callLogout = async() => {
-    await logout()
-  }
+  const closeDropdown = () => {
+    setIsOpen(false);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,10 +57,10 @@ const Navbar: React.FC = () => {
                 {isOpen && (
                     <div className="origin-top-right absolute right-auto mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                      <Link to="/crosshairs/generator" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                      <Link to="/crosshairs/generator" onClick={closeDropdown} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                         Generator
                       </Link>
-                      <Link to="/crosshairs/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                      <Link to="/crosshairs/saved" onClick={closeDropdown} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                         Saved Crosshairs
                       </Link>
                     </div>
@@ -66,13 +70,13 @@ const Navbar: React.FC = () => {
                 )}
 
               {auth?.role && (
-                <Link to="/crosshairs/demo" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                <Link to="/crosshairs/demo"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 Demo Extractor
                 </Link>
               )}
               
               {!auth?.role && (
-                <Link to="/users/login" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                <Link to="/users/login"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   <span>
                     Login
                   </span>
