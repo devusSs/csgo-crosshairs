@@ -14,11 +14,13 @@ import (
 	"time"
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
+	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/logging"
+	"github.com/devusSs/crosshairs/stats"
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
@@ -162,6 +164,8 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 
 	base := api.Engine.Group("/api")
 	{
+		base.Use(middleware.CountRequestsMiddleware)
+
 		base.GET("/", routes.HomeRoute)
 
 		users := base.Group("/users")
@@ -193,11 +197,19 @@ func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
 			{
 				events.GET("", routes.GetAllEventsOrByTypeRoute)
 			}
+
+			stats := admins.Group("/stats")
+			{
+				stats.GET("/total", routes.GetTotalStatsRoute)
+				stats.GET("/daily", routes.Get24HourStatsRoute)
+			}
 		}
 	}
 }
 
 func (api *API) StartAPI() error {
+	time.AfterFunc(stats.CalculateTimeUntilMidnight(), stats.Reset24Statistics)
+
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", api.Host, api.Port),
 		Handler:      api.Engine,

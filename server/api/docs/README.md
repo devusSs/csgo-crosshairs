@@ -30,6 +30,8 @@
 | GET    | /api/admins/events?limit=         | gets X (limit) most recent events                       | ✅     | ✅ (admin)  |
 | GET    | /api/admins/events?type=          | gets all events by a specific type                      | ✅     | ✅ (admin)  |
 | GET    | /api/admins/events?type=&limit=   | gets X (limit) most recent events by a specific type    | ✅     | ✅ (admin)  |
+| GET    | /api/admins/stats/total           | gets overall API stats                                  | ✅     | ✅ (admin)  |
+| GET    | /api/admins/stats/daily           | gets API stats for day                                  | ✅     | ✅ (admin)  |
 
 Events supported so far:
 

@@ -8,6 +8,7 @@ import (
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/database"
+	"github.com/devusSs/crosshairs/stats"
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
@@ -286,6 +287,8 @@ func VerifyUserEMailRoute(c *gin.Context) {
 		return
 	}
 
+	stats.UsersRegisteredLast24Hours = stats.UsersRegisteredLast24Hours + 1
+
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
 	resp.Data = responses.GeneralUserResponse{
@@ -377,6 +380,8 @@ func LoginUserRoute(c *gin.Context) {
 		resp.SendErrorResponse(c)
 		return
 	}
+
+	stats.UsersLoggedInLast24Hours = stats.UsersLoggedInLast24Hours + 1
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
