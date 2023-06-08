@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import useAuth  from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import {encode} from '../data/encode'
+import {decode} from '../data/decode'
 import {ChangeEventHandler, useState, ChangeEvent} from 'react'
 import {RgbaColor, RgbaColorPicker} from 'react-colorful'
 import {getHexColor, getRgbaCSS, getRgbaObject} from '../utils/colors'
@@ -64,7 +65,7 @@ function CrosshairGen() {
     cl_crosshaircolor_r: selectedColor.r,
     cl_crosshaircolor_g: selectedColor.g,
     cl_crosshaircolor_b: selectedColor.b,
-    cl_crosshairalpha: 1,
+    cl_crosshairalpha: Math.round(selectedColor.a),
     cl_crosshair_dynamic_splitdist: 7,
     cl_fixedcrosshairgap: 3,
     cl_crosshaircolor: 5,
@@ -76,11 +77,11 @@ function CrosshairGen() {
     cl_crosshairstyle: parseInt(style),
     cl_crosshairdot: parseInt(Dot),
     cl_crosshairgap_useweaponvalue: 0,
-    cl_crosshairusealpha: selectedColor.a,
+    cl_crosshairusealpha: 1,
     cl_crosshair_t: 0,
     cl_crosshairsize: parseInt(size),
   } 
- 
+
  useEffect((): any => {
     let isMounted = true;
     if (auth?.role !== 'user' && auth?.role !== 'admin') {
@@ -144,8 +145,8 @@ function CrosshairGen() {
             <li>
               <label htmlFor="ch_size"> Size:
                 <br />
-                <input type="range" name="ch_size" min={-5} max={5} step={1} value={size} onChange={(e)=>setSize(e.target.value)}/>
-                <input className='w-10' type="number" min={0} max={10} step={0.5} value={size} onChange={(e)=>setSize(e.target.value)}/>
+                <input type="range" name="ch_size" min={1} max={5} step={0.5} value={size} onChange={(e)=>setSize(e.target.value)}/>
+                <input className='w-10' type="number" min={1} max={5} step={0.5} value={size} onChange={(e)=>setSize(e.target.value)}/>
               </label>
             </li>
 
@@ -216,7 +217,7 @@ function CrosshairGen() {
         <ul>
           <li>
             <label htmlFor="sharecode">Sharecode:</label> <br/>
-            <input className="bg-blue-400 w-auto" type="text" id="sharecode" value={encode(crosshair)} />
+            <input className="mb-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500" type="text" id="sharecode" value={encode(crosshair)} readOnly/>
           </li>
           <li>
             <button className='border-2 mt-5 w-20 bg-green-400 opacity-100 rounded-lg'>Save</button>
