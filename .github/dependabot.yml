@@ -2,21 +2,18 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    labels: ["dependencies"]
     schedule:
       interval: "weekly"
       day: "wednesday"
   - package-ecosystem: "gomod"
     directory: "/server"
     open-pull-requests-limit: 1
-    labels: ["dependencies"]
     schedule:
       interval: "weekly"
       day: "wednesday"
   - package-ecosystem: "npm"
     directory: "/client"
     open-pull-requests-limit: 1
-    labels: ["dependencies"]
     schedule:
       interval: "weekly"
       day: "wednesday"
