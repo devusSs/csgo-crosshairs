@@ -18,10 +18,9 @@ type Config struct {
 	RedisPort     int    `json:"redis_port"`
 	RedisPassword string `json:"redis_password"`
 
-	APIHost       string `json:"api_host"`
-	APIPort       int    `json:"api_port"`
-	Domain        string `json:"domain"`
-	UseForwarding bool   `json:"use_forwarding"`
+	APIHost string `json:"api_host"`
+	APIPort int    `json:"api_port"`
+	Domain  string `json:"domain"`
 
 	SecretSessionsKey string `json:"secret_sessions_key"`
 
