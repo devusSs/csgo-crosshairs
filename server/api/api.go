@@ -21,6 +21,7 @@ import (
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/stats"
+	"github.com/devusSs/crosshairs/storage"
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
@@ -56,6 +57,8 @@ func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File) (*API, error) 
 	engine.ForwardedByClientIP = true
 	engine.UseRawPath = false
 	engine.UnescapePathValues = true
+
+	engine.MaxMultipartMemory = 2 << 20 // 2 MiB maximum file size
 
 	if err := engine.SetTrustedProxies([]string{"127.0.0.1"}); err != nil {
 		return nil, err
@@ -152,12 +155,13 @@ func (api *API) SetupCors(cfg *config.Config) {
 	api.Engine.Use(c)
 }
 
-func (api *API) SetupRoutes(db database.Service, cfg *config.Config) {
+func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *config.Config) {
 	api.Engine.Use(gin.Recovery())
 	api.Engine.Use(gin.Logger())
 
 	routes.CFG = cfg
 	routes.Svc = db
+	routes.StorageSvc = strSvc
 
 	api.Engine.NoRoute(routes.NotFoundRoute)
 	api.Engine.NoMethod(routes.MethodNotAllowedRoute)

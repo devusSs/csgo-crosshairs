@@ -1,4 +1,5 @@
 config.dev.json
+minio/
 
 logs/
 debug/

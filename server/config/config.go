@@ -18,6 +18,12 @@ type Config struct {
 	RedisPort     int    `json:"redis_port"`
 	RedisPassword string `json:"redis_password"`
 
+	MinioHost     string `json:"minio_host"`
+	MinioPort     int    `json:"minio_port"`
+	MinioDomain   string `json:"minio_domain"`
+	MinioUser     string `json:"minio_user"`
+	MinioPassword string `json:"minio_password"`
+
 	APIHost string `json:"api_host"`
 	APIPort int    `json:"api_port"`
 	Domain  string `json:"domain"`
@@ -83,6 +89,26 @@ func (c *Config) CheckConfig() error {
 
 	if c.RedisPassword == "" {
 		return errors.New("missing key: redis_password")
+	}
+
+	if c.MinioHost == "" {
+		if c.MinioDomain == "" {
+			return errors.New("missing key: minio_host")
+		}
+	}
+
+	if c.MinioPort == 0 {
+		if c.MinioDomain == "" {
+			return errors.New("missing key: minio_port")
+		}
+	}
+
+	if c.MinioUser == "" {
+		return errors.New("missing key: minio_user")
+	}
+
+	if c.MinioPassword == "" {
+		return errors.New("missing key: minio_password")
 	}
 
 	if c.APIHost == "" {

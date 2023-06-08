@@ -10,6 +10,7 @@ import (
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
+	"github.com/devusSs/crosshairs/storage"
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/devusSs/crosshairs/utils"
 )
@@ -85,6 +86,28 @@ func main() {
 		os.Exit(1)
 	}
 
+	storageSvc, err := storage.NewMinioConnection(cfg)
+	if err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	if err := storageSvc.CreateUserProfilePicturesBucket(); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	if err := storageSvc.UpdateUserProfilePicture("sample.png", "./files/sample.png"); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	_, err = storageSvc.GetUserProfilePictureLink("sample")
+	if err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
 	apiLogFile, err := logging.CreateAPILogFile()
 	if err != nil {
 		logging.WriteError(err)
@@ -106,7 +129,7 @@ func main() {
 
 	apiServer.SetupRedisRateLimiting(cfg)
 
-	apiServer.SetupRoutes(svc, cfg)
+	apiServer.SetupRoutes(svc, storageSvc, cfg)
 
 	if err := apiServer.StartAPI(); err != nil {
 		logging.WriteError(err)
