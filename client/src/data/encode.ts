@@ -11,16 +11,16 @@ type Info = {
   cl_crosshair_dynamic_splitdist: number;
   cl_fixedcrosshairgap: number;
   cl_crosshaircolor: number;
-  cl_crosshair_drawoutline: boolean;
+  cl_crosshair_drawoutline: number;
   cl_crosshair_dynamic_splitalpha_innermod: number;
   cl_crosshair_dynamic_splitalpha_outermod: number;
   cl_crosshair_dynamic_maxdist_splitratio: number;
   cl_crosshairthickness: number;
   cl_crosshairstyle: number;
-  cl_crosshairdot: boolean;
-  cl_crosshairgap_useweaponvalue: boolean;
-  cl_crosshairusealpha: boolean;
-  cl_crosshair_t: boolean;
+  cl_crosshairdot: number;
+  cl_crosshairgap_useweaponvalue: number;
+  cl_crosshairusealpha: number;
+  cl_crosshair_t: number;
   cl_crosshairsize: number;
 };
 
