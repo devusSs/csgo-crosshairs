@@ -71,10 +71,10 @@ dev: build
 	@cp -R ./templates ./testing
 	@cp -R ./files ./testing
 	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
-	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
+	@cd ./testing && ./crosshairs -c "./files/config.dev.json" -d
 
 # DO NOT CHANGE.
-full-dev: drop-postgres dev-postgres drop-redis dev-redis build
+full-dev: drop-postgres dev-postgres drop-redis dev-redis drop-minio dev-minio build
 	@clear
 	@rm -rf ./testing
 	@mkdir ./testing
@@ -82,7 +82,7 @@ full-dev: drop-postgres dev-postgres drop-redis dev-redis build
 	@cp -R ./templates ./testing
 	@cp -R ./files ./testing
 	@cp ./release/chs_$(BUILD_OS)_$(BUILD_ARCH)/crosshairs ./testing
-	@cd ./testing && ./crosshairs -c "./files/config.dev.json"
+	@cd ./testing && ./crosshairs -c "./files/config.dev.json" -d
 
 # DO NOT CHANGE.
 version: build
@@ -108,6 +108,10 @@ clean:
 	@rm -rf ./release/
 	@rm -rf ./dist/
 	@rm -rf ./testing/
+	@rm -rf ./minio/
+
+# DO NOT CHANGE
+full-clean: clean drop-postgres drop-redis drop-minio
 
 # DO NOT CHANGE.
 dev-postgres:
@@ -115,7 +119,7 @@ dev-postgres:
 
 # DO NOT CHANGE.
 drop-postgres:
-	@docker stop pg-chs
+	@docker stop pg-chs || true
 
 # DO NOT CHANGE
 dev-redis:
@@ -124,8 +128,16 @@ dev-redis:
 
 # DO NOT CHANGE
 drop-redis:
-	@docker stop redis-chs
-	@docker volume rm redis-data
+	@docker stop redis-chs || true
+	@docker volume rm redis-data || true
+
+# DO NOT CHANGE
+dev-minio:
+	@docker run -d --rm -p 9000:9000 --name minio-chs -v ./minio/data:/data -e "MINIO_BROWSER=off" -e "MINIO_ROOT_USER=crosshairs" -e "MINIO_ROOT_PASSWORD=crosshairs" \quay.io/minio/minio server /data
+
+# DO NOT CHANGE
+drop-minio:
+	@docker stop minio-chs || true
 
 # DO NOT CHANGE.
 lint:
