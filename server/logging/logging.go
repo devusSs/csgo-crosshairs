@@ -122,7 +122,18 @@ func CreateGormLogger() (logger.Interface, error) {
 	), nil
 }
 
-func CreateAPILogFile() (*os.File, error) {
+func CreateAPILogFiles() (*os.File, *os.File, error) {
 	logFileName := fmt.Sprintf("%s/api_%d_%d_%d.log", defaultLogPath, year, int(month), day)
-	return os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	logFileName = fmt.Sprintf("%s/api_error_%d_%d_%d.log", defaultLogPath, year, int(month), day)
+	errorLogFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return logFile, errorLogFile, nil
 }

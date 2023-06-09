@@ -35,16 +35,19 @@ type API struct {
 	Port            int
 	Engine          *gin.Engine
 	RequestsLogFile *os.File
+	ErrorLogFile    *os.File
 }
 
-func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File) (*API, error) {
+func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File, errorLogFile *os.File) (*API, error) {
 	switch updater.BuildMode {
 	case "dev":
 		gin.SetMode(gin.DebugMode)
 		gin.DefaultWriter = os.Stdout
+		gin.DefaultErrorWriter = os.Stderr
 	case "release":
 		gin.SetMode(gin.ReleaseMode)
 		gin.DefaultWriter = requestsLogFile
+		gin.DefaultErrorWriter = errorLogFile
 	default:
 		return nil, errors.New("unknown build mode")
 	}
@@ -69,6 +72,7 @@ func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File) (*API, error) 
 		cfg.APIPort,
 		engine,
 		requestsLogFile,
+		errorLogFile,
 	}, nil
 }
 

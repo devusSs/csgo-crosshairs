@@ -108,13 +108,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	apiLogFile, err := logging.CreateAPILogFile()
+	apiLogFile, errorLogFile, err := logging.CreateAPILogFiles()
 	if err != nil {
 		logging.WriteError(err)
 		os.Exit(1)
 	}
 
-	apiServer, err := api.NewAPIInstance(cfg, apiLogFile)
+	apiServer, err := api.NewAPIInstance(cfg, apiLogFile, errorLogFile)
 	if err != nil {
 		logging.WriteError(err)
 		os.Exit(1)

@@ -31,10 +31,14 @@ func NewMinioConnection(cfg *config.Config) (*Service, error) {
 	endpoint = fmt.Sprintf("%s:%d", cfg.MinioHost, cfg.MinioPort)
 
 	if cfg.MinioDomain != "" {
-		endpoint = cfg.MinioDomain
-
-		if strings.Contains(cfg.MinioDomain, "https") {
+		if strings.Contains(cfg.MinioDomain, "https://") {
 			useSSL = true
+			endpoint = strings.Replace(cfg.MinioDomain, "https://", "", 1)
+		} else if strings.Contains(cfg.MinioDomain, "http://") {
+			useSSL = false
+			endpoint = strings.Replace(cfg.MinioDomain, "http://", "", 1)
+		} else {
+			return nil, errors.New("missing http schema in minio domain")
 		}
 	}
 
