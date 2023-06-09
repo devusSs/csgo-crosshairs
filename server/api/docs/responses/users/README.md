@@ -61,7 +61,8 @@ Every response will be send as the `data` part of the generalised success respon
 {
   "created_at": "2023-05-18-19:40:13",
   "e_mail": "user's email",
-  "role": "user's role"
+  "role": "user's role",
+  "profile_picture_link": "link_to_user's_avatar"
 }
 ```
 
@@ -110,5 +111,18 @@ Every response will be send as the `data` part of the generalised success respon
 ```json
 {
   "message": "Message indicating success"
+}
+```
+
+## Update a user's avatar / profile picture
+
+- URL: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/users/avatar
+- Method: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POST
+- Response body:
+
+```json
+{
+  "id": "user's UUID",
+  "avatar_link": "updated link to user's avatar"
 }
 ```

@@ -17,7 +17,7 @@ import (
 
 const (
 	userPPBucketName     = "profiles"
-	allowedFileExtension = ".png"
+	allowedFileExtension = "png"
 )
 
 type Service struct {
@@ -107,7 +107,27 @@ func (s *Service) GetUserProfilePictureLink(userID string) (string, error) {
 	return "", errors.New("no matching object found")
 }
 
-// TODO: also replace fileName in route with .Base
+func (s *Service) DeleteUserProfilePicture(userID string) error {
+	if !s.CheckMinioConnection() {
+		return errors.New("minio client not online")
+	}
+
+	for object := range s.client.ListObjects(context.Background(), userPPBucketName, minio.ListObjectsOptions{}) {
+		if object.Err != nil {
+			return object.Err
+		}
+
+		if object.Key == fmt.Sprintf("%s.png", userID) {
+			if err := s.client.RemoveObject(context.Background(), userPPBucketName, object.Key, minio.RemoveObjectOptions{}); err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
+	return errors.New("no matching object found")
+}
+
 func CheckFileValid(file *multipart.FileHeader) error {
 	fileName := filepath.Base(file.Filename)
 

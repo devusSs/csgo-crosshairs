@@ -65,3 +65,8 @@ func (p *psql) UpdateVerifyMailResendTime(user *database.UserAccount) (*database
 	tx := p.db.Table(tableUsers).Where("e_mail = ?", user.EMail).Update("request_new_verify_mail_time", user.RequestNewVerifyMailTime)
 	return user, tx.Error
 }
+
+func (p *psql) UpdateUserAvatarURL(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).Update("avatar_url", user.AvatarURL)
+	return user, tx.Error
+}

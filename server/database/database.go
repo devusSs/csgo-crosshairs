@@ -23,6 +23,7 @@ type Service interface {
 	UpdateUserPassword(*UserAccount) (*UserAccount, error)
 	UpdateUserPasswordRaw(*UserAccount) (*UserAccount, error)
 	UpdateVerifyMailResendTime(*UserAccount) (*UserAccount, error)
+	UpdateUserAvatarURL(*UserAccount) (*UserAccount, error)
 
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
@@ -53,6 +54,8 @@ type UserAccount struct {
 
 	PasswordResetCode     string
 	PasswordResetCodeTime time.Time
+
+	AvatarURL string `gorm:"unique"`
 
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string

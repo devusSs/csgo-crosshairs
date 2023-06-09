@@ -183,6 +183,9 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 			users.GET("/resetPass", routes.VerifyUserPasswordCodeRoute)
 			users.PATCH("/resetPass", routes.ResetPasswordRouteFinal)
 			users.PATCH("/newPass", routes.ResetPasswordWhenLoggedInRoute)
+
+			users.POST("/avatar", routes.UploadUserAvatarRoute)
+			users.DELETE("/avatar", routes.DeleteUserAvatarRoute)
 		}
 
 		crosshairs := base.Group("/crosshairs")

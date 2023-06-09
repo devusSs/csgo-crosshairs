@@ -32,9 +32,15 @@ type ResetPasswordFinal struct {
 
 // Response models
 type ReturnUser struct {
-	CreatedAt time.Time `json:"created_at"`
-	EMail     string    `json:"e_mail"`
-	Role      string    `json:"role"`
+	CreatedAt          time.Time `json:"created_at"`
+	EMail              string    `json:"e_mail"`
+	Role               string    `json:"role"`
+	ProfilePictureLink string    `json:"profile_picture_link"`
+}
+
+type ReturnUserAvatar struct {
+	ID        uuid.UUID `json:"id"`
+	AvatarURL string    `json:"avatar_url"`
 }
 
 type ReturnUserAdmin struct {

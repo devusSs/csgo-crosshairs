@@ -3,12 +3,15 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/stats"
+	"github.com/devusSs/crosshairs/storage"
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
@@ -18,6 +21,7 @@ import (
 
 const (
 	lenPasswordNeeded = 8
+	tmpDir            = "./tmp"
 )
 
 var (
@@ -425,10 +429,27 @@ func GetUserRoute(c *gin.Context) {
 		return
 	}
 
+	profilePictureLink := user.AvatarURL
+
+	if profilePictureLink == "" {
+		defaultAvatar, err := StorageSvc.GetUserProfilePictureLink("sample")
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = "Something went wrong, sorry."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		profilePictureLink = defaultAvatar
+	}
+
 	var userReturn models.ReturnUser
 	userReturn.CreatedAt = user.CreatedAt
 	userReturn.EMail = user.EMail
 	userReturn.Role = user.Role
+	userReturn.ProfilePictureLink = profilePictureLink
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
@@ -829,5 +850,152 @@ func ResetPasswordWhenLoggedInRoute(c *gin.Context) {
 			Message: "Successfully updated your password.",
 		},
 	}
+	resp.SendSuccessReponse(c)
+}
+
+func UploadUserAvatarRoute(c *gin.Context) {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Missing form file in request."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := storage.CheckFileValid(file); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = err.Error()
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	fileName := fmt.Sprintf("%s.png", uuidUser.String())
+	filePath := filepath.Join(tmpDir, fileName)
+
+	if err := c.SaveUploadedFile(file, filePath); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := StorageSvc.UpdateUserProfilePicture(fileName, filePath); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	link, err := StorageSvc.GetUserProfilePictureLink(uuidUser.String())
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	_, err = Svc.UpdateUserAvatarURL(&database.UserAccount{ID: uuidUser, AvatarURL: link})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := os.Remove(filePath); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	var userReturn models.ReturnUserAvatar
+	userReturn.ID = uuidUser
+	userReturn.AvatarURL = link
+
+	resp := responses.SuccessResponse{}
+	resp.Code = http.StatusOK
+	resp.Data = userReturn
+	resp.SendSuccessReponse(c)
+}
+
+func DeleteUserAvatarRoute(c *gin.Context) {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := StorageSvc.DeleteUserProfilePicture(uuidUser.String()); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "User does not own an avatar"
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	_, err = Svc.UpdateUserAvatarURL(&database.UserAccount{ID: uuidUser, AvatarURL: ""})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	resp := responses.SuccessResponse{}
+	resp.Code = http.StatusNoContent
 	resp.SendSuccessReponse(c)
 }
