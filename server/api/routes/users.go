@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -943,6 +944,27 @@ func UploadUserAvatarRoute(c *gin.Context) {
 		resp.SendErrorResponse(c)
 		return
 	}
+
+	var event database.Event
+
+	event.Type = database.UserUploadedAvatar
+	event.Data.URL = c.Request.RequestURI
+	event.Data.Method = c.Request.Method
+	event.Data.IssuerIP = c.Request.Header.Get("X-Forwarded-For")
+	event.Timestamp = time.Now()
+
+	_, err = Svc.AddEvent(&event)
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	// TODO: remove this on prod
+	log.Printf("USER %s uploaded a file: %s\n", uuidUser.String(), filepath.Base(file.Filename))
 
 	var userReturn models.ReturnUserAvatar
 	userReturn.ID = uuidUser

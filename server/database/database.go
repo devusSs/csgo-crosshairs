@@ -88,10 +88,10 @@ type Event struct {
 // Submodels for Event struct.
 type EventType string
 
-// TODO: add more events?
 const (
 	UserRegistered      EventType = "user_registered"
 	UserChangedPassword EventType = "user_password_change"
+	UserUploadedAvatar  EventType = "user_uploaded_avatar"
 )
 
 type EventData struct {

@@ -297,7 +297,7 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 	eventType := c.Query("type")
 
 	if eventType != "" {
-		if eventType != "user_registered" && eventType != "user_password_change" {
+		if eventType != "user_registered" && eventType != "user_password_change" && eventType != "user_uploaded_avatar" {
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusBadRequest
 			resp.Error.ErrorCode = "invalid_request"

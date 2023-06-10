@@ -40,6 +40,7 @@ Events supported so far:
 
 - "user_registered"
 - "user_password_change"
+- "user_uploaded_avatar"
 
 ## Response structure
 
