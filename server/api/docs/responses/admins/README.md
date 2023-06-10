@@ -104,7 +104,7 @@ Every response will be send as the `data` part of the generalised success respon
           "id": "uid",
 	        "type": "",
 	        "data": {
-                "url": "",
+              "url": "",
 	            "method": "",
 	            "issuer": "",
 	            "data": {}
@@ -129,7 +129,7 @@ Every response will be send as the `data` part of the generalised success respon
           "id": "uid",
 	        "type": "",
 	        "data": {
-                "url": "",
+              "url": "",
 	            "method": "",
 	            "issuer": "",
 	            "data": {}
@@ -154,7 +154,7 @@ Every response will be send as the `data` part of the generalised success respon
           "id": "uid",
 	        "type": "",
 	        "data": {
-                "url": "",
+              "url": "",
 	            "method": "",
 	            "issuer": "",
 	            "data": {}
@@ -179,7 +179,7 @@ Every response will be send as the `data` part of the generalised success respon
           "id": "uid",
 	        "type": "",
 	        "data": {
-                "url": "",
+              "url": "",
 	            "method": "",
 	            "issuer": "",
 	            "data": {}
@@ -248,5 +248,28 @@ Every response will be send as the `data` part of the generalised success respon
     "redis_version": "",
     "minio_version": "
   }
+}
+```
+
+## Get errors on API if available
+
+- URL: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/admins/errors
+- Method: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET
+- Response body:
+
+```json
+{
+  "errors": [
+    {"error here"},
+    {"..."}
+  ]
+}
+```
+
+or (if there are no errors on record)
+
+```json
+{
+  "errors": "No errors on record."
 }
 ```

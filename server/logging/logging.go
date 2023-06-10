@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -136,4 +137,24 @@ func CreateAPILogFiles() (*os.File, *os.File, error) {
 	}
 
 	return logFile, errorLogFile, nil
+}
+
+func ReadAPIErrorLogFile() ([]string, error) {
+	f, err := os.Open(errorLogFile.Name())
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var lines []string
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	err = scanner.Err()
+
+	return lines, err
 }

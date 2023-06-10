@@ -203,6 +203,7 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 		{
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
+			admins.GET("/errors", routes.GetErrorsRoute)
 
 			events := admins.Group("/events")
 			{
