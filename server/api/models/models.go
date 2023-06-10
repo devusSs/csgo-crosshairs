@@ -54,6 +54,7 @@ type ReturnUserAdmin struct {
 	LoginIP              string    `json:"login_ip"`
 	LastLogin            time.Time `json:"last_login"`
 	CrosshairsRegistered int       `json:"crosshairs_registered"`
+	AvatarURL            string    `json:"avatar_url"`
 }
 
 type MultipleUsersAdmin struct {

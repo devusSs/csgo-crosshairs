@@ -91,6 +91,7 @@ func GetAllUsersRoute(c *gin.Context) {
 		returnUser.LoginIP = user.LoginIP
 		returnUser.LastLogin = user.LastLogin
 		returnUser.CrosshairsRegistered = user.CrosshairsRegistered
+		returnUser.AvatarURL = user.AvatarURL
 
 		resp := responses.SuccessResponse{
 			Code: http.StatusOK,
@@ -125,6 +126,7 @@ func GetAllUsersRoute(c *gin.Context) {
 		user.LoginIP = u.LoginIP
 		user.LastLogin = u.LastLogin
 		user.CrosshairsRegistered = u.CrosshairsRegistered
+		user.AvatarURL = u.AvatarURL
 		usersReturn.Users = append(usersReturn.Users, user)
 	}
 

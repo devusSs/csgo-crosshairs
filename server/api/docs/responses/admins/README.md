@@ -21,7 +21,8 @@ Every response will be send as the `data` part of the generalised success respon
       "register_ip": "",
       "login_ip": "",
       "last_login": "2023-05-18-19:40:13",
-      "crosshairs_registered": 1
+      "crosshairs_registered": 1,
+      "avatar_url": ""
     },
     {}
   ]
@@ -45,7 +46,8 @@ Every response will be send as the `data` part of the generalised success respon
   "register_ip": "",
   "login_ip": "",
   "last_login": "2023-05-18-19:40:13",
-  "crosshairs_registered": 1
+  "crosshairs_registered": 1,
+  "avatar_url": ""
 }
 ```
 
