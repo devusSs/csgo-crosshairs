@@ -2,11 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/devusSs/crosshairs/api"
+	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
@@ -111,6 +113,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Generating admin token here.
+	// TODO: improve this design
+	middleware.AdminToken = utils.RandomString(48)
+	logging.WriteWarning(fmt.Sprintf("ADMIN TOKEN HERE, KEEP IT SAFE: %s", middleware.AdminToken))
+
 	apiLogFile, errorLogFile, err := logging.CreateAPILogFiles()
 	if err != nil {
 		logging.WriteError(err)
@@ -130,7 +137,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	apiServer.SetupRedisRateLimiting(cfg)
+	if err := apiServer.SetupRedisRateLimiting(cfg); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
 
 	apiServer.SetupRoutes(svc, storageSvc, cfg)
 

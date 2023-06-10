@@ -124,7 +124,7 @@ drop-postgres:
 # DO NOT CHANGE
 dev-redis:
 	@docker volume create redis-data
-	@docker run -d --rm --name redis-chs -e REDIS_PASSWORD=crosshairs -v redis-data:/data -p 6379:6379 redis:5.0.5-alpine3.9 /bin/sh -c redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+	@docker run -d --rm --name redis-chs -v redis-data:/data -p 6379:6379 redis redis-server --requirepass crosshairs
 
 # DO NOT CHANGE
 drop-redis:

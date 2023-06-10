@@ -115,7 +115,41 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 	return nil
 }
 
-func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
+func (api *API) SetupRedisRateLimiting(cfg *config.Config) error {
+	rClient := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", cfg.RedisHost, cfg.RedisPort),
+		Password: cfg.RedisPassword,
+	})
+
+	redisServerVersion, err := rClient.Do(context.Background(), "info", "server").Result()
+	if err != nil {
+		return err
+	}
+
+	redisServerVersionSplit := strings.Split(fmt.Sprintf("%v", redisServerVersion), "\n")
+
+	redisServerVersionFinal := ""
+
+	for _, line := range redisServerVersionSplit {
+		if strings.Contains(line, "redis_version:") {
+			redisServerVersionFinal = strings.TrimSpace(line)
+			continue
+		}
+
+		if strings.Contains(line, "os:") {
+			redisServerVersionFinal = redisServerVersionFinal + " " + strings.TrimSpace(line)
+			continue
+		}
+	}
+
+	redisServerVersionFinal = redisServerVersionFinal + " go-redis client version:" + redis.Version()
+
+	stats.RedisVersion = redisServerVersionFinal
+
+	if err := rClient.Close(); err != nil {
+		return err
+	}
+
 	store := ratelimit.RedisStore(&ratelimit.RedisOptions{
 		RedisClient: redis.NewClient(&redis.Options{
 			Addr:     fmt.Sprintf("%s:%d", cfg.RedisHost, cfg.RedisPort),
@@ -131,6 +165,8 @@ func (api *API) SetupRedisRateLimiting(cfg *config.Config) {
 	})
 
 	api.Engine.Use(rateMW)
+
+	return nil
 }
 
 func (api *API) SetupCors(cfg *config.Config) {
@@ -138,7 +174,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 
 	if updater.BuildMode == "dev" {
 		c = cors.New(cors.Options{
-			AllowedOrigins:      []string{"http://localhost:5173"},
+			AllowedOrigins:      []string{"http://localhost:5173"}, // Used for vite projects.
 			AllowedMethods:      []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 			AllowedHeaders:      []string{"Content-Type", "Content-Length"},
 			AllowPrivateNetwork: true,
@@ -152,7 +188,7 @@ func (api *API) SetupCors(cfg *config.Config) {
 			AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 			AllowedHeaders:   []string{"Content-Type", "Content-Length"},
 			AllowCredentials: true,
-			MaxAge:           43200, // 12 hours
+			MaxAge:           43200, // 12 hours caching for preflight requests
 		})
 	}
 
@@ -201,6 +237,8 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 
 		admins := base.Group("/admins")
 		{
+			admins.Use(middleware.CheckAdminTokenMiddleware)
+
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
 			admins.GET("/errors", routes.GetErrorsRoute)

@@ -37,6 +37,17 @@
 | GET    | /api/admins/stats/system          | gets system stats for API host                          | ✅     | ✅ (admin)  |
 | GET    | /api/admins/errors                | gets recent errors on API if available                  | ✅     | ✅ (admin)  |
 
+Note:
+
+Admin routes need an Authorization header with specified format:
+
+```bash
+Authorization: Bearer <token>
+```
+
+The token will be generated and shown upon app startup. Only the system administrator can in theory access the token.<br/>
+This design may be changed in the future to make it safer.
+
 Events supported so far:
 
 - "user_registered"

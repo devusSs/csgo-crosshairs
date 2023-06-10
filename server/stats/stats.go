@@ -4,9 +4,7 @@ import (
 	"errors"
 	"net"
 	"os"
-	"os/exec"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/devusSs/crosshairs/database"
@@ -18,6 +16,8 @@ var (
 	UsersRegisteredLast24Hours int
 	UsersLoggedInLast24Hours   int
 	RequestsInLast24Hours      int
+
+	RedisVersion string // This will be set on API initialisation.
 )
 
 type StatsAllTime struct {
@@ -116,12 +116,6 @@ func CollectSystemStats(svc database.Service, minioSvc *storage.Service) (*Syste
 		return nil, err
 	}
 
-	// TODO: does this work on docker only machines without redis installed?
-	redisVersion, err := exec.Command("redis-server", "--version").Output()
-	if err != nil {
-		return nil, err
-	}
-
 	minioVersion, err := minioSvc.CheckMinioVersion()
 	if err != nil {
 		return nil, err
@@ -145,7 +139,7 @@ func CollectSystemStats(svc database.Service, minioSvc *storage.Service) (*Syste
 	info.Systeminfo.ResolvedAddr = dnsWorks
 
 	info.Integration.PostgresVersion = postgresVersion
-	info.Integration.RedisVersion = strings.TrimSpace(string(redisVersion))
+	info.Integration.RedisVersion = RedisVersion
 	info.Integration.MinioVersion = minioVersion
 
 	return &info, nil
