@@ -1,12 +1,14 @@
 package storage
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -52,6 +54,69 @@ func NewMinioConnection(cfg *config.Config) (*Service, error) {
 
 func (s *Service) CheckMinioConnection() bool {
 	return s.client.IsOnline()
+}
+
+func (s *Service) CheckMinioVersion() (string, error) {
+	if !s.CheckMinioConnection() {
+		return "", errors.New("minio client not online")
+	}
+
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	exe = filepath.Dir(exe)
+
+	httpFilePath := filepath.Join(exe, "minio.txt")
+
+	httpFile, err := os.Create(httpFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	s.client.TraceOn(httpFile)
+
+	_, err = s.client.GetBucketPolicy(context.Background(), userPPBucketName)
+	if err != nil {
+		return "", err
+	}
+
+	s.client.TraceOff()
+
+	httpFile.Close()
+
+	httpFile, err = os.Open(httpFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	var version string
+
+	scanner := bufio.NewScanner(httpFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.Contains(line, "User-Agent: ") {
+			version = strings.Replace(line, "User-Agent: ", "", 1)
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	httpFile.Close()
+
+	if err := os.Remove(filepath.Join(exe, "minio.txt")); err != nil {
+		return "", err
+	}
+
+	if version == "" {
+		return "", errors.New("missing minio version info in header")
+	}
+
+	return version, nil
 }
 
 func (s *Service) CreateUserProfilePicturesBucket() error {

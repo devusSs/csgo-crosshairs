@@ -6,35 +6,35 @@ import (
 )
 
 var (
-	buildVersion = ""
-	buildDate    = ""
-	buildOS      = runtime.GOOS
-	buildARCH    = runtime.GOARCH
-	buildGo      = runtime.Version()
+	BuildVersion = ""
+	BuildDate    = ""
+	BuildOS      = runtime.GOOS
+	BuildARCH    = runtime.GOARCH
+	BuildGo      = runtime.Version()
 	BuildMode    = ""
 )
 
 func PrintBuildInfo() {
-	fmt.Println("Crosshairs - backend for a CSGO crosshair picker and generator.")
+	fmt.Println("Crosshairs - backend for a Counter-Strike crosshair picker, generator and saver.")
 	fmt.Println()
 
-	switch buildVersion {
+	switch BuildVersion {
 	case "":
 		fmt.Printf("Build version: \t\tunset\n")
 	default:
-		fmt.Printf("Build version: \t\t%s\n", buildVersion)
+		fmt.Printf("Build version: \t\t%s\n", BuildVersion)
 	}
 
-	switch buildDate {
+	switch BuildDate {
 	case "":
 		fmt.Printf("Build date: \t\tunset\n")
 	default:
-		fmt.Printf("Build date: \t\t%s\n", buildDate)
+		fmt.Printf("Build date: \t\t%s\n", BuildDate)
 	}
 
-	fmt.Printf("Build os: \t\t%s\n", buildOS)
-	fmt.Printf("Build arch: \t\t%s\n", buildARCH)
-	fmt.Printf("Build Go version: \t%s\n", buildGo)
+	fmt.Printf("Build os: \t\t%s\n", BuildOS)
+	fmt.Printf("Build arch: \t\t%s\n", BuildARCH)
+	fmt.Printf("Build Go version: \t%s\n", BuildGo)
 
 	switch BuildMode {
 	case "":

@@ -26,6 +26,9 @@ func main() {
 
 	if *debugFlag {
 		updater.BuildMode = "dev"
+
+		log.Printf("[%s] You are currently using a development version\n", logging.WarnSign)
+		log.Printf("[%s] Not all features may be available or working as expected\n", logging.WarnSign)
 	}
 
 	if *printBuild {

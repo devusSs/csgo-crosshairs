@@ -7,6 +7,8 @@ import (
 )
 
 type Service interface {
+	GetPostgresVersion() (string, error)
+
 	TestConnection() error
 	CloseConnection() error
 	MakeMigrations() error

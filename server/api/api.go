@@ -213,6 +213,7 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 			{
 				stats.GET("/total", routes.GetTotalStatsRoute)
 				stats.GET("/daily", routes.Get24HourStatsRoute)
+				stats.GET("/system", routes.GetSystemStatsRoute)
 			}
 		}
 	}

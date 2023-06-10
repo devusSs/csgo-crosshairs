@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/minio/minio-go/v7 v7.0.56
 	github.com/redis/go-redis/v9 v9.0.5
+	github.com/rs/cors/wrapper/gin v0.0.0-20230526135330-e90f16747950
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.1
 )
@@ -64,7 +65,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/rs/cors/wrapper/gin v0.0.0-20230526135330-e90f16747950
 	golang.org/x/crypto v0.9.0
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

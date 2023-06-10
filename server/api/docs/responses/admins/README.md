@@ -215,3 +215,36 @@ Every response will be send as the `data` part of the generalised success respon
   "api_requests": 0
 }
 ```
+
+## Get system stats for API host
+
+- URL: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/admins/stats/system
+- Method: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET
+- Response body:
+
+```json
+{
+  "build_info": {
+    "build_version": "v0.0.1",
+    "build_date": "2023.06.10-02:16:15",
+    "build_os": "system OS (darwin, linux, windows, ...)",
+    "build_arch": "system arch (amd64, arm64, ...)",
+    "go_version": "go version"
+  },
+  "system_info": {
+    "cpu_count": 0,
+    "cgo_calls": 0,
+    "goroutines_count": 0,
+    "pagesize": 0,
+    "process_id": 0,
+    "path_info": "path the program is called from",
+    "host_info": "hostname if provided",
+    "resolved_addr": true
+  },
+  "integration": {
+    "postgres_version": "",
+    "redis_version": "",
+    "minio_version": "
+  }
+}
+```

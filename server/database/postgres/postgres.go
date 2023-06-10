@@ -63,3 +63,15 @@ func (p *psql) MakeMigrations() error {
 	}
 	return p.db.AutoMigrate(&database.Event{})
 }
+
+func (p *psql) GetPostgresVersion() (string, error) {
+	db, err := p.db.DB()
+	if err != nil {
+		return "", err
+	}
+
+	var version string
+	err = db.QueryRow("select version()").Scan(&version)
+
+	return version, err
+}
