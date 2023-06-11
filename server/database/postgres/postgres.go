@@ -61,7 +61,10 @@ func (p *psql) MakeMigrations() error {
 	if err := p.db.AutoMigrate(&database.Crosshair{}); err != nil {
 		return err
 	}
-	return p.db.AutoMigrate(&database.Event{})
+	if err := p.db.AutoMigrate(&database.Event{}); err != nil {
+		return err
+	}
+	return p.db.AutoMigrate(&database.EngineerToken{})
 }
 
 func (p *psql) GetPostgresVersion() (string, error) {
@@ -74,4 +77,15 @@ func (p *psql) GetPostgresVersion() (string, error) {
 	err = db.QueryRow("select version()").Scan(&version)
 
 	return version, err
+}
+
+func (p *psql) CreateNewEngineerToken(token string) error {
+	tx := p.db.Table("engineer_tokens").Create(&database.EngineerToken{Token: token})
+	return tx.Error
+}
+
+func (p *psql) GetLatestEngineerToken() (string, error) {
+	var token database.EngineerToken
+	tx := p.db.Table("engineer_tokens").Last(&token)
+	return token.Token, tx.Error
 }

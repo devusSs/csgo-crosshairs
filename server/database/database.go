@@ -13,6 +13,9 @@ type Service interface {
 	CloseConnection() error
 	MakeMigrations() error
 
+	CreateNewEngineerToken(string) error
+	GetLatestEngineerToken() (string, error)
+
 	AddUser(*UserAccount) (*UserAccount, error)
 	GetUserByVerificationCode(*UserAccount) (*UserAccount, error)
 	UpdateUserVerification(*UserAccount) (*UserAccount, error)
@@ -39,6 +42,13 @@ type Service interface {
 	AddEvent(*Event) (*Event, error)
 	GetEvents() ([]*Event, error)
 	GetEventsByType(string) ([]*Event, error)
+}
+
+type EngineerToken struct {
+	ID        uint `gorm:"primaryKey"`
+	CreatedAt time.Time
+
+	Token string `gorm:"not null"`
 }
 
 type UserAccount struct {

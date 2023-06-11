@@ -51,6 +51,7 @@ func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) 
 		return err
 	}
 
+	// TODO: we might want to make templates reuseable / depending on use case like admin warnings
 	if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
 		return err
 	}
@@ -67,6 +68,8 @@ func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) 
 	if err := d.DialAndSend(m); err != nil {
 		return err
 	}
+
+	body.Reset() // Might help with future loading of templates.
 
 	return nil
 }

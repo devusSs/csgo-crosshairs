@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -113,10 +112,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Generating admin token here.
-	// TODO: improve this design
-	middleware.AdminToken = utils.RandomString(48)
-	logging.WriteWarning(fmt.Sprintf("ADMIN TOKEN HERE, KEEP IT SAFE: %s", middleware.AdminToken))
+	// Add database.Service to middleware.
+	middleware.Svc = svc
+
+	// Generate an engineer token on startup.
+	engineerToken := utils.RandomString(48)
+
+	// Add engineer token to database.
+	if err := svc.CreateNewEngineerToken(engineerToken); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
+
+	logging.WriteInfo("Generated initial engineer token and added it to database.")
+
+	// Setup goroutine to add another engineer token every 10 mins.
+	generateNewEngineerTokenTicker := time.NewTicker(10 * time.Minute)
+	go func() {
+		for range generateNewEngineerTokenTicker.C {
+			engineerToken := utils.RandomString(48)
+
+			if err := svc.CreateNewEngineerToken(engineerToken); err != nil {
+				logging.WriteError(err)
+				os.Exit(1)
+			}
+
+			logging.WriteInfo("Generated new engineer token and added it to database")
+		}
+	}()
+
+	logging.WriteInfo("Setup goroutine to re-generate engineer token")
 
 	apiLogFile, errorLogFile, err := logging.CreateAPILogFiles()
 	if err != nil {
@@ -150,6 +175,8 @@ func main() {
 	}
 
 	// ! App exit.
+	generateNewEngineerTokenTicker.Stop()
+
 	if err := svc.CloseConnection(); err != nil {
 		log.Fatalf("[%s] Error closing database connection: %s\n", logging.ErrSign, err.Error())
 	}

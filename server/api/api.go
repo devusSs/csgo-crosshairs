@@ -237,8 +237,6 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 
 		admins := base.Group("/admins")
 		{
-			admins.Use(middleware.CheckAdminTokenMiddleware)
-
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
 			admins.GET("/errors", routes.GetErrorsRoute)
@@ -252,7 +250,13 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 			{
 				stats.GET("/total", routes.GetTotalStatsRoute)
 				stats.GET("/daily", routes.Get24HourStatsRoute)
-				stats.GET("/system", routes.GetSystemStatsRoute)
+
+				// Route is only accessable for engineers / users with ACTUAL database access.
+				system := stats.Group("/system")
+				{
+					system.Use(middleware.VerifyEngineerMiddleware)
+					system.GET("", routes.GetSystemStatsRoute)
+				}
 			}
 		}
 	}
