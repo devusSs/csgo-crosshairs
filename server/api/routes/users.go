@@ -2,10 +2,10 @@ package routes
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/devusSs/crosshairs/api/models"
@@ -443,14 +443,21 @@ func GetUserRoute(c *gin.Context) {
 			return
 		}
 
+		// Relevant for Docker only.
+		defaultAvatar = strings.Replace(defaultAvatar, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
 		profilePictureLink = defaultAvatar
 	}
 
 	var userReturn models.ReturnUser
+	userReturn.ProfilePictureLink = profilePictureLink
+
+	// Relevant for Docker only.
+	userReturn.ProfilePictureLink = strings.Replace(userReturn.ProfilePictureLink, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
 	userReturn.CreatedAt = user.CreatedAt
 	userReturn.EMail = user.EMail
 	userReturn.Role = user.Role
-	userReturn.ProfilePictureLink = profilePictureLink
 
 	resp := responses.SuccessResponse{
 		Code: http.StatusOK,
@@ -963,12 +970,12 @@ func UploadUserAvatarRoute(c *gin.Context) {
 		return
 	}
 
-	// TODO: remove this on prod
-	log.Printf("USER %s uploaded a file: %s\n", uuidUser.String(), filepath.Base(file.Filename))
-
 	var userReturn models.ReturnUserAvatar
 	userReturn.ID = uuidUser
 	userReturn.AvatarURL = link
+
+	// Relevant for Docker only.
+	userReturn.AvatarURL = strings.Replace(userReturn.AvatarURL, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK

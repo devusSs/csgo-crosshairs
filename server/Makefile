@@ -85,6 +85,20 @@ full-dev: drop-postgres dev-postgres drop-redis dev-redis drop-minio dev-minio b
 	@cd ./testing && ./crosshairs -c "./files/config.dev.json" -d
 
 # DO NOT CHANGE.
+docker-up:
+	@clear
+	@echo "Checking for docker.env file..."
+	@[ -f ./docker.env ] && docker compose --env-file=docker.env up --build -d || echo "ERROR: missing docker.env file. Please create a docker.env file and edit it"
+	@echo ""
+	@echo "Please use 'make docker-down' to shutdown the app and containers."
+
+# DO NOT CHANGE.
+docker-down:
+	@echo "This command will NOT delete Docker images or volumes (data will be persistent)."
+	@echo "If you need functionality to remove images and volumes please use the Docker GUI if available."
+	@docker compose --env-file=docker.env down
+
+# DO NOT CHANGE.
 version: build
 	@clear
 	@rm -rf ./testing

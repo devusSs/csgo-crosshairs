@@ -1,5 +1,6 @@
 config.dev.json
 minio/
+docker.env
 
 logs/
 debug/

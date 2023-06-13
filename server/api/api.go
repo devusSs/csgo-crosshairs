@@ -96,8 +96,6 @@ func (api *API) SetupSessions(cfg *config.Config) error {
 			Path:     "/",
 			HttpOnly: true,
 			MaxAge:   30 * 24 * 60 * 60 * 1000, // 30 days until expiry, does not really matter for dev
-			Secure:   true,                     // When using NoneMode we need to set secure to true.
-			SameSite: http.SameSiteNoneMode,    // Ignore cross-site requests for development.
 		})
 	} else {
 		store.Options(sessions.Options{
@@ -273,7 +271,11 @@ func (api *API) StartAPI() error {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	routes.SRVAddr = srv.Addr
+	if srv.Addr == fmt.Sprintf(":%d", api.Port) {
+		routes.SRVAddr = fmt.Sprintf("localhost:%d", api.Port)
+	} else {
+		routes.SRVAddr = srv.Addr
+	}
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -281,7 +283,15 @@ func (api *API) StartAPI() error {
 		}
 	}()
 
-	log.Printf("[%s] API started on 'http://%s'\n", logging.InfSign, srv.Addr)
+	var addr string
+
+	addr = srv.Addr
+
+	if srv.Addr == fmt.Sprintf(":%d", api.Port) {
+		addr = fmt.Sprintf("localhost:%d", api.Port)
+	}
+
+	log.Printf("[%s] API started on 'http://%s'\n", logging.InfSign, addr)
 	log.Printf("[%s] Press CTRL+C to exit any time\n", logging.InfSign)
 	log.Printf("[%s] Please DO NOT force exit the app\n", logging.InfSign)
 

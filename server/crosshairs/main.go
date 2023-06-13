@@ -23,6 +23,7 @@ func main() {
 	cfgPath := flag.String("c", "./files/config.json", "sets config path")
 	scFlag := flag.Bool("sc", false, "generates secret keys")
 	debugFlag := flag.Bool("d", false, "enabled debug mode")
+	dockerFlag := flag.Bool("docker", false, "enables Docker mode - uses docker.env instead of config.json file")
 	flag.Parse()
 
 	if *debugFlag {
@@ -62,11 +63,22 @@ func main() {
 	}
 
 	// ! It is safe to use WriteX methods from here.
+	var cfg *config.Config
 
-	cfg, err := config.LoadConfig(*cfgPath)
-	if err != nil {
-		logging.WriteError(err.Error())
-		os.Exit(1)
+	if *dockerFlag {
+		cfg, err = config.LoadEnvConfig()
+		if err != nil {
+			logging.WriteError(err.Error())
+			os.Exit(1)
+		}
+
+		updater.PrintBuildInfo()
+	} else {
+		cfg, err = config.LoadConfig(*cfgPath)
+		if err != nil {
+			logging.WriteError(err.Error())
+			os.Exit(1)
+		}
 	}
 
 	if err := cfg.CheckConfig(); err != nil {

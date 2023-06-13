@@ -111,10 +111,6 @@ func (c *Config) CheckConfig() error {
 		return errors.New("missing key: minio_password")
 	}
 
-	if c.APIHost == "" {
-		return errors.New("missing key: api_host")
-	}
-
 	if c.APIPort == 0 {
 		return errors.New("missing key: api_port")
 	}
