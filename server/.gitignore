@@ -1,6 +1,7 @@
 config.dev.json
 minio/
 docker.env
+.DS_Store
 
 logs/
 debug/
