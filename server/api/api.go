@@ -30,6 +30,10 @@ import (
 	cors "github.com/rs/cors/wrapper/gin"
 )
 
+var (
+	UsingReverseProxy bool = false
+)
+
 type API struct {
 	Host            string
 	Port            int
@@ -312,7 +316,11 @@ func (api *API) StartAPI() error {
 }
 
 func rateLimitGetIP(c *gin.Context) string {
-	return c.Request.Header.Get("X-Forwarded-For")
+	if UsingReverseProxy {
+		return c.Request.Header.Get("X-Forwarded-For")
+	}
+
+	return c.RemoteIP()
 }
 
 func rateLimitError(c *gin.Context, info ratelimit.Info) {

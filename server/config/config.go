@@ -35,6 +35,8 @@ type Config struct {
 	SMTPPass  string `json:"smtp_pass"`
 	SMTPPort  int    `json:"smtp_port"`
 	SMTPUser  string `json:"smtp_user"`
+
+	UsingReverseProxy bool `json:"using_reverse_proxy"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {

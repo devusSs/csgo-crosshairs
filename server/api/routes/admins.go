@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
@@ -82,6 +83,26 @@ func GetAllUsersRoute(c *gin.Context) {
 
 		var returnUser models.ReturnUserAdmin
 
+		if user.AvatarURL == "" {
+			defaultAvatar, err := StorageSvc.GetUserProfilePictureLink("sample")
+			if err != nil {
+				resp := responses.ErrorResponse{}
+				resp.Code = http.StatusInternalServerError
+				resp.Error.ErrorCode = "internal_error"
+				resp.Error.ErrorMessage = "Something went wrong, sorry."
+				resp.SendErrorResponse(c)
+				return
+			}
+
+			// Relevant for Docker only.
+			defaultAvatar = strings.Replace(defaultAvatar, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
+			returnUser.AvatarURL = defaultAvatar
+		}
+
+		// Relevant for Docker only.
+		returnUser.AvatarURL = strings.Replace(returnUser.AvatarURL, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
 		returnUser.ID = user.ID
 		returnUser.CreatedAt = user.CreatedAt
 		returnUser.UpdatedAt = user.UpdatedAt
@@ -92,7 +113,6 @@ func GetAllUsersRoute(c *gin.Context) {
 		returnUser.LoginIP = user.LoginIP
 		returnUser.LastLogin = user.LastLogin
 		returnUser.CrosshairsRegistered = user.CrosshairsRegistered
-		returnUser.AvatarURL = user.AvatarURL
 
 		resp := responses.SuccessResponse{
 			Code: http.StatusOK,
@@ -128,6 +148,27 @@ func GetAllUsersRoute(c *gin.Context) {
 		user.LastLogin = u.LastLogin
 		user.CrosshairsRegistered = u.CrosshairsRegistered
 		user.AvatarURL = u.AvatarURL
+
+		if user.AvatarURL == "" {
+			defaultAvatar, err := StorageSvc.GetUserProfilePictureLink("sample")
+			if err != nil {
+				resp := responses.ErrorResponse{}
+				resp.Code = http.StatusInternalServerError
+				resp.Error.ErrorCode = "internal_error"
+				resp.Error.ErrorMessage = "Something went wrong, sorry."
+				resp.SendErrorResponse(c)
+				return
+			}
+
+			// Relevant for Docker only.
+			defaultAvatar = strings.Replace(defaultAvatar, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
+			user.AvatarURL = defaultAvatar
+		}
+
+		// Relevant for Docker only.
+		user.AvatarURL = strings.Replace(user.AvatarURL, "http://minio:", fmt.Sprintf("http://%s:", "localhost"), 1)
+
 		usersReturn.Users = append(usersReturn.Users, user)
 	}
 
@@ -307,17 +348,6 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 			return
 		}
 
-		events, err := Svc.GetEventsByType(eventType)
-		if err != nil {
-			errString := database.CheckDatabaseError(err)
-			resp := responses.ErrorResponse{}
-			resp.Code = http.StatusInternalServerError
-			resp.Error.ErrorCode = "internal_error"
-			resp.Error.ErrorMessage = errString
-			resp.SendErrorResponse(c)
-			return
-		}
-
 		if limit != "" {
 			limitInt, err := strconv.Atoi(limit)
 			if err != nil {
@@ -329,12 +359,63 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 				return
 			}
 
-			// TODO: improve this design to use db function limit
+			events, err := Svc.GetEventsByTypeWithLimit(eventType, limitInt)
+			if err != nil {
+				errString := database.CheckDatabaseError(err)
+				resp := responses.ErrorResponse{}
+				resp.Code = http.StatusInternalServerError
+				resp.Error.ErrorCode = "internal_error"
+				resp.Error.ErrorMessage = errString
+				resp.SendErrorResponse(c)
+				return
+			}
+
 			resp := responses.SuccessResponse{
 				Code: http.StatusOK,
-				Data: events[:limitInt],
+				Data: events,
 			}
 			resp.SendSuccessReponse(c)
+			return
+		}
+
+		events, err := Svc.GetEventsByType(eventType)
+		if err != nil {
+			errString := database.CheckDatabaseError(err)
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = errString
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		resp := responses.SuccessResponse{
+			Code: http.StatusOK,
+			Data: events,
+		}
+		resp.SendSuccessReponse(c)
+		return
+	}
+
+	if limit != "" {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusBadRequest
+			resp.Error.ErrorCode = "invalid_request"
+			resp.Error.ErrorMessage = "Could not parse limit."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		events, err := Svc.GetEventsWithLimit(limitInt)
+		if err != nil {
+			errString := database.CheckDatabaseError(err)
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = errString
+			resp.SendErrorResponse(c)
 			return
 		}
 
@@ -354,26 +435,6 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 		resp.Error.ErrorCode = "internal_error"
 		resp.Error.ErrorMessage = errString
 		resp.SendErrorResponse(c)
-		return
-	}
-
-	if limit != "" {
-		limitInt, err := strconv.Atoi(limit)
-		if err != nil {
-			resp := responses.ErrorResponse{}
-			resp.Code = http.StatusBadRequest
-			resp.Error.ErrorCode = "invalid_request"
-			resp.Error.ErrorMessage = "Could not parse limit."
-			resp.SendErrorResponse(c)
-			return
-		}
-
-		// TODO: improve this design to use db function limit
-		resp := responses.SuccessResponse{
-			Code: http.StatusOK,
-			Data: events[:limitInt],
-		}
-		resp.SendSuccessReponse(c)
 		return
 	}
 

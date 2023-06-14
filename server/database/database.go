@@ -42,6 +42,8 @@ type Service interface {
 	AddEvent(*Event) (*Event, error)
 	GetEvents() ([]*Event, error)
 	GetEventsByType(string) ([]*Event, error)
+	GetEventsWithLimit(int) ([]*Event, error)
+	GetEventsByTypeWithLimit(string, int) ([]*Event, error)
 }
 
 type EngineerToken struct {
@@ -90,6 +92,7 @@ type Crosshair struct {
 
 type Event struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	CreatedAt time.Time
 	Type      EventType `gorm:"embedded;not null" json:"type"`
 	Data      EventData `gorm:"embedded;not null" json:"data"`
 	Timestamp time.Time `gorm:"not null" json:"timestamp"`

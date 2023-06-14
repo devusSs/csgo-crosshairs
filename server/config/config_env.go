@@ -32,6 +32,11 @@ func LoadEnvConfig() (*Config, error) {
 		return nil, err
 	}
 
+	usingReverseProxy, err := getEnvBool("using_reverse_proxy")
+	if err != nil {
+		return nil, err
+	}
+
 	cfg := &Config{
 		PostgresHost:     getEnvString("postgres_host"),
 		PostgresPort:     postgresPort,
@@ -59,6 +64,8 @@ func LoadEnvConfig() (*Config, error) {
 		SMTPPass:  getEnvString("smtp_pass"),
 		SMTPPort:  smtpPort,
 		SMTPUser:  getEnvString("smtp_user"),
+
+		UsingReverseProxy: usingReverseProxy,
 	}
 
 	return cfg, nil
@@ -71,4 +78,9 @@ func getEnvString(name string) string {
 func getEnvInt(name string) (int, error) {
 	valueStr := os.Getenv(strings.ToUpper(name))
 	return strconv.Atoi(valueStr)
+}
+
+func getEnvBool(name string) (bool, error) {
+	valueStr := os.Getenv(strings.ToUpper(name))
+	return strconv.ParseBool(valueStr)
 }

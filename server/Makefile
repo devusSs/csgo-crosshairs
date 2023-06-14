@@ -3,9 +3,6 @@ BUILD_VERSION=$(CHS_BUILD_VERSION)
 BUILD_MODE=${CHS_BUILD_MODE}
 
 # DO NOT CHANGE.
-BUILD_DATE=$$(date +%Y.%m.%d-%H:%M:%S)
-
-# DO NOT CHANGE.
 BUILD_OS 				:=
 ifeq ($(OS),Windows_NT)
 	BUILD_OS = windows
@@ -47,9 +44,9 @@ build:
 	@[ "${CHS_BUILD_MODE}" ] || ( echo "CHS_BUILD_MODE is not set"; exit 1 )
 	@echo "Building app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
 	@go mod tidy
-	@GOOS=windows GOARCH=amd64 go build -ldflags="-X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)" -o release/chs_windows_amd64/ ./...
-	@GOOS=linux GOARCH=amd64 go build -ldflags="-X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)" -o release/chs_linux_amd64/ ./...
-	@GOOS=darwin GOARCH=arm64 go build -ldflags="-X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)" -o release/chs_darwin_arm64/ ./...
+	@GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_windows_amd64/ ./...
+	@GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_linux_amd64/ ./...
+	@GOOS=darwin GOARCH=arm64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_darwin_arm64/ ./...
 	@echo "Done building app"
 
 # DO NOT CHANGE.
@@ -57,9 +54,9 @@ build-release:
 	@[ "${CHS_BUILD_VERSION}" ] || ( echo "CHS_BUILD_VERSION is not set"; exit 1 )
 	@echo "Building release-ready app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
 	@go mod tidy
-	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_windows_amd64/ ./...
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_linux_amd64/ ./...
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION) -X github.com/devusSs/crosshairs/updater.BuildDate=$(BUILD_DATE) -X github.com/devusSs/crosshairs/updater.BuildMode=release" -o release/chs_darwin_arm64/ ./...
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_windows_amd64/ ./...
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_linux_amd64/ ./...
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_darwin_arm64/ ./...
 	@echo "Done building app"
 
 # DO NOT CHANGE.
@@ -88,15 +85,20 @@ full-dev: drop-postgres dev-postgres drop-redis dev-redis drop-minio dev-minio b
 docker-up:
 	@clear
 	@echo "Checking for docker.env file..."
-	@[ -f ./docker.env ] && docker compose --env-file=docker.env up --build -d || echo "ERROR: missing docker.env file. Please create a docker.env file and edit it"
+	@[ -f ./docker.env ] && echo "Found docker.env file, proceeding..." || echo "ERROR: missing docker.env file. Please create a docker.env file and edit it" && exit 0
+	@docker compose --env-file=docker.env up --build -d
 	@echo ""
 	@echo "Please use 'make docker-down' to shutdown the app and containers."
+	@echo "You may also run 'make docker-rebuild' to rebuild the app and restart the containers"
 
 # DO NOT CHANGE.
 docker-down:
 	@echo "This command will NOT delete Docker images or volumes (data will be persistent)."
 	@echo "If you need functionality to remove images and volumes please use the Docker GUI if available."
 	@docker compose --env-file=docker.env down
+
+# DO NOT CHANGE.
+docker-rebuild: docker-down docker-up
 
 # DO NOT CHANGE.
 version: build

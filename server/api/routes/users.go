@@ -26,7 +26,8 @@ const (
 )
 
 var (
-	SRVAddr string
+	SRVAddr           string
+	UsingReverseProxy bool = false
 )
 
 func RegisterUserRoute(c *gin.Context) {
@@ -163,7 +164,12 @@ func RegisterUserRoute(c *gin.Context) {
 		Role:             "user",
 		VerificationCode: verificationCode,
 		VerifiedMail:     false,
-		RegisterIP:       c.Request.Header.Get("X-Forwarded-For"),
+	}
+
+	if UsingReverseProxy {
+		newUser.RegisterIP = c.Request.Header.Get("X-Forwarded-For")
+	} else {
+		newUser.RegisterIP = c.RemoteIP()
 	}
 
 	_, err = Svc.AddUser(&newUser)
@@ -362,7 +368,12 @@ func LoginUserRoute(c *gin.Context) {
 	}
 
 	user.LastLogin = time.Now()
-	user.LoginIP = c.Request.Header.Get("X-Forwarded-For")
+
+	if UsingReverseProxy {
+		user.LoginIP = c.Request.Header.Get("X-Forwarded-For")
+	} else {
+		user.LoginIP = c.RemoteIP()
+	}
 
 	userDB, err := Svc.UpdateUserLogin(user)
 	if err != nil {

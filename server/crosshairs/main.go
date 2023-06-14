@@ -8,6 +8,7 @@ import (
 
 	"github.com/devusSs/crosshairs/api"
 	"github.com/devusSs/crosshairs/api/middleware"
+	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
@@ -85,6 +86,9 @@ func main() {
 		logging.WriteError(err.Error())
 		os.Exit(1)
 	}
+
+	api.UsingReverseProxy = cfg.UsingReverseProxy
+	routes.UsingReverseProxy = cfg.UsingReverseProxy
 
 	svc, err := postgres.NewConnection(cfg, gormLogger)
 	if err != nil {
