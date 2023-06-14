@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     container_name: "crosshairs-postgres"
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - 127.0.0.1:${POSTGRES_PORT}:${POSTGRES_PORT}
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -15,17 +15,17 @@ services:
       - fullstack
     volumes:
       - database_postgres:/var/lib/postgresql/data
-  
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     container_name: "crosshairs-redis"
     environment:
-      REDIS_PASSWORD: '${REDIS_PASSWORD}'
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     command:
       redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
+      - 127.0.0.1:${REDIS_PORT}:${REDIS_PORT}
     networks:
       - fullstack
     volumes:
@@ -38,10 +38,10 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    command: server --console-address ":9001" /data
+    command: server --console-address :${MINIO_CONSOLE_PORT} /data
     ports:
-      - ${MINIO_PORT}:${MINIO_PORT}
-      - "9001:9001"
+      - 127.0.0.1:${MINIO_PORT}:${MINIO_PORT}
+      - 127.0.0.1:${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}
     networks:
       - fullstack
     volumes:
@@ -79,7 +79,7 @@ services:
       SMTP_USER: ${SMTP_USER}
       USING_REVERSE_PROXY: ${USING_REVERSE_PROXY}
     ports:
-      - ${API_PORT}:${API_PORT}
+      - 127.0.0.1:${API_PORT}:${API_PORT}
     networks:
       - fullstack
     depends_on:

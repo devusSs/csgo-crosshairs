@@ -17,10 +17,17 @@ else
 endif
 
 # DO NOT CHANGE.
-BUILD_ARCH := $(shell uname -m)
-
-ifeq ($(BUILD_ARCH),"x86-64")
+BUILD_ARCH 				:=
+ifeq ($(echo %PROCESSOR_ARCHITECTURE%), "AMD64")
 	BUILD_ARCH = amd64
+else
+	UNAME_M := $(shell uname -m)
+	ifeq ($(UNAME_M), x86_64)
+		BUILD_ARCH = amd64
+	endif
+	ifeq ($(UNAME_M), arm64)
+		BUILD_ARCH = arm64
+	endif
 endif
 
 # DO NOT CHANGE.
