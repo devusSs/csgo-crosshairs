@@ -17,25 +17,10 @@ else
 endif
 
 # DO NOT CHANGE.
-BUILD_ARCH				:=
-ifeq ($(OS),Windows_NT)
-	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-		BUILD_ARCH = amd64
-	endif
-	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-		BUILD_ARCH = 386
-	endif
-else
-		UNAME_P := $(shell uname -p)
-	ifeq ($(UNAME_P),x86_64)
-		BUILD_ARCH = amd64
-	endif
-		ifneq ($(filter %86,$(UNAME_P)),)
-	BUILD_ARCH = 386
-		endif
-	ifneq ($(filter arm%,$(UNAME_P)),)
-		BUILD_ARCH = arm64
-	endif
+BUILD_ARCH := $(shell uname -m)
+
+ifeq ($(BUILD_ARCH),"x86-64")
+	BUILD_ARCH = amd64
 endif
 
 # DO NOT CHANGE.
@@ -44,9 +29,9 @@ build:
 	@[ "${CHS_BUILD_MODE}" ] || ( echo "CHS_BUILD_MODE is not set"; exit 1 )
 	@echo "Building app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
 	@go mod tidy
-	@GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_windows_amd64/ ./...
-	@GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_linux_amd64/ ./...
-	@GOOS=darwin GOARCH=arm64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_darwin_arm64/ ./...
+	@GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_windows_amd64/ ./...
+	@GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_linux_amd64/ ./...
+	@GOOS=darwin GOARCH=arm64 go build -ldflags="-X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=$(BUILD_MODE)'" -o release/chs_darwin_arm64/ ./...
 	@echo "Done building app"
 
 # DO NOT CHANGE.
@@ -54,9 +39,9 @@ build-release:
 	@[ "${CHS_BUILD_VERSION}" ] || ( echo "CHS_BUILD_VERSION is not set"; exit 1 )
 	@echo "Building release-ready app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
 	@go mod tidy
-	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_windows_amd64/ ./...
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_linux_amd64/ ./...
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=$(date)' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_darwin_arm64/ ./...
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_windows_amd64/ ./...
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_linux_amd64/ ./...
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -v -trimpath -ldflags="-s -w -X 'github.com/devusSs/crosshairs/updater.BuildVersion=$(BUILD_VERSION)' -X 'github.com/devusSs/crosshairs/updater.BuildDate=${shell date}' -X 'github.com/devusSs/crosshairs/updater.BuildMode=release'" -o release/chs_darwin_arm64/ ./...
 	@echo "Done building app"
 
 # DO NOT CHANGE.

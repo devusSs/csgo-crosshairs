@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/common-nighthawk/go-figure"
 	"github.com/devusSs/crosshairs/api"
 	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/api/routes"
@@ -32,6 +33,8 @@ func main() {
 
 		log.Printf("[%s] You are currently using a development version\n", logging.WarnSign)
 		log.Printf("[%s] Not all features may be available or working as expected\n", logging.WarnSign)
+
+		updater.PrintBuildInfo()
 	}
 
 	if *printBuild {
@@ -86,6 +89,8 @@ func main() {
 		logging.WriteError(err.Error())
 		os.Exit(1)
 	}
+
+	printAsciiArt(cfg)
 
 	api.UsingReverseProxy = cfg.UsingReverseProxy
 	routes.UsingReverseProxy = cfg.UsingReverseProxy
@@ -202,4 +207,9 @@ func main() {
 	}
 
 	log.Printf("[%s] App ran for %.2f second(s)\n", logging.InfSign, time.Since(startTime).Seconds())
+}
+
+func printAsciiArt(cfg *config.Config) {
+	asciiArt := figure.NewColorFigure("csgo-crosshairs", "", "green", true)
+	asciiArt.Print()
 }
