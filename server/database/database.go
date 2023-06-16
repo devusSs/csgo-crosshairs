@@ -30,6 +30,9 @@ type Service interface {
 	UpdateVerifyMailResendTime(*UserAccount) (*UserAccount, error)
 	UpdateUserAvatarURL(*UserAccount) (*UserAccount, error)
 
+	AddUserTwitchDetails(*UserAccount) (*UserAccount, error)
+	GetUserByTwitchLogin(*UserAccount) (*UserAccount, error)
+
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
 	DeleteAllCrosshairsFromUser(uuid.UUID) error
@@ -74,6 +77,10 @@ type UserAccount struct {
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string
 	LastLogin  time.Time
+
+	TwitchID        string `gorm:"unique"`
+	TwitchLogin     string `gorm:"unique"`
+	TwitchCreatedAt time.Time
 
 	// For now we will only allow 20 crosshairs per user.
 	CrosshairsRegistered int

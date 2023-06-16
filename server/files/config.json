@@ -21,5 +21,9 @@
   "smtp_pass": "",
   "smtp_port": 0,
   "smtp_user": "",
-  "using_reverse_proxy": false
+  "using_reverse_proxy": false,
+  "twitch_client_id": "optional",
+  "twitch_client_secret": "optional",
+  "twitch_redirect_url": "optional",
+  "twitch_bot_username": "optional"
 }

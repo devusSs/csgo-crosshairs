@@ -149,4 +149,4 @@ drop-minio:
 
 # DO NOT CHANGE.
 lint:
-	@golangci-lint run -v
+	@golangci-lint run

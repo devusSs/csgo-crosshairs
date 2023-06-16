@@ -37,6 +37,11 @@ type Config struct {
 	SMTPUser  string `json:"smtp_user"`
 
 	UsingReverseProxy bool `json:"using_reverse_proxy"`
+
+	TwitchClientID     string `json:"twitch_client_id"`
+	TwitchClientSecret string `json:"twitch_client_secret"`
+	TwitchRedirectURL  string `json:"twitch_redirect_url"`
+	TwitchBotUsername  string `json:"twitch_bot_username"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {

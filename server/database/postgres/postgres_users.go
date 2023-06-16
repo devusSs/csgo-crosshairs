@@ -70,3 +70,13 @@ func (p *psql) UpdateUserAvatarURL(user *database.UserAccount) (*database.UserAc
 	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).Update("avatar_url", user.AvatarURL)
 	return user, tx.Error
 }
+
+func (p *psql) AddUserTwitchDetails(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("id = ?", user.ID).Update("twitch_id", user.TwitchID).Update("twitch_login", user.TwitchLogin).Update("twitch_created_at", user.TwitchCreatedAt)
+	return user, tx.Error
+}
+
+func (p *psql) GetUserByTwitchLogin(user *database.UserAccount) (*database.UserAccount, error) {
+	tx := p.db.Table(tableUsers).Where("twitch_login = ?", user.TwitchLogin).First(&user)
+	return user, tx.Error
+}
