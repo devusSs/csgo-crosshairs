@@ -30,3 +30,9 @@ func (p *psql) EditCrosshairNote(ch *database.Crosshair) (*database.Crosshair, e
 	tx := p.db.Table(tableCrosshairs).Where("registrant_id = ?", ch.RegistrantID).Where("code = ?", ch.Code).Update("note", ch.Note)
 	return ch, tx.Error
 }
+
+func (p *psql) GetAllCrosshairsFromUserSortByDate(user uuid.UUID) ([]*database.Crosshair, error) {
+	var crosshairs []*database.Crosshair
+	tx := p.db.Table(tableCrosshairs).Order("created_at desc").Where("id = ?", user).Find(&crosshairs)
+	return crosshairs, tx.Error
+}

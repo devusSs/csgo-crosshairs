@@ -215,7 +215,7 @@ func main() {
 
 	// Integration initialisation
 	if !*disableIntegrationsFlag {
-		if err := integration.InitTwitchAuth(cfg, apiServer, fmt.Sprintf("http://%s:%d", apiServer.Host, apiServer.Port)); err != nil {
+		if err := integration.InitTwitchAuth(cfg, apiServer, fmt.Sprintf("http://%s:%d", apiServer.Host, apiServer.Port), svc); err != nil {
 			logging.WriteError(err)
 			os.Exit(1)
 		}

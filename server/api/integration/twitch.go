@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -15,6 +16,8 @@ import (
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
+	"github.com/devusSs/crosshairs/logging"
+	"github.com/gempir/go-twitch-irc/v4"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -32,6 +35,9 @@ var (
 	redirectURL  = ""
 	oauthConfig  *oauth2.Config
 	state        string
+
+	dbService   database.Service
+	botUsername string
 )
 
 type twitchUsersData struct {
@@ -50,7 +56,7 @@ type twitchUsersData struct {
 	} `json:"data"`
 }
 
-func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string) error {
+func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc database.Service) error {
 	if !strings.Contains(cfg.TwitchRedirectURL, hostURL) {
 		hostURL = strings.Replace(hostURL, "127.0.0.1", "localhost", 1)
 
@@ -74,6 +80,9 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string) error {
 		RedirectURL:  redirectURL,
 		Scopes:       []string{"user:read:email"},
 	}
+
+	dbService = svc
+	botUsername = cfg.TwitchBotUsername
 
 	hostURL = strings.Replace(hostURL, "127.0.0.1", "localhost", 1)
 	redirectURLHost := strings.Split(cfg.TwitchRedirectURL, hostURL)[1]
@@ -236,10 +245,56 @@ func handleCallback(c *gin.Context) {
 		return
 	}
 
+	go createBotAndJoinChannel(token, userLogin)
+
 	respSucc := responses.SuccessResponse{}
 	respSucc.Code = http.StatusOK
 	respSucc.Data = gin.H{
-		"message": "Successfully connected your Twitch account.",
+		"message":            "Successfully connected your Twitch account.",
+		"available_commands": "!latestCH ; !status",
 	}
 	respSucc.SendSuccessReponse(c)
+}
+
+func createBotAndJoinChannel(token *oauth2.Token, channel string) {
+	client := twitch.NewClient(botUsername, fmt.Sprintf("oauth:%s", token.AccessToken))
+
+	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		switch message.Message {
+		case "!latestCH":
+			handleCrosshairCommand(client, channel, message.User.DisplayName)
+		case "!status":
+			handleStatusCommand(client, channel, message.User.DisplayName)
+		}
+	})
+
+	client.Join(channel)
+
+	log.Printf("[%s] Spawned new Twitch bot instance for user \"%s\" with token \"%s\"\n", logging.InfSign, channel, token.AccessToken)
+
+	if err := client.Connect(); err != nil {
+		log.Printf("[%s] Error connecting to Twitch channel of \"%s\": %s\n", logging.ErrSign, channel, err.Error())
+	}
+}
+
+func handleCrosshairCommand(client *twitch.Client, channel, user string) {
+	dbUser, err := dbService.GetUserByTwitchLogin(&database.UserAccount{TwitchLogin: channel})
+	if err != nil {
+		client.Say(user, fmt.Sprintf("Could not fetch user: %s\n", err.Error()))
+		return
+	}
+
+	crosshairs, err := dbService.GetAllCrosshairsFromUserSortByDate(dbUser.ID)
+	if err != nil {
+		client.Say(user, fmt.Sprintf("Could not fetch crosshairs: %s\n", err.Error()))
+		return
+	}
+
+	latestCrosshair := crosshairs[0]
+
+	client.Say(user, fmt.Sprintf("@%s -> Latest crosshair on database: %s", user, latestCrosshair.Code))
+}
+
+func handleStatusCommand(client *twitch.Client, channel, user string) {
+	client.Say(channel, fmt.Sprintf("@%s -> Crosshairs bot is up and running!", user))
 }

@@ -35,6 +35,7 @@ type Service interface {
 
 	AddCrosshair(*Crosshair) (*Crosshair, error)
 	GetAllCrosshairsFromUser(uuid.UUID) ([]*Crosshair, error)
+	GetAllCrosshairsFromUserSortByDate(uuid.UUID) ([]*Crosshair, error)
 	DeleteAllCrosshairsFromUser(uuid.UUID) error
 	DeleteCrosshairFromUserByCode(uuid.UUID, string) error
 	EditCrosshairNote(*Crosshair) (*Crosshair, error)

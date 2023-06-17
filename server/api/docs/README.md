@@ -16,7 +16,8 @@
 | PATCH  | /api/users/newPass                | performs password reset for logged in user              | ✅     | ✅ (user)                                     |
 | POST   | /api/users/avatar                 | updates the user avatar                                 | ✅     | ✅ (user)                                     |
 | DELETE | /api/users/avatar                 | deletes the current avatar of a user                    | ✅     | ✅ (user)                                     |
-|        |                                   |                                                         |        |                                               |
+| GET    | /api/integration/twitch/login     | makes Twitch integration possible for user              | ✅     | ✅ (user)                                     |
+|        |                                   |                                                         |        |
 | GET    | /api/crosshairs                   | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)                                     |
 | GET    | /api/crosshairs?code=             | gets a specific crosshair by it's code                  | ✅     | ✅ (user)                                     |
 | GET    | /api/crosshairs?start=&end=       | gets crosshairs specified by a date range or single dat | ✅     | ✅ (user)                                     |
