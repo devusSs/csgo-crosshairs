@@ -6,5 +6,5 @@ import (
 )
 
 func CountRequestsMiddleware(c *gin.Context) {
-	stats.RequestsInLast24Hours = stats.RequestsInLast24Hours + 1
+	stats.RequestsInLast24Hours++
 }

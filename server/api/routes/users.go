@@ -298,7 +298,7 @@ func VerifyUserEMailRoute(c *gin.Context) {
 		return
 	}
 
-	stats.UsersRegisteredLast24Hours = stats.UsersRegisteredLast24Hours + 1
+	stats.UsersRegisteredLast24Hours++
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK
@@ -397,7 +397,7 @@ func LoginUserRoute(c *gin.Context) {
 		return
 	}
 
-	stats.UsersLoggedInLast24Hours = stats.UsersLoggedInLast24Hours + 1
+	stats.UsersLoggedInLast24Hours++
 
 	resp := responses.SuccessResponse{}
 	resp.Code = http.StatusOK

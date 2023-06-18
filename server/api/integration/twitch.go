@@ -90,6 +90,23 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc databa
 	api.Engine.GET("/api/integration/twitch/login", handleLogin)
 	api.Engine.GET(redirectURLHost, handleCallback)
 
+	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
+		"user":   "root",
+		"action": "bot_init",
+	})
+	if err != nil {
+		return err
+	}
+
+	actualLog := database.TwitchBotLog{
+		Message: logMessage,
+		Issuer:  "root",
+	}
+
+	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -270,7 +287,23 @@ func createBotAndJoinChannel(token *oauth2.Token, channel string) {
 
 	client.Join(channel)
 
-	log.Printf("[%s] Spawned new Twitch bot instance for user \"%s\" with token \"%s\"\n", logging.InfSign, channel, token.AccessToken)
+	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
+		"user":   channel,
+		"action": "bot_join_channel",
+	})
+	if err != nil {
+		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		return
+	}
+
+	actualLog := database.TwitchBotLog{
+		Message: logMessage,
+		Issuer:  "join_channel",
+	}
+
+	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
+		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+	}
 
 	if err := client.Connect(); err != nil {
 		log.Printf("[%s] Error connecting to Twitch channel of \"%s\": %s\n", logging.ErrSign, channel, err.Error())
@@ -293,8 +326,48 @@ func handleCrosshairCommand(client *twitch.Client, channel, user string) {
 	latestCrosshair := crosshairs[0]
 
 	client.Say(user, fmt.Sprintf("@%s -> Latest crosshair on database: %s", user, latestCrosshair.Code))
+
+	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
+		"user":    user,
+		"channel": channel,
+		"action":  "!latestCH",
+	})
+	if err != nil {
+		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		return
+	}
+
+	actualLog := database.TwitchBotLog{
+		Message: logMessage,
+		Issuer:  "handle_crosshairs",
+	}
+
+	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
+		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+	}
 }
 
 func handleStatusCommand(client *twitch.Client, channel, user string) {
 	client.Say(channel, fmt.Sprintf("@%s -> Crosshairs bot is up and running!", user))
+
+	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
+		"user":    user,
+		"channel": channel,
+		"action":  "!status",
+	})
+	if err != nil {
+		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		return
+	}
+
+	actualLog := database.TwitchBotLog{
+		Message: logMessage,
+		Issuer:  "handle_status",
+	}
+
+	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
+		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+	}
 }
+
+// TODO: add possibility to remove Twitch connection
