@@ -61,7 +61,15 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc databa
 		hostURL = strings.Replace(hostURL, "127.0.0.1", "localhost", 1)
 
 		if !strings.Contains(cfg.TwitchRedirectURL, hostURL) {
-			return fmt.Errorf("twitch redirect url and host url mismatch: %s <-> %s", cfg.TwitchRedirectURL, hostURL)
+			// Check if our url might be missing host (in case of Docker for example)
+			hostSplit := strings.Split(hostURL, "://")
+			if strings.Contains(hostSplit[1], ":") {
+				hostURL = strings.Replace(hostURL, "://", "://localhost", 1)
+			}
+
+			if !strings.Contains(cfg.TwitchRedirectURL, hostURL) {
+				return fmt.Errorf("twitch redirect url and host url mismatch: %s <-> %s", cfg.TwitchRedirectURL, hostURL)
+			}
 		}
 	}
 

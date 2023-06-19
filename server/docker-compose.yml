@@ -48,7 +48,7 @@ services:
       - minio_storage:/data
 
   api:
-    build: 
+    build:
       context: .
       args:
         BUILD_VERSION: ${API_BUILD_VERSION}
@@ -81,6 +81,7 @@ services:
       TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
       TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
       TWITCH_BOT_USERNAME: ${TWITCH_BOT_USERNAME}
+      TWITCH_REDIRECT_URL: ${TWITCH_REDIRECT_URL}
     ports:
       - 127.0.0.1:${API_PORT}:${API_PORT}
     networks:

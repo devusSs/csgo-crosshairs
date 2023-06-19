@@ -17,10 +17,6 @@ repos:
       name: vet Go code
       language: system
       entry: bash -c "cd server && exec go vet ./..."
-    - id: go-imports
-      name: check imports for Go code
-      language: system
-      entry: bash -c "cd server && exec goimports ./..."
     - id: golangci-lint
       name: lint Go code
       language: system
