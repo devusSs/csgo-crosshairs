@@ -113,7 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	printAsciiArt(cfg)
+	printAsciiArt()
 
 	api.UsingReverseProxy = cfg.UsingReverseProxy
 	routes.UsingReverseProxy = cfg.UsingReverseProxy
@@ -181,11 +181,11 @@ func main() {
 				os.Exit(1)
 			}
 
-			logging.WriteInfo("Generated new engineer token and added it to database")
+			logging.WriteSuccess("Generated new engineer token and added it to database")
 		}
 	}()
 
-	logging.WriteInfo("Setup goroutine to re-generate engineer token")
+	logging.WriteSuccess("Setup goroutine to re-generate engineer token")
 
 	apiLogFile, errorLogFile, err := logging.CreateAPILogFiles()
 	if err != nil {
@@ -243,18 +243,8 @@ func main() {
 }
 
 // Will print the domain set on config as ascii art.
-func printAsciiArt(cfg *config.Config) {
-	var printDomain string
-
-	if strings.Contains(cfg.Domain, "http://") {
-		printDomain = strings.Replace(cfg.Domain, "http://", "", 1)
-	} else {
-		printDomain = strings.Replace(cfg.Domain, "https://", "", 1)
-	}
-
-	printDomain = strings.Replace(printDomain, "api.", "", 1)
-
-	asciiArt := figure.NewColorFigure(printDomain, "", "green", true)
+func printAsciiArt() {
+	asciiArt := figure.NewColorFigure("csgo-crosshairs", "small", "green", true)
 	asciiArt.Print()
 }
 

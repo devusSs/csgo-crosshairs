@@ -2,41 +2,42 @@
 
 ## Routes
 
-| Method | Route                             | Description                                             | Status | Auth needed                                   |
-| ------ | --------------------------------- | ------------------------------------------------------- | ------ | --------------------------------------------- |
-| GET    | /api/users/me                     | gets information about the logged in user               | ✅     | ✅ (user)                                     |
-| POST   | /api/users/register               | registers a new user                                    | ✅     | ❌                                            |
-| POST   | /api/users/register?action=resend | resends verify email                                    | ✅     | ❌                                            |
-| GET    | /api/users/verifyMail?code=       | verified the user's email on registration               | ✅     | ❌                                            |
-| POST   | /api/users/login                  | login for existing users                                | ✅     | ❌                                            |
-| GET    | /api/users/logout                 | logout for logged in user                               | ✅     | ✅ (user)                                     |
-| POST   | /api/users/resetPass              | reset password for registered user                      | ✅     | ❌                                            |
-| GET    | /api/users/resetPass?email=&code= | check reset password code from email                    | ✅     | ❌                                            |
-| PATCH  | /api/users/resetPass?email=&code= | performs the actual password reset                      | ✅     | ❌                                            |
-| PATCH  | /api/users/newPass                | performs password reset for logged in user              | ✅     | ✅ (user)                                     |
-| POST   | /api/users/avatar                 | updates the user avatar                                 | ✅     | ✅ (user)                                     |
-| DELETE | /api/users/avatar                 | deletes the current avatar of a user                    | ✅     | ✅ (user)                                     |
-| GET    | /api/integration/twitch/login     | makes Twitch integration possible for user              | ✅     | ✅ (user)                                     |
-|        |                                   |                                                         |        |
-| GET    | /api/crosshairs                   | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)                                     |
-| GET    | /api/crosshairs?code=             | gets a specific crosshair by it's code                  | ✅     | ✅ (user)                                     |
-| GET    | /api/crosshairs?start=&end=       | gets crosshairs specified by a date range or single dat | ✅     | ✅ (user)                                     |
-| POST   | /api/crosshairs/add               | saves a new crosshair from a specific user              | ✅     | ✅ (user)                                     |
-| DELETE | /api/crosshairs                   | deletes all saved crosshairs from a specific user       | ✅     | ✅ (user)                                     |
-| DELETE | /api/crosshairs?code=             | deletes a specific crosshair by it's code               | ✅     | ✅ (user)                                     |
-|        |                                   |                                                         |        |                                               |
-| GET    | /api/admins/users                 | gets all users registered                               | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/users?email=          | gets a user by their email                              | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/crosshairs            | gets all saved crosshairs                               | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/crosshairs?email=     | gets all saved crosshairs from a specific user          | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/events                | gets all events                                         | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/events?limit=         | gets X (limit) most recent events                       | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/events?type=          | gets all events by a specific type                      | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/events?type=&limit=   | gets X (limit) most recent events by a specific type    | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/stats/total           | gets overall API stats                                  | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/stats/daily           | gets API stats for day                                  | ✅     | ✅ (admin)                                    |
-| GET    | /api/admins/stats/system          | gets system stats for API host                          | ✅     | ✅ (engineer, see below for more information) |
-| GET    | /api/admins/errors                | gets recent errors on API if available                  | ✅     | ✅ (admin)                                    |
+| Method | Route                              | Description                                             | Status | Auth needed                                   |
+| ------ | ---------------------------------- | ------------------------------------------------------- | ------ | --------------------------------------------- |
+| GET    | /api/users/me                      | gets information about the logged in user               | ✅     | ✅ (user)                                     |
+| POST   | /api/users/register                | registers a new user                                    | ✅     | ❌                                            |
+| POST   | /api/users/register?action=resend  | resends verify email                                    | ✅     | ❌                                            |
+| GET    | /api/users/verifyMail?code=        | verified the user's email on registration               | ✅     | ❌                                            |
+| POST   | /api/users/login                   | login for existing users                                | ✅     | ❌                                            |
+| GET    | /api/users/logout                  | logout for logged in user                               | ✅     | ✅ (user)                                     |
+| POST   | /api/users/resetPass               | reset password for registered user                      | ✅     | ❌                                            |
+| GET    | /api/users/resetPass?email=&code=  | check reset password code from email                    | ✅     | ❌                                            |
+| PATCH  | /api/users/resetPass?email=&code=  | performs the actual password reset                      | ✅     | ❌                                            |
+| PATCH  | /api/users/newPass                 | performs password reset for logged in user              | ✅     | ✅ (user)                                     |
+| POST   | /api/users/avatar                  | updates the user avatar                                 | ✅     | ✅ (user)                                     |
+| DELETE | /api/users/avatar                  | deletes the current avatar of a user                    | ✅     | ✅ (user)                                     |
+| GET    | /api/integration/twitch/login      | makes Twitch integration possible for user              | ✅     | ✅ (user)                                     |
+| GET    | /api/integration/twitch/disconnect | removes Twitch integration for user                     | ✅     | ✅ (user)                                     |
+|        |                                    |                                                         |        |
+| GET    | /api/crosshairs                    | gets all saved crosshairs from a specific user          | ✅     | ✅ (user)                                     |
+| GET    | /api/crosshairs?code=              | gets a specific crosshair by it's code                  | ✅     | ✅ (user)                                     |
+| GET    | /api/crosshairs?start=&end=        | gets crosshairs specified by a date range or single dat | ✅     | ✅ (user)                                     |
+| POST   | /api/crosshairs/add                | saves a new crosshair from a specific user              | ✅     | ✅ (user)                                     |
+| DELETE | /api/crosshairs                    | deletes all saved crosshairs from a specific user       | ✅     | ✅ (user)                                     |
+| DELETE | /api/crosshairs?code=              | deletes a specific crosshair by it's code               | ✅     | ✅ (user)                                     |
+|        |                                    |                                                         |        |                                               |
+| GET    | /api/admins/users                  | gets all users registered                               | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/users?email=           | gets a user by their email                              | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/crosshairs             | gets all saved crosshairs                               | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/crosshairs?email=      | gets all saved crosshairs from a specific user          | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/events                 | gets all events                                         | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/events?limit=          | gets X (limit) most recent events                       | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/events?type=           | gets all events by a specific type                      | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/events?type=&limit=    | gets X (limit) most recent events by a specific type    | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/stats/total            | gets overall API stats                                  | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/stats/daily            | gets API stats for day                                  | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/stats/system           | gets system stats for API host                          | ✅     | ✅ (engineer, see below for more information) |
+| GET    | /api/admins/errors                 | gets recent errors on API if available                  | ✅     | ✅ (admin)                                    |
 
 Note:
 

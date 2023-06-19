@@ -67,7 +67,10 @@ func (p *psql) MakeMigrations() error {
 	if err := p.db.AutoMigrate(&database.EngineerToken{}); err != nil {
 		return err
 	}
-	return p.db.AutoMigrate(&database.TwitchBotLog{})
+	if err := p.db.AutoMigrate(&database.TwitchBotLog{}); err != nil {
+		return err
+	}
+	return p.db.AutoMigrate(&database.TwitchRefreshTokenStore{})
 }
 
 func (p *psql) GetPostgresVersion() (string, error) {

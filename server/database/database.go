@@ -55,6 +55,10 @@ type Service interface {
 	GetLatestTwitchBotLogWithLimit(int) ([]*TwitchBotLog, error)
 	GetLatestTwitchBotLogByType(string) ([]*TwitchBotLog, error)
 	GetLatestTwitchBotLogByTypeWithLimit(string, int) ([]*TwitchBotLog, error)
+
+	AddTwitchTokenRefreshStore(*TwitchRefreshTokenStore) (*TwitchRefreshTokenStore, error)
+	GetLatestTwitchTokenRefreshStore(*TwitchRefreshTokenStore) (*TwitchRefreshTokenStore, error)
+	DeleteAllTwitchTokenRefreshStore(*TwitchRefreshTokenStore) error
 }
 
 type EngineerToken struct {
@@ -148,3 +152,15 @@ const (
 	HandleStatus     TwitchBotLogIssuer = "handle_status"
 	HandleCrosshairs TwitchBotLogIssuer = "handle_crosshairs"
 )
+
+type TwitchRefreshTokenStore struct {
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	CreatedAt time.Time
+
+	TwitchID             string
+	TwitchLogin          string
+	RefreshToken         string
+	RefreshTokenAcquired time.Time
+	AccessToken          string
+	AccessTokenExpiry    time.Time
+}

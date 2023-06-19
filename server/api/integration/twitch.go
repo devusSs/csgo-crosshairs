@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 
 const (
 	twitchUsersEndpoint = "https://api.twitch.tv/helix/users"
+	twitchTokenEndpoint = "https://id.twitch.tv/oauth2/token"
 )
 
 var (
@@ -38,6 +40,8 @@ var (
 
 	dbService   database.Service
 	botUsername string
+
+	userBotMap map[string]*twitch.Client
 )
 
 type twitchUsersData struct {
@@ -54,6 +58,13 @@ type twitchUsersData struct {
 		Email           string    `json:"email"`
 		CreatedAt       time.Time `json:"created_at"`
 	} `json:"data"`
+}
+
+type twitchTokenData struct {
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
+	Scope        []string `json:"scope"`
+	TokenType    string   `json:"token_type"`
 }
 
 func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc database.Service) error {
@@ -77,6 +88,9 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc databa
 		return errors.New("missing Twitch variables in config")
 	}
 
+	// Init the map which logs users to Twitch client instances
+	userBotMap = make(map[string]*twitch.Client)
+
 	clientID = cfg.TwitchClientID
 	clientSecret = cfg.TwitchClientSecret
 	redirectURL = cfg.TwitchRedirectURL
@@ -97,6 +111,7 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc databa
 
 	api.Engine.GET("/api/integration/twitch/login", handleLogin)
 	api.Engine.GET(redirectURLHost, handleCallback)
+	api.Engine.GET("/api/integration/twitch/disconnect", disconnectTwitchRoute)
 
 	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
 		"user":   "root",
@@ -112,6 +127,10 @@ func InitTwitchAuth(cfg *config.Config, api *api.API, hostURL string, svc databa
 	}
 
 	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
+		return err
+	}
+
+	if err := initialiseTwitchUsers(); err != nil {
 		return err
 	}
 
@@ -194,6 +213,8 @@ func handleCallback(c *gin.Context) {
 		return
 	}
 
+	refreshTokenAcquiry := time.Now()
+
 	client := oauthConfig.Client(context.Background(), token)
 
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, twitchUsersEndpoint, nil)
@@ -270,13 +291,32 @@ func handleCallback(c *gin.Context) {
 		return
 	}
 
+	// Add token details to database.
+	_, err = dbService.AddTwitchTokenRefreshStore(&database.TwitchRefreshTokenStore{
+		TwitchID:             userID,
+		TwitchLogin:          userLogin,
+		RefreshToken:         token.RefreshToken,
+		RefreshTokenAcquired: refreshTokenAcquiry,
+		AccessToken:          token.AccessToken,
+		AccessTokenExpiry:    token.Expiry,
+	})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		c.Abort()
+		return
+	}
+
 	go createBotAndJoinChannel(token, userLogin)
 
 	respSucc := responses.SuccessResponse{}
 	respSucc.Code = http.StatusOK
 	respSucc.Data = gin.H{
 		"message":            "Successfully connected your Twitch account.",
-		"available_commands": "!latestCH ; !status",
+		"available_commands": "!latestCH ; !statusCH",
 	}
 	respSucc.SendSuccessReponse(c)
 }
@@ -288,7 +328,7 @@ func createBotAndJoinChannel(token *oauth2.Token, channel string) {
 		switch message.Message {
 		case "!latestCH":
 			handleCrosshairCommand(client, channel, message.User.DisplayName)
-		case "!status":
+		case "!statusCH":
 			handleStatusCommand(client, channel, message.User.DisplayName)
 		}
 	})
@@ -312,6 +352,8 @@ func createBotAndJoinChannel(token *oauth2.Token, channel string) {
 	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
 		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 	}
+
+	userBotMap[channel] = client
 
 	if err := client.Connect(); err != nil {
 		log.Printf("[%s] Error connecting to Twitch channel of \"%s\": %s\n", logging.ErrSign, channel, err.Error())
@@ -361,7 +403,7 @@ func handleStatusCommand(client *twitch.Client, channel, user string) {
 	logMessage, err := database.MarshalTwitchBotLogMessage(gin.H{
 		"user":    user,
 		"channel": channel,
-		"action":  "!status",
+		"action":  "!statusCH",
 	})
 	if err != nil {
 		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
@@ -378,4 +420,184 @@ func handleStatusCommand(client *twitch.Client, channel, user string) {
 	}
 }
 
-// TODO: add possibility to remove Twitch connection
+func disconnectTwitchRoute(c *gin.Context) {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := dbService.GetUserByUID(&database.UserAccount{ID: uuidUser})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not get user from database."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if user.TwitchLogin == "" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "User has no Twitch details registered on database."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	client, ok := userBotMap[user.TwitchLogin]
+	if !ok {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if client == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if err := client.Disconnect(); err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	_, err = dbService.AddUserTwitchDetails(&database.UserAccount{TwitchID: "", TwitchLogin: "", TwitchCreatedAt: time.Time{}})
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	userBotMap[user.TwitchLogin] = nil
+
+	resp := responses.SuccessResponse{}
+	resp.Code = http.StatusOK
+	resp.Data = gin.H{
+		"message": "Successfully disconnected Twitch bot",
+		"note":    "Also removed Twitch details from database",
+	}
+	resp.SendSuccessReponse(c)
+}
+
+func initialiseTwitchUsers() error {
+	users, err := dbService.GetAllUsers()
+	if err != nil {
+		return err
+	}
+
+	httpClient := http.Client{Timeout: 3 * time.Second}
+
+	values := url.Values{}
+	values.Add("client_id", clientID)
+	values.Add("client_secret", clientSecret)
+	values.Add("grant_type", "refresh_token")
+
+	channelsJoined := 0
+
+	for _, user := range users {
+		if user.TwitchLogin != "" {
+			// Get the user's latest refresh token.
+			tokenDB, err := dbService.GetLatestTwitchTokenRefreshStore(&database.TwitchRefreshTokenStore{TwitchLogin: user.TwitchLogin})
+			if err != nil {
+				return err
+			}
+
+			// Use that refresh token to generate a new access token.
+			values.Add("refresh_token", tokenDB.RefreshToken)
+
+			req, err := http.NewRequest(http.MethodPost, twitchTokenEndpoint, strings.NewReader(values.Encode()))
+			if err != nil {
+				return err
+			}
+			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+			res, err := httpClient.Do(req)
+			if err != nil {
+				return err
+			}
+			defer res.Body.Close()
+
+			if res.StatusCode != http.StatusOK {
+				return fmt.Errorf("unwanted Twitch response: %d / %s", res.StatusCode, res.Status)
+			}
+
+			refreshTokenAcquired := time.Now()
+
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				return err
+			}
+
+			var tokenData twitchTokenData
+
+			if err := json.Unmarshal(body, &tokenData); err != nil {
+				return err
+			}
+
+			// Assign access token to *oauth2.Token.
+			token := &oauth2.Token{
+				AccessToken: tokenData.AccessToken, // We only need the access token for the bot to join.
+			}
+
+			// Delete the old tokens from database.
+			if err := dbService.DeleteAllTwitchTokenRefreshStore(&database.TwitchRefreshTokenStore{TwitchLogin: user.TwitchLogin}); err != nil {
+				return err
+			}
+
+			// Update tokens on database.
+			_, err = dbService.AddTwitchTokenRefreshStore(&database.TwitchRefreshTokenStore{
+				TwitchID:             user.TwitchID,
+				TwitchLogin:          user.TwitchLogin,
+				RefreshToken:         tokenData.RefreshToken,
+				RefreshTokenAcquired: refreshTokenAcquired,
+				AccessToken:          token.AccessToken,
+				// Empty because we will generate new tokens on each start anyway and only need a token once to join the Twitch
+				AccessTokenExpiry: time.Time{},
+			})
+			if err != nil {
+				return err
+			}
+
+			// Start a new goroutine for the user with specified token(s).
+			go createBotAndJoinChannel(token, user.TwitchLogin)
+
+			// Increment the channelsJoined variable to keep track.
+			channelsJoined++
+		}
+	}
+
+	log.Printf("[%s] Created Twitch bots for %d channels\n", logging.InfSign, channelsJoined)
+
+	return nil
+}

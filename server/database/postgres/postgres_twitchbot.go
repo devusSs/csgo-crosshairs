@@ -30,3 +30,18 @@ func (p *psql) GetLatestTwitchBotLogByTypeWithLimit(logType string, limit int) (
 	tx := p.db.Table("twitch_bot_logs").Order("created_at desc").Where("issuer = ?", logType).Limit(limit).Find(&logs)
 	return logs, tx.Error
 }
+
+func (p *psql) AddTwitchTokenRefreshStore(token *database.TwitchRefreshTokenStore) (*database.TwitchRefreshTokenStore, error) {
+	tx := p.db.Table("twitch_refresh_token_stores").Create(&token)
+	return token, tx.Error
+}
+
+func (p *psql) GetLatestTwitchTokenRefreshStore(loginName *database.TwitchRefreshTokenStore) (*database.TwitchRefreshTokenStore, error) {
+	tx := p.db.Table("twitch_refresh_token_stores").Order("created_at desc").Where("twitch_login = ?", loginName.TwitchLogin).First(&loginName)
+	return loginName, tx.Error
+}
+
+func (p *psql) DeleteAllTwitchTokenRefreshStore(loginName *database.TwitchRefreshTokenStore) error {
+	tx := p.db.Table("twitch_refresh_token_stores").Where("twitch_login = ?", loginName.TwitchLogin).Delete(&database.TwitchRefreshTokenStore{})
+	return tx.Error
+}

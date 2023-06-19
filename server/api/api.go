@@ -295,7 +295,7 @@ func (api *API) StartAPI() error {
 		addr = fmt.Sprintf("localhost:%d", api.Port)
 	}
 
-	log.Printf("[%s] API started on 'http://%s'\n", logging.InfSign, addr)
+	log.Printf("[%s] API started on 'http://%s'\n", logging.SucSign, addr)
 	log.Printf("[%s] Press CTRL+C to exit any time\n", logging.InfSign)
 	log.Printf("[%s] Please DO NOT force exit the app\n", logging.InfSign)
 
