@@ -22,6 +22,7 @@
   "smtp_port": 0,
   "smtp_user": "",
   "using_reverse_proxy": false,
+  "allowed_domain": "optional, useful for dynamic host filtering, specify * to allow all requests",
   "twitch_client_id": "optional",
   "twitch_client_secret": "optional",
   "twitch_redirect_url": "optional",

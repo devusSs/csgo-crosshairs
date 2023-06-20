@@ -120,12 +120,12 @@ func Get24HourStatsRoute(c *gin.Context) {
 
 func GetSystemStatsRoute(c *gin.Context) {
 	// No need to check the session here since the user is a vaidated engineer.
-	data, err := stats.CollectSystemStats(Svc, StorageSvc)
+	data, err := stats.CollectAllSystemAndAppStats(Svc, StorageSvc)
 	if err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.Error.ErrorMessage = database.CheckDatabaseError(err)
 		resp.SendErrorResponse(c)
 		return
 	}

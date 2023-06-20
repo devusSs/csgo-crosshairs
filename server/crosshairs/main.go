@@ -211,7 +211,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	apiServer.SetupRoutes(svc, storageSvc, cfg)
+	if err := apiServer.SetupRoutes(svc, storageSvc, cfg); err != nil {
+		logging.WriteError(err)
+		os.Exit(1)
+	}
 
 	// Integration initialisation
 	if !*disableIntegrationsFlag {

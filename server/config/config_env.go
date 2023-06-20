@@ -66,6 +66,7 @@ func LoadEnvConfig() (*Config, error) {
 		SMTPUser:  getEnvString("smtp_user"),
 
 		UsingReverseProxy: usingReverseProxy,
+		AllowedDomain:     getEnvString("allowed_domain"),
 
 		TwitchClientID:     getEnvString("twitch_client_id"),
 		TwitchClientSecret: getEnvString("twitch_client_secret"),

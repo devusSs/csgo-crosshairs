@@ -197,13 +197,19 @@ func (api *API) SetupCors(cfg *config.Config) {
 	api.Engine.Use(c)
 }
 
-func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *config.Config) {
+func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *config.Config) error {
 	api.Engine.Use(gin.Recovery())
 	api.Engine.Use(gin.Logger())
 
 	routes.CFG = cfg
 	routes.Svc = db
 	routes.StorageSvc = strSvc
+
+	if err := middleware.SetupPrivateIPBlock(); err != nil {
+		return err
+	}
+
+	middleware.AllowedDomain = cfg.AllowedDomain
 
 	api.Engine.NoRoute(routes.NotFoundRoute)
 	api.Engine.NoMethod(routes.MethodNotAllowedRoute)
@@ -256,12 +262,15 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 				// Route is only accessable for engineers / users with ACTUAL database access.
 				system := stats.Group("/system")
 				{
+					system.Use(middleware.CheckAllowedHostMiddleware)
 					system.Use(middleware.VerifyEngineerMiddleware)
 					system.GET("", routes.GetSystemStatsRoute)
 				}
 			}
 		}
 	}
+
+	return nil
 }
 
 func (api *API) StartAPI() error {

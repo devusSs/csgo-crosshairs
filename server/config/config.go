@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"os"
+
+	"github.com/devusSs/crosshairs/logging"
 )
 
 type Config struct {
@@ -36,7 +39,8 @@ type Config struct {
 	SMTPPort  int    `json:"smtp_port"`
 	SMTPUser  string `json:"smtp_user"`
 
-	UsingReverseProxy bool `json:"using_reverse_proxy"`
+	UsingReverseProxy bool   `json:"using_reverse_proxy"`
+	AllowedDomain     string `json:"allowed_domain"`
 
 	TwitchClientID     string `json:"twitch_client_id"`
 	TwitchClientSecret string `json:"twitch_client_secret"`
@@ -148,6 +152,14 @@ func (c *Config) CheckConfig() error {
 
 	if c.SMTPUser == "" {
 		return errors.New("missing key: smtp_user")
+	}
+
+	if c.AllowedDomain == "" {
+		return errors.New("missing key: allowed_domain")
+	}
+
+	if c.AllowedDomain == "*" {
+		log.Printf("[%s] Using * for allowed_domain, NOT RECOMMENDED\n", logging.WarnSign)
 	}
 
 	return nil

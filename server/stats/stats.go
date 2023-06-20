@@ -9,6 +9,7 @@ import (
 
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/storage"
+	"github.com/devusSs/crosshairs/system"
 	"github.com/devusSs/crosshairs/updater"
 )
 
@@ -39,7 +40,7 @@ type SystemInfo struct {
 		BuildArch    string `json:"build_arch"`
 		GoVersion    string `json:"go_version"`
 	} `json:"build_info"`
-	Systeminfo struct {
+	AppInfo struct {
 		CPUCount        int    `json:"cpu_count"`
 		CGOCalls        int64  `json:"cgo_calls"`
 		GoRoutinesCount int    `json:"goroutines_count"`
@@ -48,12 +49,13 @@ type SystemInfo struct {
 		PathInfo        string `json:"path_info"`
 		HostInfo        string `json:"host_info"`
 		ResolvedAddr    bool   `json:"resolved_addr"`
-	} `json:"system_info"`
+	} `json:"app_info"`
 	Integration struct {
 		PostgresVersion string `json:"postgres_version"`
 		RedisVersion    string `json:"redis_version"`
 		MinioVersion    string `json:"minio_version"`
 	} `json:"integration"`
+	SystemInfo *system.SystemInformation `json:"system_information"`
 }
 
 func Reset24Statistics() {
@@ -95,7 +97,7 @@ func GetStats24Hours() *Stats24Hours {
 	}
 }
 
-func CollectSystemStats(svc database.Service, minioSvc *storage.Service) (*SystemInfo, error) {
+func CollectAllSystemAndAppStats(svc database.Service, minioSvc *storage.Service) (*SystemInfo, error) {
 	pPath, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -121,6 +123,11 @@ func CollectSystemStats(svc database.Service, minioSvc *storage.Service) (*Syste
 		return nil, err
 	}
 
+	systemInfo, err := system.FetchSystemInformation()
+	if err != nil {
+		return nil, err
+	}
+
 	var info SystemInfo
 
 	info.BuildInfo.BuildVersion = updater.BuildVersion
@@ -129,18 +136,20 @@ func CollectSystemStats(svc database.Service, minioSvc *storage.Service) (*Syste
 	info.BuildInfo.BuildArch = updater.BuildARCH
 	info.BuildInfo.GoVersion = updater.BuildGo
 
-	info.Systeminfo.CPUCount = runtime.NumCPU()
-	info.Systeminfo.CGOCalls = runtime.NumCgoCall()
-	info.Systeminfo.GoRoutinesCount = runtime.NumGoroutine()
-	info.Systeminfo.Pagesize = os.Getpagesize()
-	info.Systeminfo.ProcessID = os.Getpid()
-	info.Systeminfo.PathInfo = pPath
-	info.Systeminfo.HostInfo = hostname
-	info.Systeminfo.ResolvedAddr = dnsWorks
+	info.AppInfo.CPUCount = runtime.NumCPU()
+	info.AppInfo.CGOCalls = runtime.NumCgoCall()
+	info.AppInfo.GoRoutinesCount = runtime.NumGoroutine()
+	info.AppInfo.Pagesize = os.Getpagesize()
+	info.AppInfo.ProcessID = os.Getpid()
+	info.AppInfo.PathInfo = pPath
+	info.AppInfo.HostInfo = hostname
+	info.AppInfo.ResolvedAddr = dnsWorks
 
 	info.Integration.PostgresVersion = postgresVersion
 	info.Integration.RedisVersion = RedisVersion
 	info.Integration.MinioVersion = minioVersion
+
+	info.SystemInfo = systemInfo
 
 	return &info, nil
 }
