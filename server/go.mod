@@ -9,7 +9,7 @@ require (
 	github.com/gempir/go-twitch-irc/v4 v4.0.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.1
-	github.com/minio/minio-go/v7 v7.0.56
+	github.com/minio/minio-go/v7 v7.0.57
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/cors/wrapper/gin v0.0.0-20230526135330-e90f16747950
 	github.com/shirou/gopsutil/v3 v3.23.5
