@@ -134,6 +134,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	utils.InitMail(cfg)
+
 	storageSvc, err := storage.NewMinioConnection(cfg)
 	if err != nil {
 		logging.WriteError(err)

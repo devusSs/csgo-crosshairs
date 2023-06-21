@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"net/mail"
 	"os"
@@ -12,12 +13,28 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+var (
+	mailServer *gomail.Dialer
+	mailSender string
+)
+
 type EmailData struct {
 	URL     string
 	Subject string
 }
 
-func ParseTemplateDir(dir string) (*template.Template, error) {
+type EmailDataAdmin struct {
+	Subject string
+	Data    interface{}
+}
+
+func InitMail(cfg *config.Config) {
+	mailServer = gomail.NewDialer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass)
+
+	mailSender = cfg.EmailFrom
+}
+
+func parseTemplateDir(dir string) (*template.Template, error) {
 	var paths []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -36,40 +53,58 @@ func ParseTemplateDir(dir string) (*template.Template, error) {
 	return template.ParseFiles(paths...)
 }
 
-func SendEmail(user *database.UserAccount, data *EmailData, cfg *config.Config) error {
-	from := cfg.EmailFrom
-	smtpPass := cfg.SMTPPass
-	smtpUser := cfg.SMTPUser
-	to := user.EMail
-	smtpHost := cfg.SMTPHost
-	smtpPort := cfg.SMTPPort
-
+func SendVerificationMail(user *database.UserAccount, data *EmailData) error {
 	var body bytes.Buffer
 
-	template, err := ParseTemplateDir("templates")
+	template, err := parseTemplateDir("templates")
 	if err != nil {
 		return err
 	}
 
-	// TODO: we might want to make templates reuseable / depending on use case like admin warnings
 	if err := template.ExecuteTemplate(&body, "verificationCode.html", &data); err != nil {
 		return err
 	}
 
 	m := gomail.NewMessage()
 
-	m.SetHeader("From", from)
-	m.SetHeader("To", to)
+	m.SetHeader("From", mailSender)
+	m.SetHeader("To", user.EMail)
 	m.SetHeader("Subject", data.Subject)
 	m.SetBody("text/html", body.String())
 
-	d := gomail.NewDialer(smtpHost, smtpPort, smtpUser, smtpPass)
-
-	if err := d.DialAndSend(m); err != nil {
+	if err := mailServer.DialAndSend(m); err != nil {
 		return err
 	}
 
-	body.Reset() // Might help with future loading of templates.
+	return nil
+}
+
+func SendAdminMail(user *database.UserAccount, data *EmailDataAdmin) error {
+	if user.Role != "admin" {
+		return errors.New("user is not an admin")
+	}
+
+	var body bytes.Buffer
+
+	template, err := parseTemplateDir("templates")
+	if err != nil {
+		return err
+	}
+
+	if err := template.ExecuteTemplate(&body, "adminEvent.html", &data); err != nil {
+		return err
+	}
+
+	m := gomail.NewMessage()
+
+	m.SetHeader("From", mailSender)
+	m.SetHeader("To", user.EMail)
+	m.SetHeader("Subject", data.Subject)
+	m.SetBody("text/html", body.String())
+
+	if err := mailServer.DialAndSend(m); err != nil {
+		return err
+	}
 
 	return nil
 }

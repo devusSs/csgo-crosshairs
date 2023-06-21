@@ -31,7 +31,7 @@ else
 endif
 
 # DO NOT CHANGE.
-build: 
+build:
 	@[ "${CHS_BUILD_VERSION}" ] || ( echo "CHS_BUILD_VERSION is not set"; exit 1 )
 	@[ "${CHS_BUILD_MODE}" ] || ( echo "CHS_BUILD_MODE is not set"; exit 1 )
 	@echo "Building app for Windows (AMD64), Linux (AMD64) & MacOS (ARM64)..."
@@ -86,7 +86,7 @@ docker-up:
 # DO NOT CHANGE.
 docker-down:
 	@echo "This command will NOT delete Docker images or volumes (data will be persistent)."
-	@echo "If you need functionality to remove images and volumes please use the Docker GUI if available."
+	@echo "If you need functionality to remove images and volumes please use the Docker GUI / CLI if available."
 	@docker compose --env-file=docker.env down
 
 # DO NOT CHANGE.

@@ -119,7 +119,7 @@ func RegisterUserRoute(c *gin.Context) {
 			return
 		}
 
-		if err := utils.SendEmail(user, emailData, CFG); err != nil {
+		if err := utils.SendVerificationMail(user, emailData); err != nil {
 			resp := responses.ErrorResponse{}
 			resp.Code = http.StatusInternalServerError
 			resp.Error.ErrorCode = "internal_error"
@@ -199,7 +199,7 @@ func RegisterUserRoute(c *gin.Context) {
 		}
 	}
 
-	if err := utils.SendEmail(&newUser, emailData, CFG); err != nil {
+	if err := utils.SendVerificationMail(&newUser, emailData); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
@@ -575,7 +575,7 @@ func ResetPasswordRoute(c *gin.Context) {
 		}
 	}
 
-	if err := utils.SendEmail(user, emailData, CFG); err != nil {
+	if err := utils.SendVerificationMail(user, emailData); err != nil {
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusInternalServerError
 		resp.Error.ErrorCode = "internal_error"
