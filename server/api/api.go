@@ -25,6 +25,7 @@ import (
 	"github.com/devusSs/crosshairs/updater"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	cors "github.com/rs/cors/wrapper/gin"
@@ -35,23 +36,17 @@ var (
 )
 
 type API struct {
-	Host            string
-	Port            int
-	Engine          *gin.Engine
-	RequestsLogFile *os.File
-	ErrorLogFile    *os.File
+	Host   string
+	Port   int
+	Engine *gin.Engine
 }
 
-func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File, errorLogFile *os.File) (*API, error) {
+func NewAPIInstance(cfg *config.Config) (*API, error) {
 	switch updater.BuildMode {
 	case "dev":
 		gin.SetMode(gin.DebugMode)
-		gin.DefaultWriter = os.Stdout
-		gin.DefaultErrorWriter = os.Stderr
 	case "release":
 		gin.SetMode(gin.ReleaseMode)
-		gin.DefaultWriter = requestsLogFile
-		gin.DefaultErrorWriter = errorLogFile
 	default:
 		return nil, errors.New("unknown build mode")
 	}
@@ -75,8 +70,6 @@ func NewAPIInstance(cfg *config.Config, requestsLogFile *os.File, errorLogFile *
 		cfg.APIHost,
 		cfg.APIPort,
 		engine,
-		requestsLogFile,
-		errorLogFile,
 	}, nil
 }
 
@@ -197,9 +190,11 @@ func (api *API) SetupCors(cfg *config.Config) {
 	api.Engine.Use(c)
 }
 
-func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *config.Config) error {
-	api.Engine.Use(gin.Recovery())
-	api.Engine.Use(gin.Logger())
+func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *config.Config, logsDir string, debug bool) error {
+	logger := logging.InitZapAPILogger(logsDir, debug)
+
+	api.Engine.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+	api.Engine.Use(ginzap.RecoveryWithZap(logger, true))
 
 	routes.CFG = cfg
 	routes.Svc = db
@@ -247,7 +242,6 @@ func (api *API) SetupRoutes(db database.Service, strSvc *storage.Service, cfg *c
 		{
 			admins.GET("/users", routes.GetAllUsersRoute)
 			admins.GET("/crosshairs", routes.GetAllCrosshairsRoute)
-			admins.GET("/errors", routes.GetErrorsRoute)
 
 			events := admins.Group("/events")
 			{
@@ -304,9 +298,9 @@ func (api *API) StartAPI() error {
 		addr = fmt.Sprintf("localhost:%d", api.Port)
 	}
 
-	log.Printf("[%s] API started on 'http://%s'\n", logging.SucSign, addr)
-	log.Printf("[%s] Press CTRL+C to exit any time\n", logging.InfSign)
-	log.Printf("[%s] Please DO NOT force exit the app\n", logging.InfSign)
+	log.Printf("%s API started on 'http://%s'\n", logging.SucSign, addr)
+	log.Printf("%s Press CTRL+C to exit any time\n", logging.InfSign)
+	log.Printf("%s Please DO NOT force exit the app\n", logging.InfSign)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -321,7 +315,7 @@ func (api *API) StartAPI() error {
 
 	fmt.Println("")
 
-	return api.RequestsLogFile.Close()
+	return nil
 }
 
 func rateLimitGetIP(c *gin.Context) string {

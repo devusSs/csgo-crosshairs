@@ -28,21 +28,22 @@ func main() {
 	printBuild := flag.Bool("v", false, "prints build information")
 	cfgPath := flag.String("c", "./files/config.json", "sets config path")
 	scFlag := flag.Bool("sc", false, "generates secret keys")
+	logsDir := flag.String("l", "./logs", "sets the logging directory")
 	debugFlag := flag.Bool("d", false, "enabled debug mode")
 	dockerFlag := flag.Bool("docker", false, "enables Docker mode - uses docker.env instead of config.json file")
 	disableIntegrationsFlag := flag.Bool("disable-integrations", false, "disables integrations like Twitch")
 	flag.Parse()
 
 	if !checkNetworkConnection() {
-		log.Printf("[%s] No working network connection found, exiting\n", logging.ErrSign)
+		log.Printf("%s No working network connection found, exiting\n", logging.ErrSign)
 		os.Exit(1)
 	}
 
 	if *debugFlag {
 		updater.BuildMode = "dev"
 
-		log.Printf("[%s] You are currently using a development version\n", logging.WarnSign)
-		log.Printf("[%s] Not all features may be available or working as expected\n", logging.WarnSign)
+		log.Printf("%s You are currently using a development version\n", logging.WarnSign)
+		log.Printf("%s Not all features may be available or working as expected\n", logging.WarnSign)
 
 		updater.PrintBuildInfo()
 
@@ -52,7 +53,7 @@ func main() {
 		}
 
 		if !frontendUp {
-			log.Printf("[%s] Could not find a working frontend client\n", logging.WarnSign)
+			log.Printf("%s Could not find a working frontend client\n", logging.WarnSign)
 		}
 	}
 
@@ -62,29 +63,21 @@ func main() {
 	}
 
 	if *scFlag {
-		log.Printf("[%s] Sessions secret key: \t%s\n", logging.WarnSign, utils.RandomString(24))
-		log.Printf("[%s] Admin key: \t\t%s\n", logging.WarnSign, utils.RandomString(36))
-		log.Printf("[%s] Make sure to add these to your config file and NEVER SHARE THEM WITH ANYONE!", logging.WarnSign)
+		log.Printf("%s Sessions secret key: \t%s\n", logging.WarnSign, utils.RandomString(24))
+		log.Printf("%s Admin key: \t\t%s\n", logging.WarnSign, utils.RandomString(36))
+		log.Printf("%s Make sure to add these to your config file and NEVER SHARE THEM WITH ANYONE!", logging.WarnSign)
 		return
 	}
 
 	if *disableIntegrationsFlag {
-		log.Printf("[%s] You disabled integrations. Not all features may be available\n", logging.WarnSign)
+		log.Printf("%s You disabled integrations. Not all features may be available\n", logging.WarnSign)
 	}
 
-	if err := logging.CreateDefaultLogsDirectory(); err != nil {
+	if err := logging.CreateDefaultLogsDirectory(*logsDir); err != nil {
 		log.Fatalf("[%s] Error creating logs directory: %s\n", logging.ErrSign, err.Error())
 	}
 
-	if err := logging.CreateAppLogFile(); err != nil {
-		log.Fatalf("[%s] Error creating app logger: %s\n", logging.ErrSign, err.Error())
-	}
-
-	if err := logging.CreateErrorLogFile(); err != nil {
-		log.Fatalf("[%s] Error creating error logger: %s\n", logging.ErrSign, err.Error())
-	}
-
-	gormLogger, err := logging.CreateGormLogger()
+	gormLogger, err := logging.CreateGormLogger(*logsDir)
 	if err != nil {
 		log.Fatalf("[%s] Error creating gorm logger: %s\n", logging.ErrSign, err.Error())
 	}
@@ -189,13 +182,7 @@ func main() {
 
 	logging.WriteSuccess("Setup goroutine to re-generate engineer token")
 
-	apiLogFile, errorLogFile, err := logging.CreateAPILogFiles()
-	if err != nil {
-		logging.WriteError(err)
-		os.Exit(1)
-	}
-
-	apiServer, err := api.NewAPIInstance(cfg, apiLogFile, errorLogFile)
+	apiServer, err := api.NewAPIInstance(cfg)
 	if err != nil {
 		logging.WriteError(err)
 		os.Exit(1)
@@ -213,7 +200,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := apiServer.SetupRoutes(svc, storageSvc, cfg); err != nil {
+	if err := apiServer.SetupRoutes(svc, storageSvc, cfg, *logsDir, *debugFlag); err != nil {
 		logging.WriteError(err)
 		os.Exit(1)
 	}
@@ -244,7 +231,7 @@ func main() {
 		log.Fatalf("[%s] Error closing log files: %s\n", logging.ErrSign, err.Error())
 	}
 
-	log.Printf("[%s] App ran for %.2f second(s)\n", logging.InfSign, time.Since(startTime).Seconds())
+	log.Printf("%s App ran for %.2f second(s)\n", logging.InfSign, time.Since(startTime).Seconds())
 }
 
 // Will print the domain set on config as ascii art.
@@ -281,7 +268,7 @@ func checkClientConnections() (bool, error) {
 		// Even if we might not get a 200 status code.
 		clientsOnline++
 
-		log.Printf("[%s] Got potential working (frontend) client on port %d\n", logging.SucSign, port)
+		log.Printf("%s Got potential working (frontend) client on port %d\n", logging.SucSign, port)
 
 	}
 

@@ -9,7 +9,6 @@ import (
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/database"
-	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -442,71 +441,5 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 		Code: http.StatusOK,
 		Data: events,
 	}
-	resp.SendSuccessReponse(c)
-}
-
-func GetErrorsRoute(c *gin.Context) {
-	session := sessions.Default(c)
-
-	if session.Get("user") == nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusUnauthorized
-		resp.Error.ErrorCode = "unauthorized"
-		resp.Error.ErrorMessage = "You are currently not logged in."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = "Could not parse uuid."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
-	if err != nil {
-		errString := database.CheckDatabaseError(err)
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusBadRequest
-		resp.Error.ErrorCode = "invalid_request"
-		resp.Error.ErrorMessage = errString
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	if user.Role != "admin" {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusUnauthorized
-		resp.Error.ErrorCode = "unauthorized"
-		resp.Error.ErrorMessage = "You are not an admin."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	errorsStr, err := logging.ReadAPIErrorLogFile()
-	if err != nil {
-		resp := responses.ErrorResponse{}
-		resp.Code = http.StatusInternalServerError
-		resp.Error.ErrorCode = "internal_error"
-		resp.Error.ErrorMessage = "Something went wrong, sorry."
-		resp.SendErrorResponse(c)
-		return
-	}
-
-	if len(errorsStr) == 0 {
-		resp := responses.SuccessResponse{}
-		resp.Code = http.StatusOK
-		resp.Data = gin.H{"errors": "No errors on record."}
-		resp.SendSuccessReponse(c)
-		return
-	}
-
-	resp := responses.SuccessResponse{}
-	resp.Code = http.StatusOK
-	resp.Data = gin.H{"errors": errorsStr}
 	resp.SendSuccessReponse(c)
 }

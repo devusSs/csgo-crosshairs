@@ -159,7 +159,7 @@ func (c *Config) CheckConfig() error {
 	}
 
 	if c.AllowedDomain == "*" {
-		log.Printf("[%s] Using * for allowed_domain, NOT RECOMMENDED\n", logging.WarnSign)
+		log.Printf("%s Using * for allowed_domain, NOT RECOMMENDED\n", logging.WarnSign)
 	}
 
 	return nil

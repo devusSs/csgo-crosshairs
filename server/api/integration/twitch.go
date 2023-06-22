@@ -340,7 +340,7 @@ func createBotAndJoinChannel(token *oauth2.Token, channel string) {
 		"action": "bot_join_channel",
 	})
 	if err != nil {
-		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 		return
 	}
 
@@ -350,13 +350,13 @@ func createBotAndJoinChannel(token *oauth2.Token, channel string) {
 	}
 
 	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
-		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 	}
 
 	userBotMap[channel] = client
 
 	if err := client.Connect(); err != nil {
-		log.Printf("[%s] Error connecting to Twitch channel of \"%s\": %s\n", logging.ErrSign, channel, err.Error())
+		log.Printf("%s Error connecting to Twitch channel of \"%s\": %s\n", logging.ErrSign, channel, err.Error())
 	}
 }
 
@@ -383,7 +383,7 @@ func handleCrosshairCommand(client *twitch.Client, channel, user string) {
 		"action":  "!latestCH",
 	})
 	if err != nil {
-		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 		return
 	}
 
@@ -393,7 +393,7 @@ func handleCrosshairCommand(client *twitch.Client, channel, user string) {
 	}
 
 	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
-		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 	}
 }
 
@@ -406,7 +406,7 @@ func handleStatusCommand(client *twitch.Client, channel, user string) {
 		"action":  "!statusCH",
 	})
 	if err != nil {
-		log.Printf("[%s] Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error marshaling Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 		return
 	}
 
@@ -416,7 +416,7 @@ func handleStatusCommand(client *twitch.Client, channel, user string) {
 	}
 
 	if err := dbService.WriteTwitchBotLog(&actualLog); err != nil {
-		log.Printf("[%s] Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
+		log.Printf("%s Error saving Twitchbot log data: %s\n", logging.ErrSign, err.Error())
 	}
 }
 
@@ -523,10 +523,13 @@ func initialiseTwitchUsers() error {
 	values.Add("client_secret", clientSecret)
 	values.Add("grant_type", "refresh_token")
 
+	usersConnected := 0
 	channelsJoined := 0
 
 	for _, user := range users {
 		if user.TwitchLogin != "" {
+			usersConnected++
+
 			// Get the user's latest refresh token.
 			tokenDB, err := dbService.GetLatestTwitchTokenRefreshStore(&database.TwitchRefreshTokenStore{TwitchLogin: user.TwitchLogin})
 			if err != nil {
@@ -597,7 +600,15 @@ func initialiseTwitchUsers() error {
 		}
 	}
 
-	log.Printf("[%s] Created Twitch bots for %d channels\n", logging.InfSign, channelsJoined)
+	if usersConnected > 0 {
+		if channelsJoined > 0 {
+			log.Printf("%s Created Twitch bots for %d channels\n", logging.SucSign, channelsJoined)
+		} else {
+			return fmt.Errorf("%s Connected Twitch users and created bots mismatch: %d <-> %d", logging.WarnSign, usersConnected, channelsJoined)
+		}
+	} else {
+		log.Printf("%s Did not create any Twitch bots, no users connected their Twitch yet\n", logging.InfSign)
+	}
 
 	return nil
 }

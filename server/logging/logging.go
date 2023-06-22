@@ -1,110 +1,56 @@
 package logging
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/natefinch/lumberjack"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm/logger"
 )
 
-const (
-	defaultLogPath = "./logs"
-)
-
 var (
-	InfSign  = color.WhiteString("i")
-	WarnSign = color.YellowString("!")
-	ErrSign  = color.RedString("x")
-	SucSign  = color.GreenString("✓")
+	InfSign  = color.CyanString("[INFO]")
+	WarnSign = color.YellowString("[WARN]")
+	ErrSign  = color.RedString("[ERROR]")
+	SucSign  = color.GreenString("[SUCCESS]")
 
 	day, month, year = time.Now().Date()
 
-	appLogFile   *os.File
-	errorLogFile *os.File
-	gormLogFile  *os.File
+	gormLogFile *os.File
 )
 
 func WriteInfo(message interface{}) {
-	log.Printf("[%s] %v\n", InfSign, message)
-
-	_, err := appLogFile.WriteString(fmt.Sprintf("%v\n", message))
-	if err != nil {
-		log.Printf("[%s] Error writing to log file: %s\n", ErrSign, err.Error())
-	}
+	log.Printf("%s %v\n", InfSign, message)
 }
 
 func WriteWarning(message interface{}) {
-	log.Printf("[%s] %v\n", WarnSign, message)
-
-	_, err := appLogFile.WriteString(fmt.Sprintf("%v\n", message))
-	if err != nil {
-		log.Printf("[%s] Error writing to log file: %s\n", ErrSign, err.Error())
-	}
+	log.Printf("%s %v\n", WarnSign, message)
 }
 
 func WriteError(message interface{}) {
-	log.Printf("[%s] %v\n", ErrSign, message)
-
-	_, err := errorLogFile.WriteString(fmt.Sprintf("%v\n", message))
-	if err != nil {
-		log.Printf("[%s] Error writing to log file: %s\n", ErrSign, err.Error())
-	}
+	log.Printf("%s %v\n", ErrSign, message)
 }
 
 func WriteSuccess(message interface{}) {
-	log.Printf("[%s] %v\n", SucSign, message)
-
-	_, err := appLogFile.WriteString(fmt.Sprintf("%v\n", message))
-	if err != nil {
-		log.Printf("[%s] Error writing to log file: %s\n", ErrSign, err.Error())
-	}
+	log.Printf("%s %v\n", SucSign, message)
 }
 
-func CreateAppLogFile() error {
-	logFileName := fmt.Sprintf("%s/app_%d_%d_%d.log", defaultLogPath, year, int(month), day)
-	f, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	appLogFile = f
-	return nil
-}
-
-func CreateErrorLogFile() error {
-	logFileName := fmt.Sprintf("%s/error_%d_%d_%d.log", defaultLogPath, year, int(month), day)
-	f, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	errorLogFile = f
-	return nil
-}
-
-func CreateDefaultLogsDirectory() error {
-	if _, err := os.Stat(defaultLogPath); os.IsNotExist(err) {
-		if err := os.Mkdir(defaultLogPath, os.ModePerm); err != nil {
+func CreateDefaultLogsDirectory(logsDir string) error {
+	if _, err := os.Stat(logsDir); os.IsNotExist(err) {
+		if err := os.Mkdir(logsDir, os.ModePerm); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func CloseLogFiles() error {
-	if err := appLogFile.Close(); err != nil {
-		return err
-	}
-	if err := errorLogFile.Close(); err != nil {
-		return err
-	}
-	return gormLogFile.Close()
-}
-
-func CreateGormLogger() (logger.Interface, error) {
-	logFileName := fmt.Sprintf("%s/gorm_%d_%d_%d.log", defaultLogPath, year, int(month), day)
+func CreateGormLogger(logsPath string) (logger.Interface, error) {
+	logFileName := fmt.Sprintf("%s/gorm_%d_%d_%d.log", logsPath, year, int(month), day)
 	f, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, err
@@ -115,7 +61,7 @@ func CreateGormLogger() (logger.Interface, error) {
 		log.New(gormLogFile, "\r\n", log.LstdFlags),
 		logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Silent,
+			LogLevel:                  logger.Info,
 			IgnoreRecordNotFoundError: true,
 			ParameterizedQueries:      true,
 			Colorful:                  false,
@@ -123,38 +69,34 @@ func CreateGormLogger() (logger.Interface, error) {
 	), nil
 }
 
-func CreateAPILogFiles() (*os.File, *os.File, error) {
-	logFileName := fmt.Sprintf("%s/api_%d_%d_%d.log", defaultLogPath, year, int(month), day)
-	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	logFileName = fmt.Sprintf("%s/api_error_%d_%d_%d.log", defaultLogPath, year, int(month), day)
-	errorLogFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return logFile, errorLogFile, nil
+func CloseLogFiles() error {
+	return gormLogFile.Close()
 }
 
-func ReadAPIErrorLogFile() ([]string, error) {
-	f, err := os.Open(errorLogFile.Name())
-	if err != nil {
-		return nil, err
+func InitZapAPILogger(logsDir string, debug bool) *zap.Logger {
+	w := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   fmt.Sprintf("%s/api_zap.log", logsDir),
+		MaxSize:    100,
+		MaxBackups: 7,
+		MaxAge:     28,
+	})
+
+	var core zapcore.Core
+
+	core = zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		w,
+		zap.InfoLevel,
+	)
+
+	if debug {
+		core = zapcore.NewTee(
+			zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), w, zap.DebugLevel),
+			zapcore.NewCore(zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig()), os.Stderr, zap.DebugLevel),
+		)
 	}
-	defer f.Close()
 
-	var lines []string
+	logger := zap.New(core)
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		lines = append(lines, line)
-	}
-
-	err = scanner.Err()
-
-	return lines, err
+	return logger
 }

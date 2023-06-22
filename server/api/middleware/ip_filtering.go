@@ -74,7 +74,7 @@ func CheckAllowedHostMiddleware(c *gin.Context) {
 
 	if c.RemoteIP() != allowedIP.String() && !isPrivateIP(remoteIP) && !remoteIP.IsPrivate() {
 		// TODO: maybe add this to errors / database log and make it available for query for admins / engineers?
-		log.Printf("[%s] Invalid IP / domain %s tried accessing ressource %s\n", logging.WarnSign, c.RemoteIP(), c.Request.RequestURI)
+		log.Printf("%s Invalid IP / domain %s tried accessing ressource %s\n", logging.WarnSign, c.RemoteIP(), c.Request.RequestURI)
 		resp := responses.ErrorResponse{}
 		resp.Code = http.StatusUnauthorized
 		resp.Error.ErrorCode = "unauthorized"

@@ -37,7 +37,6 @@
 | GET    | /api/admins/stats/total            | gets overall API stats                                  | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/stats/daily            | gets API stats for day                                  | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/stats/system           | gets system stats for API host                          | ✅     | ✅ (engineer, see below for more information) |
-| GET    | /api/admins/errors                 | gets recent errors on API if available                  | ✅     | ✅ (admin)                                    |
 
 Note:
 
