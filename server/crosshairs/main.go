@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/devusSs/crosshairs/api/middleware"
 	"github.com/devusSs/crosshairs/api/routes"
 	"github.com/devusSs/crosshairs/config"
+	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/database/postgres"
 	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/storage"
@@ -113,6 +115,11 @@ func main() {
 
 	svc, err := postgres.NewConnection(cfg, gormLogger)
 	if err != nil {
+		logging.WriteError(err.Error())
+		os.Exit(1)
+	}
+
+	if err := checkPostgresVersion(svc); err != nil {
 		logging.WriteError(err.Error())
 		os.Exit(1)
 	}
@@ -284,4 +291,28 @@ func checkClientConnections() (bool, error) {
 func checkNetworkConnection() bool {
 	_, err := http.Get("http://clients3.google.com/generate_204")
 	return err == nil
+}
+
+// Checks the Postgres version. If we run below Postgres 14 we will error out.
+//
+// UUID functions only work with Postgres 14+ (as far as I know).
+func checkPostgresVersion(svc database.Service) error {
+	pgVersion, err := svc.GetPostgresVersion()
+	if err != nil {
+		return err
+	}
+
+	pgParsed := strings.Split(pgVersion, "(")
+	pgVersionRaw := strings.Split(pgParsed[0], " ")
+
+	pgVersionF, err := strconv.ParseFloat(pgVersionRaw[1], 64)
+	if err != nil {
+		return err
+	}
+
+	if pgVersionF < 14 {
+		return fmt.Errorf("unsupported Postgres version, want 14+, got %f", pgVersionF)
+	}
+
+	return nil
 }
