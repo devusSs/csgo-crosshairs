@@ -20,6 +20,13 @@ export interface User {
     password: string;
 }
 
+export interface UserResponse {
+  created_at: string,
+  e_mail: string,
+  role: string
+  profile_picture_link: string
+}
+
 export interface Email {
     e_mail: string;
 }
