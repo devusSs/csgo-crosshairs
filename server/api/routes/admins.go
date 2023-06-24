@@ -1,19 +1,38 @@
 package routes
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/devusSs/crosshairs/api/models"
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/database"
+	"github.com/devusSs/crosshairs/logging"
 	"github.com/devusSs/crosshairs/utils"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+type zapLogFormat struct {
+	Level     string  `json:"level"`
+	Timestamp float64 `json:"ts"`
+	Message   string  `json:"msg"`
+	Status    int     `json:"status"`
+	Method    string  `json:"method"`
+	Path      string  `json:"path"`
+	Query     string  `json:"query"`
+	IP        string  `json:"ip"`
+	UserAgent string  `json:"user-agent"`
+	Latency   float64 `json:"latency"`
+	Time      string  `json:"time"`
+}
 
 func GetAllUsersRoute(c *gin.Context) {
 	session := sessions.Default(c)
@@ -441,5 +460,102 @@ func GetAllEventsOrByTypeRoute(c *gin.Context) {
 		Code: http.StatusOK,
 		Data: events,
 	}
+	resp.SendSuccessReponse(c)
+}
+
+func GetAPILogsRoute(c *gin.Context) {
+	session := sessions.Default(c)
+
+	if session.Get("user") == nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are currently not logged in."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	uuidUser, err := uuid.Parse(fmt.Sprintf("%s", session.Get("user")))
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = "Could not parse uuid."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	user, err := Svc.GetUserByUID(&database.UserAccount{ID: uuidUser})
+	if err != nil {
+		errString := database.CheckDatabaseError(err)
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusBadRequest
+		resp.Error.ErrorCode = "invalid_request"
+		resp.Error.ErrorMessage = errString
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if user.Role != "admin" {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusUnauthorized
+		resp.Error.ErrorCode = "unauthorized"
+		resp.Error.ErrorMessage = "You are not an admin."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	lines, err := logging.ReadZapLog()
+	if err != nil {
+		resp := responses.ErrorResponse{}
+		resp.Code = http.StatusInternalServerError
+		resp.Error.ErrorCode = "internal_error"
+		resp.Error.ErrorMessage = "Something went wrong, sorry."
+		resp.SendErrorResponse(c)
+		return
+	}
+
+	if len(lines) == 0 {
+		resp := responses.SuccessResponse{}
+		resp.Code = http.StatusOK
+		resp.Data = gin.H{"logs": "No logs to read so far."}
+		resp.SendSuccessReponse(c)
+		return
+	}
+
+	var noJSONLines []zapLogFormat
+
+	for _, line := range lines {
+		var noJSONLine zapLogFormat
+
+		if err := json.Unmarshal([]byte(line), &noJSONLine); err != nil {
+			resp := responses.ErrorResponse{}
+			resp.Code = http.StatusInternalServerError
+			resp.Error.ErrorCode = "internal_error"
+			resp.Error.ErrorMessage = "Something went wrong, sorry."
+			resp.SendErrorResponse(c)
+			return
+		}
+
+		noJSONLines = append(noJSONLines, noJSONLine)
+	}
+
+	sort.Slice(noJSONLines, func(i, j int) bool {
+		t1, err := time.Parse("2006-01-02T15:04:05Z", noJSONLines[i].Time)
+		if err != nil {
+			log.Printf("%s Error parsing date: %s\n", logging.ErrSign, err.Error())
+		}
+
+		t2, err := time.Parse("2006-01-02T15:04:05Z", noJSONLines[j].Time)
+		if err != nil {
+			log.Printf("%s Error parsing date: %s\n", logging.ErrSign, err.Error())
+		}
+
+		return t1.After(t2)
+	})
+
+	resp := responses.SuccessResponse{}
+	resp.Code = http.StatusOK
+	resp.Data = gin.H{"logs": noJSONLines}
 	resp.SendSuccessReponse(c)
 }

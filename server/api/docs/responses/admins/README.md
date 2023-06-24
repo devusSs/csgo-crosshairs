@@ -217,3 +217,33 @@ Every response will be send as the `data` part of the generalised success respon
   "api_requests": 0
 }
 ```
+
+## Get all logs sorted by date (default)
+
+- URL: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/admins/logs
+- Method: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET
+- Response body:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "logs": [
+      {
+        "level": "info",
+        "ts": 1687635086.142514,
+        "msg": "/api/admins/logs",
+        "status": 200,
+        "method": "GET",
+        "path": "/api/admins/logs",
+        "query": "",
+        "ip": "172.29.0.1",
+        "user-agent": "PostmanRuntime/7.32.3",
+        "latency": 0.000875542,
+        "time": "2023-06-24T19:31:26Z"
+      },
+      {}
+    ]
+  }
+}
+```

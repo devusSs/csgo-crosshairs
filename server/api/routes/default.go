@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/devusSs/crosshairs/api/responses"
 	"github.com/devusSs/crosshairs/config"
 	"github.com/devusSs/crosshairs/database"
 	"github.com/devusSs/crosshairs/storage"
-	"github.com/gin-gonic/gin"
 )
 
 var (

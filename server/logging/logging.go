@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -22,6 +23,8 @@ var (
 	day, month, year = time.Now().Date()
 
 	gormLogFile *os.File
+
+	apiLogsDir string
 )
 
 func WriteInfo(message interface{}) {
@@ -74,6 +77,8 @@ func CloseLogFiles() error {
 }
 
 func InitZapAPILogger(logsDir string, debug bool) *zap.Logger {
+	apiLogsDir = logsDir
+
 	w := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   fmt.Sprintf("%s/api_zap.log", logsDir),
 		MaxSize:    100,
@@ -99,4 +104,27 @@ func InitZapAPILogger(logsDir string, debug bool) *zap.Logger {
 	logger := zap.New(core)
 
 	return logger
+}
+
+func ReadZapLog() ([]string, error) {
+	filePath := fmt.Sprintf("%s/api_zap.log", apiLogsDir)
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fileScanner := bufio.NewScanner(f)
+
+	fileScanner.Split(bufio.ScanLines)
+
+	var lines []string
+
+	for fileScanner.Scan() {
+		// Each line will be in JSON format.
+		lines = append(lines, fileScanner.Text())
+	}
+
+	return lines, nil
 }

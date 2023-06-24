@@ -30,6 +30,7 @@
 | GET    | /api/admins/users?email=           | gets a user by their email                              | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/crosshairs             | gets all saved crosshairs                               | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/crosshairs?email=      | gets all saved crosshairs from a specific user          | ✅     | ✅ (admin)                                    |
+| GET    | /api/admins/logs                   | gets all logs sorted by timestamp                       | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/events                 | gets all events                                         | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/events?limit=          | gets X (limit) most recent events                       | ✅     | ✅ (admin)                                    |
 | GET    | /api/admins/events?type=           | gets all events by a specific type                      | ✅     | ✅ (admin)                                    |
