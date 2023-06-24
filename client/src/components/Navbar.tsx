@@ -85,13 +85,20 @@ const Navbar: React.FC = () => {
               )}
 
               {auth?.role && ( 
-                // Add dropdown menu for user profile
+                <Link to="/users/profile"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                <span>
+                  Profile
+                </span>
+                </Link>
+              )}
+
+              {auth?.role && ( 
                 <button onClick={callLogout} className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 <span>
                   Logout
                 </span>
                 <BiLogOut className="inline-block ml-1" />
-              </button>
+                </button>
               )}
 
               
