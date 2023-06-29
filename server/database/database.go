@@ -84,14 +84,14 @@ type UserAccount struct {
 	PasswordResetCode     string
 	PasswordResetCodeTime time.Time
 
-	AvatarURL string `gorm:"unique"`
+	AvatarURL string 
 
 	RegisterIP string `gorm:"not null"`
 	LoginIP    string
 	LastLogin  time.Time
 
-	TwitchID        string `gorm:"unique"`
-	TwitchLogin     string `gorm:"unique"`
+	TwitchID        string 
+	TwitchLogin     string 
 	TwitchCreatedAt time.Time
 
 	// For now we will only allow 20 crosshairs per user.
