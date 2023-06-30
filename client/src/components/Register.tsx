@@ -1,4 +1,4 @@
-import React , { useState } from 'react'
+import React , { useState, useEffect} from 'react'
 import { createUser, verifyMail } from '../api/requests'
 import { User, errorResponse, userSuccessResponse } from '../api/types'
 import { AxiosError } from 'axios';
@@ -11,6 +11,9 @@ export default function Register() {
     const [searchParams, setSearchParams] = useSearchParams();
     const verificationCode = searchParams.get('code')
     const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [match, setMatch] = useState(false);
+    const [requiredLength, setRequiredLength] = useState(8)
 
     var verifyURL = `${BASE_URL}/api/users/verifyMail?code=${verificationCode}`
 
@@ -40,22 +43,30 @@ export default function Register() {
     
     const handleSubmit = async (e: any) => {
         console.log(user)
+        console.log(confirmPassword)
 
         e.preventDefault();
         setUser({} as User)
         
-        const response: any = await createUser(user);
-        if (response instanceof AxiosError) {
-            const errResponse = response?.response?.data as errorResponse;
-            // toast error
+        if (match == true) {
+            const response: any = await createUser(user);
+            if (response instanceof AxiosError) {
+                const errResponse = response?.response?.data as errorResponse;
+                // toast error
+            } else {
+                const sucResponse = response?.data as userSuccessResponse;
+                // toast du nutten verify
+            }
         } else {
-            const sucResponse = response?.data as userSuccessResponse;
-            // toast du nutten verify
+            alert('Passwords dont match')// toast password dont match
         }
-        console.log(user)
-        console.log(response)
     }    
 
+    useEffect(() => {
+
+        setMatch(!!user.password && user.password === confirmPassword)
+
+    }, [user.password , requiredLength])
     return (
         <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
             <div className="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-xl">
@@ -78,7 +89,7 @@ export default function Register() {
                     </div>
                     <div className="mb-2">
                         <label
-                            htmlFor="password" 
+                            htmlFor="firstPassword" 
                             className="block text-sm font-semibold text-gray-800"
                         >
                             Password
@@ -86,6 +97,19 @@ export default function Register() {
                         <input
                             type="password" placeholder='Enter your password' onChange={evt => {setNewValue('password', evt.target.value)}}
                             value={user.password ||  ''} 
+                            className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                        />
+                    </div>
+                    <div className="mb-2">
+                        <label
+                            htmlFor="secondPassword" 
+                            className="block text-sm font-semibold text-gray-800"
+                        >
+                            Confirm Password
+                        </label>
+                        <input
+                            type="password" placeholder='Enter your password'
+                            value={ confirmPassword || ''} onChange={evt => setConfirmPassword(evt.target.value)}
                             className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
                         />
                     </div>
