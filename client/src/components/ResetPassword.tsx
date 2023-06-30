@@ -8,6 +8,7 @@ import {Email , errorResponse , userSuccessResponse} from '../api/types'
 
 
 export default function ResetPassword() {
+    const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
     
     const [email, setEmail] = useState<Email>({
         e_mail: ""
@@ -20,7 +21,7 @@ export default function ResetPassword() {
    
     const resetPasswordCode = searchParams.get('code')
    
-    var resetPasswordURL = `https://api.dropawp.com/api/users/resetPass?email=${emailParams}&code=${resetPasswordCode}`
+    var resetPasswordURL = `${BASE_URL}/api/users/resetPass?email=${emailParams}&code=${resetPasswordCode}`
     
     async function authorizePasswordReset(verifyURL: string){
         const response: any= await authorizeRequestPasswordChange(verifyURL);
