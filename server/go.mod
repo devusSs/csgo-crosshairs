@@ -14,7 +14,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/cors/wrapper/gin v0.0.0-20230526135330-e90f16747950
-	github.com/shirou/gopsutil/v3 v3.23.5
+	github.com/shirou/gopsutil/v3 v3.23.6
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.9.0
 	gorm.io/driver/postgres v1.5.2
