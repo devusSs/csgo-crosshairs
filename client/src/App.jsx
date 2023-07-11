@@ -15,7 +15,7 @@ const App = () => {
  
   
   return (
-    <div className=''>
+    <div>
         <Navbar/> 
         <Routes>
           <Route element={<PersistLogin/>}>
@@ -34,6 +34,9 @@ const App = () => {
               <Route path='*' element={<Home/>} />
           </Route>
         </Routes> 
+        <div className='fixed bottom-0 w-full left-0 h-60'>
+          <Footer/>
+        </div>
     </div>
   )
 }
